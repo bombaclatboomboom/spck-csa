@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% set is_public = true %}
+{% set hide_navigation = true %}
+
+{% block title %}Sign In{% endblock %}
+{% block body_class %}public-page auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+  <!-- LEFT SIDE: Luxury Branding & Parallax Cards (50%) -->
+  <div class="auth-visual-side">
+    <div class="auth-visual-bg">
+      <div class="glowing-orb orb-1"></div>
+      <div class="glowing-orb orb-2"></div>
+    </div>
+    
+    <div class="auth-visual-content">
+      <a href="/" class="auth-brand-logo">
+        <span class="logo-icon">🏛️</span>
+        <span class="logo-text gold-text-shimmer">EstateVision</span>
+      </a>
+      
+      <div class="auth-visual-hero">
+        <span class="hero-tag"><span class="dot"></span> Global Real Estate Intelligence</span>
+        <h2 class="auth-visual-title">
+          Institutional Insight for the Modern Property Investor.
+        </h2>
+        <p class="auth-visual-desc">
+          Monitor 147,000+ luxury listings, run instant machine-learning appraisals, and capitalize on macroeconomic real estate shifts worldwide.
+        </p>
+      </div>
+      
+      <!-- Floating Parallax Property Cards -->
+      <div class="floating-cards-container">
+        <!-- Card 1 -->
+        <div class="floating-property-card float-anim-1">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=300&q=80" alt="Penthouse">
+          </div>
+          <div class="card-details">
+            <span class="card-badge">Top Valuation</span>
+            <div class="card-title">Manhattan Sky Penthouse</div>
+            <div class="card-price">$4,850,000 <small>USD</small></div>
+            <div class="card-metrics">
+              <span><i data-lucide="bed"></i> 4 Beds</span>
+              <span><i data-lucide="maximize"></i> 380 m²</span>
+              <span class="green-text">+12.4% YoY</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card 2 -->
+        <div class="floating-property-card float-anim-2">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=300&q=80" alt="Dubai Villa">
+          </div>
+          <div class="card-details">
+            <span class="card-badge gold-badge">Prime Luxury</span>
+            <div class="card-title">Palm Jumeirah Villa</div>
+            <div class="card-price">$6,200,000 <small>USD</small></div>
+            <div class="card-metrics">
+              <span><i data-lucide="bed"></i> 6 Beds</span>
+              <span><i data-lucide="maximize"></i> 620 m²</span>
+              <span class="green-text">7.8% Yield</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Social Proof Stat -->
+      <div class="auth-social-proof">
+        <div class="avatar-stack">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" alt="User 1" class="avatar-sm">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" alt="User 2" class="avatar-sm">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=80&q=80" alt="User 3" class="avatar-sm">
+          <div class="avatar-sm avatar-more">+10k</div>
+        </div>
+        <div class="proof-text">
+          <strong>Join 10,000+ investors & agents</strong>
+          <span>Deploying capital across 50+ countries</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- RIGHT SIDE: Sign In Form (50%) -->
+  <div class="auth-form-side">
+    <div class="auth-card glass-card" data-aos="fade-left">
+      <!-- Mobile Brand Header -->
+      <div class="auth-mobile-header">
+        <a href="/" class="mobile-logo">
+          <span class="logo-icon">🏛️</span>
+          <span class="logo-text gold-text-shimmer">EstateVision</span>
+        </a>
+      </div>
+      
+      <div class="auth-card-header">
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to your global intelligence portal</p>
+      </div>
+      
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="auth-alerts">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+                <i data-lucide="alert-circle"></i>
+                <span>{{ message }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      
+      <form id="loginForm" data-auth="login" method="POST" action="/login" class="auth-form" novalidate>
+        <!-- Email Input -->
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <div class="input-wrapper">
+            <i data-lucide="mail" class="input-icon"></i>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-input" 
+              placeholder="name@company.com" 
+              value="alexander@estatevision.io"
+              required
+              autocomplete="email"
+            >
+          </div>
+          <span class="form-error" id="emailError"></span>
+        </div>
+        
+        <!-- Password Input -->
+        <div class="form-group">
+          <div class="label-row">
+            <label for="password" class="form-label">Password</label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+          <div class="input-wrapper">
+            <i data-lucide="lock" class="input-icon"></i>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-input" 
+              placeholder="••••••••••••" 
+              value="Luxury2026!"
+              required
+              autocomplete="current-password"
+            >
+            <button type="button" class="btn-toggle-password" id="togglePasswordBtn" aria-label="Toggle password visibility">
+              <i data-lucide="eye" id="passwordEyeIcon"></i>
+            </button>
+          </div>
+          <span class="form-error" id="passwordError"></span>
+        </div>
+        
+        <!-- Remember Me Checkbox -->
+        <div class="form-checkbox-row">
+          <label class="custom-checkbox">
+            <input type="checkbox" name="remember" id="rememberMe" checked>
+            <span class="checkmark"></span>
+            <span class="checkbox-label">Keep me signed in for 30 days</span>
+          </label>
+        </div>
+        
+        <!-- Submit Button -->
+        <button type="submit" class="btn-gold btn-full btn-glow" id="submitLoginBtn">
+          <span>Sign In</span>
+          <i data-lucide="arrow-right"></i>
+        </button>
+      </form>
+
+      <!-- 1-Click Instant Demo Login Access -->
+      <div class="demo-login-box" style="margin-top: 1.25rem; padding: 1rem; border: 1px dashed rgba(212, 175, 55, 0.4); border-radius: 12px; background: rgba(212, 175, 55, 0.05);">
+        <div style="font-size: 0.78rem; font-weight: 700; color: #D4AF37; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between;">
+          <span>⚡ Instant 1-Click Demo Accounts</span>
+          <span style="font-size: 0.7rem; color: #94A3B8;">Pre-configured</span>
+        </div>
+        <div style="display: flex; gap: 8px; flex-direction: column;">
+          <a href="/demo-login/agent" class="btn-demo-acc" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.25); text-decoration: none; color: #F8FAFC; font-size: 0.84rem; transition: all 0.2s ease;">
+            <span>🏛️ <strong>Alexander Vance</strong> (Prime Broker)</span>
+            <span style="color: #D4AF37; font-weight: 600;">Login &rarr;</span>
+          </a>
+          <a href="/demo-login/investor" class="btn-demo-acc" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.25); text-decoration: none; color: #F8FAFC; font-size: 0.84rem; transition: all 0.2s ease;">
+            <span>💼 <strong>Elena Rostova</strong> (Institutional Investor)</span>
+            <span style="color: #10B981; font-weight: 600;">Login &rarr;</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span>or continue with</span>
+      </div>
+      
+      <!-- Social Sign In Row -->
+      <div class="social-auth-row">
+        <button type="button" class="social-btn" title="Continue with Google" aria-label="Google Sign In">
+          <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+          </svg>
+          <span>Google</span>
+        </button>
+        <button type="button" class="social-btn" title="Continue with Apple" aria-label="Apple Sign In">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.77 1.06-1.85.94-2.93-.93.04-2.07.62-2.73 1.39-.58.67-1.09 1.76-.95 2.82 1.04.08 2.11-.51 2.74-1.28z"/>
+          </svg>
+          <span>Apple</span>
+        </button>
+      </div>
+      
+      <!-- Bottom Redirection -->
+      <div class="auth-bottom-text">
+        <span>Don't have an account?</span>
+        <a href="/signup" class="auth-gold-link">Create an account</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/auth.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Password visibility toggle
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const pwdInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('passwordEyeIcon');
+    
+    if (toggleBtn && pwdInput) {
+      toggleBtn.addEventListener('click', () => {
+        const isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        if (eyeIcon) {
+          eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+          if (window.lucide) lucide.createIcons();
+        }
+      });
+    }
+
+    // Initialize Auth module if defined
+    if (window.Auth && typeof Auth.initLogin === 'function') {
+      Auth.initLogin();
+    }
+  });
+</script>
+{% endblock %}

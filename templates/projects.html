@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% set active_page = 'projects' %}
+
+{% block title %}Government & Mega Development Projects{% endblock %}
+
+{% block content %}
+<div class="projects-page-container">
+  <!-- PAGE HEADER -->
+  <div class="projects-header-row" data-aos="fade-down">
+    <div class="header-titles">
+      <span class="sub-greeting gold-text">Catalysts for Capital Appreciation</span>
+      <h1 class="page-title">
+        Development & <span class="gold-text-shimmer">Mega Projects</span>
+      </h1>
+      <p class="text-muted">
+        Track high-impact public infrastructure, urban revitalization zones, and sovereign mega-developments reshaping real estate land values.
+      </p>
+    </div>
+
+    <!-- Country & Status Filter Toolbar -->
+    <div class="projects-filter-toolbar glass-card">
+      <div class="filter-item">
+        <label for="projectCountrySelect"><i data-lucide="globe"></i> Sovereign Market:</label>
+        <select id="projectCountrySelect" class="form-select-sm">
+          <option value="all">All Global Projects</option>
+          <option value="United Arab Emirates">United Arab Emirates</option>
+          <option value="United States">United States</option>
+          <option value="United Kingdom">United Kingdom</option>
+          <option value="France">France</option>
+          <option value="Japan">Japan</option>
+          <option value="Singapore">Singapore</option>
+          {% if countries %}
+            {% for c in countries %}
+              {% if c not in ['United Arab Emirates', 'United States', 'United Kingdom', 'France', 'Japan', 'Singapore'] %}
+                <option value="{{ c }}">{{ c }}</option>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="projectStatusSelect"><i data-lucide="check-circle-2"></i> Project Status:</label>
+        <select id="projectStatusSelect" class="form-select-sm">
+          <option value="all">All Phases</option>
+          <option value="Planned">Planned / Permitted</option>
+          <option value="In Progress">In Progress / Construction</option>
+          <option value="Completed">Recently Completed</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="projectSearchInput"><i data-lucide="search"></i> Search:</label>
+        <input type="text" id="projectSearchInput" placeholder="Filter mega projects..." class="form-input-sm">
+      </div>
+    </div>
+  </div>
+
+  <!-- MACRO STATS SUMMARY ROW -->
+  <div class="projects-stats-grid" data-aos="fade-up">
+    <div class="project-stat-card glass-card">
+      <div class="icon-wrap gold-tint"><i data-lucide="building"></i></div>
+      <div class="stat-meta">
+        <span class="stat-number">42</span>
+        <span class="stat-label">Active Global Mega Projects</span>
+      </div>
+    </div>
+    <div class="project-stat-card glass-card">
+      <div class="icon-wrap green-tint"><i data-lucide="dollar-sign"></i></div>
+      <div class="stat-meta">
+        <span class="stat-number">$184B+</span>
+        <span class="stat-label">Combined Infrastructure Value</span>
+      </div>
+    </div>
+    <div class="project-stat-card glass-card">
+      <div class="icon-wrap blue-tint"><i data-lucide="trending-up"></i></div>
+      <div class="stat-meta">
+        <span class="stat-number">+18% - 35%</span>
+        <span class="stat-label">Projected Regional Asset Lift</span>
+      </div>
+    </div>
+    <div class="project-stat-card glass-card">
+      <div class="icon-wrap purple-tint"><i data-lucide="clock"></i></div>
+      <div class="stat-meta">
+        <span class="stat-number">2026 - 2032</span>
+        <span class="stat-label">Peak Delivery Horizon</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERTICAL TIMELINE OF DEVELOPMENT PROJECTS -->
+  <div class="timeline-wrapper" data-aos="fade-up" data-aos-delay="100">
+    <div class="timeline-center-spine"></div>
+
+    <div class="timeline-cards-list" id="projectsTimelineList">
+      <!-- Project 1: Dubai Creek Harbour & Tower -->
+      <div class="timeline-item timeline-left" data-country="United Arab Emirates" data-status="In Progress">
+        <div class="timeline-node"><i data-lucide="hard-hat"></i></div>
+        <div class="timeline-card glass-card">
+          <div class="card-media">
+            <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=700&q=80" alt="Dubai Creek" class="timeline-img">
+            <span class="status-badge badge-inprogress">In Progress</span>
+          </div>
+          <div class="card-content">
+            <div class="meta-row">
+              <span class="location-tag"><i data-lucide="map-pin"></i> Dubai, United Arab Emirates</span>
+              <span class="value-tag gold-text">Est. $18.5 Billion</span>
+            </div>
+            <h3 class="project-name">Dubai Creek Harbour & Waterfront District</h3>
+            <p class="project-desc">
+              A 6-million-square-meter master-planned urban district featuring sustainable luxury residences, pedestrian waterfront promenades, and the iconic Creek Tower focal monument.
+            </p>
+            <div class="impact-box">
+              <div class="impact-header">
+                <span class="impact-title"><i data-lucide="activity"></i> Local Real Estate Impact</span>
+                <span class="impact-rating rating-high">High Impact (+28% Est. Price Lift)</span>
+              </div>
+              <p class="impact-text">
+                Historical absorption shows properties within 2km of waterfront marina access experience 7.2% premium rental yields above Dubai municipal averages.
+              </p>
+            </div>
+            <div class="project-footer">
+              <span class="timeline-date"><i data-lucide="calendar"></i> Horizon: Q4 2027</span>
+              <button class="btn-text-gold" onclick="alert('Viewing comprehensive impact dossier for Dubai Creek Harbour')">
+                View Impact Dossier <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 2: Grand Paris Express -->
+      <div class="timeline-item timeline-right" data-country="France" data-status="In Progress">
+        <div class="timeline-node"><i data-lucide="train"></i></div>
+        <div class="timeline-card glass-card">
+          <div class="card-media">
+            <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=80" alt="Grand Paris Express" class="timeline-img">
+            <span class="status-badge badge-inprogress">In Progress</span>
+          </div>
+          <div class="card-content">
+            <div class="meta-row">
+              <span class="location-tag"><i data-lucide="map-pin"></i> Paris Region, France</span>
+              <span class="value-tag gold-text">Est. $42.0 Billion</span>
+            </div>
+            <h3 class="project-name">Grand Paris Express Automated Metro Network</h3>
+            <p class="project-desc">
+              The largest transport mega-project in Western Europe, adding 200 km of new rapid driverless subway lines and 68 interconnected stations linking peripheral suburban economic hubs.
+            </p>
+            <div class="impact-box">
+              <div class="impact-header">
+                <span class="impact-title"><i data-lucide="activity"></i> Local Real Estate Impact</span>
+                <span class="impact-rating rating-very-high">Exceptional (+34% Transit Premium)</span>
+              </div>
+              <p class="impact-text">
+                Residential units located within an 800-meter radius of Lines 15, 16, and 17 stations have outpaced central Paris price appreciation by 14% over the trailing 36 months.
+              </p>
+            </div>
+            <div class="project-footer">
+              <span class="timeline-date"><i data-lucide="calendar"></i> Horizon: 2026 - 2030</span>
+              <button class="btn-text-gold" onclick="alert('Viewing transit premium study for Grand Paris Express')">
+                View Impact Dossier <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 3: Hudson Yards Phase 2 -->
+      <div class="timeline-item timeline-left" data-country="United States" data-status="Planned">
+        <div class="timeline-node"><i data-lucide="compass"></i></div>
+        <div class="timeline-card glass-card">
+          <div class="card-media">
+            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=700&q=80" alt="Hudson Yards Phase 2" class="timeline-img">
+            <span class="status-badge badge-planned">Planned</span>
+          </div>
+          <div class="card-content">
+            <div class="meta-row">
+              <span class="location-tag"><i data-lucide="map-pin"></i> New York City, United States</span>
+              <span class="value-tag gold-text">Est. $12.0 Billion</span>
+            </div>
+            <h3 class="project-name">Hudson Yards West Rail Yards Masterplan</h3>
+            <p class="project-desc">
+              Phase 2 development covering Manhattan's western rail yards, introducing multiple mixed-use supertall luxury residential towers, 6.5 acres of public parkland, and school infrastructure.
+            </p>
+            <div class="impact-box">
+              <div class="impact-header">
+                <span class="impact-title"><i data-lucide="activity"></i> Local Real Estate Impact</span>
+                <span class="impact-rating rating-high">High Impact (+22% Value Preservation)</span>
+              </div>
+              <p class="impact-text">
+                Strengthens West Midtown asset density, establishing long-term commercial anchor tenancies that elevate adjacent residential luxury condos in Chelsea and Hell's Kitchen.
+              </p>
+            </div>
+            <div class="project-footer">
+              <span class="timeline-date"><i data-lucide="calendar"></i> Horizon: Q1 2029</span>
+              <button class="btn-text-gold" onclick="alert('Viewing Hudson Yards Phase 2 development forecast')">
+                View Impact Dossier <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 4: London Crossrail 2 (Elizabeth Line Extensions) -->
+      <div class="timeline-item timeline-right" data-country="United Kingdom" data-status="Completed">
+        <div class="timeline-node"><i data-lucide="check"></i></div>
+        <div class="timeline-card glass-card">
+          <div class="card-media">
+            <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=700&q=80" alt="London Elizabeth Line" class="timeline-img">
+            <span class="status-badge badge-completed">Completed</span>
+          </div>
+          <div class="card-content">
+            <div class="meta-row">
+              <span class="location-tag"><i data-lucide="map-pin"></i> London & Berkshire, United Kingdom</span>
+              <span class="value-tag gold-text">Est. $25.0 Billion</span>
+            </div>
+            <h3 class="project-name">Elizabeth Line (Crossrail 1) Regional Integration</h3>
+            <p class="project-desc">
+              High-frequency, high-capacity commuter line spanning 100 km from Reading and Heathrow in the west to Shenfield and Abbey Wood in the east through central London subterranean tunnels.
+            </p>
+            <div class="impact-box">
+              <div class="impact-header">
+                <span class="impact-title"><i data-lucide="activity"></i> Realized Price Impact</span>
+                <span class="impact-rating rating-high">Verified (+26% Realized Uplift)</span>
+              </div>
+              <p class="impact-text">
+                Post-completion transaction data proves properties in Canary Wharf, Farringdon, and Paddington experienced faster time-on-market and sustained international buyer liquidity.
+              </p>
+            </div>
+            <div class="project-footer">
+              <span class="timeline-date"><i data-lucide="calendar"></i> Operational Since: 2023</span>
+              <button class="btn-text-gold" onclick="alert('Viewing historical Crossrail property premium data')">
+                View Impact Dossier <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 5: Tokyo Bay Waterfront Smart City -->
+      <div class="timeline-item timeline-left" data-country="Japan" data-status="In Progress">
+        <div class="timeline-node"><i data-lucide="cpu"></i></div>
+        <div class="timeline-card glass-card">
+          <div class="card-media">
+            <img src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=700&q=80" alt="Tokyo Bay" class="timeline-img">
+            <span class="status-badge badge-inprogress">In Progress</span>
+          </div>
+          <div class="card-content">
+            <div class="meta-row">
+              <span class="location-tag"><i data-lucide="map-pin"></i> Tokyo Bay & Toyosu, Japan</span>
+              <span class="value-tag gold-text">Est. $15.8 Billion</span>
+            </div>
+            <h3 class="project-name">Tokyo Bay e-Mobility & Coastal Smart District</h3>
+            <p class="project-desc">
+              Comprehensive waterfront reclamation and modernization featuring carbon-neutral smart grids, autonomous marine transit, and earthquake-resilient high-rise tower complexes.
+            </p>
+            <div class="impact-box">
+              <div class="impact-header">
+                <span class="impact-title"><i data-lucide="activity"></i> Local Real Estate Impact</span>
+                <span class="impact-rating rating-high">Moderate-High (+19% Capital Growth)</span>
+              </div>
+              <p class="impact-text">
+                High demand from multinational corporate relocations has driven 1-2 bedroom condominium prices in Toyosu and Harumi upwards by 6.4% per annum.
+              </p>
+            </div>
+            <div class="project-footer">
+              <span class="timeline-date"><i data-lucide="calendar"></i> Horizon: 2028</span>
+              <button class="btn-text-gold" onclick="alert('Viewing Tokyo Bay smart district development report')">
+                View Impact Dossier <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESEARCH & AGENT SUBMISSION CTA CARD -->
+  <div class="project-submit-card glass-card text-center" data-aos="zoom-in">
+    <div class="cta-inner">
+      <span class="badge-pill gold-badge">Institutional Intelligence Feeds</span>
+      <h3 class="cta-title">Tracking a Municipal or Private Infrastructure Project?</h3>
+      <p class="cta-desc text-muted">
+        Real estate agents, urban planners, and developers can submit infrastructure milestones to EstateVision's research desk for algorithmic impact assessment.
+      </p>
+      <button class="btn-gold btn-glow" onclick="alert('Project intelligence submission modal will open')">
+        <i data-lucide="plus-circle"></i>
+        <span>Submit Project Dossier</span>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const countrySelect = document.getElementById('projectCountrySelect');
+    const statusSelect = document.getElementById('projectStatusSelect');
+    const searchInput = document.getElementById('projectSearchInput');
+    const items = document.querySelectorAll('.timeline-item');
+
+    function filterProjects() {
+      const selectedCountry = countrySelect.value;
+      const selectedStatus = statusSelect.value;
+      const query = (searchInput.value || '').toLowerCase().trim();
+
+      items.forEach(item => {
+        const itemCountry = item.getAttribute('data-country');
+        const itemStatus = item.getAttribute('data-status');
+        const itemText = item.innerText.toLowerCase();
+
+        const matchCountry = selectedCountry === 'all' || itemCountry === selectedCountry;
+        const matchStatus = selectedStatus === 'all' || itemStatus === selectedStatus;
+        const matchSearch = !query || itemText.includes(query);
+
+        if (matchCountry && matchStatus && matchSearch) {
+          item.style.display = 'flex';
+          item.style.opacity = '1';
+        } else {
+          item.style.display = 'none';
+          item.style.opacity = '0';
+        }
+      });
+    }
+
+    if (countrySelect) countrySelect.addEventListener('change', filterProjects);
+    if (statusSelect) statusSelect.addEventListener('change', filterProjects);
+    if (searchInput) searchInput.addEventListener('input', filterProjects);
+  });
+</script>
+{% endblock %}

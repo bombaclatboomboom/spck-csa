@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+{% set active_page = 'explore' %}
+
+{% block title %}3D Geospatial Explorer{% endblock %}
+
+{% block content %}
+<div class="explorer-page-wrapper">
+  <!-- EXPLORER HEADER -->
+  <div class="explorer-header-bar" data-aos="fade-down">
+    <div class="header-titles">
+      <h1 class="explorer-title">
+        <i data-lucide="globe" class="title-icon gold-text"></i>
+        <span>3D Global Property Explorer</span>
+      </h1>
+      <span class="explorer-badge"><span class="dot live-pulse"></span> 147k Real Estate Datapoints</span>
+    </div>
+    
+    <div class="explorer-actions">
+      <button class="btn-ghost-sm" id="toggleLayerPins" title="Toggle Property Markers">
+        <i data-lucide="map-pin"></i>
+        <span>Pins</span>
+      </button>
+      <button class="btn-ghost-sm" id="toggleHeatmap" title="Toggle Valuation Heatmap">
+        <i data-lucide="flame"></i>
+        <span>Heatmap</span>
+      </button>
+      <button class="btn-ghost-sm" id="toggleAutoSpin" title="Toggle Auto-Rotation">
+        <i data-lucide="rotate-cw"></i>
+        <span>Auto-Rotate</span>
+      </button>
+      <button class="btn-ghost-sm" id="togglePropertiesPanel" title="Toggle Properties List">
+        <i data-lucide="panel-right"></i>
+        <span>List View</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN EXPLORER STAGE -->
+  <div class="explorer-stage">
+    <!-- 1. FLOATING CONTROL PANEL ON THE LEFT -->
+    <div class="floating-panel floating-left-panel glass-card" id="filterPanel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <i data-lucide="sliders-horizontal"></i>
+          <span>Market Filters</span>
+        </div>
+        <button class="panel-close-btn" id="collapseFilterBtn" aria-label="Collapse Filters">
+          <i data-lucide="chevron-left"></i>
+        </button>
+      </div>
+
+      <div class="panel-body">
+        <!-- Country Selector -->
+        <div class="filter-group">
+          <label for="globeCountrySelect" class="filter-label">Country / Region</label>
+          <div class="input-wrapper">
+            <i data-lucide="globe" class="input-icon"></i>
+            <select id="globeCountrySelect" class="form-select">
+              <option value="All">All Sovereign Markets (50+)</option>
+              <option value="United States">United States</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="United Arab Emirates">United Arab Emirates</option>
+              <option value="Germany">Germany</option>
+              <option value="France">France</option>
+              <option value="Japan">Japan</option>
+              <option value="Australia">Australia</option>
+              <option value="Switzerland">Switzerland</option>
+              <option value="Singapore">Singapore</option>
+              <option value="Canada">Canada</option>
+              {% if countries %}
+                {% for c in countries %}
+                  {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Australia', 'Switzerland', 'Singapore', 'Canada'] %}
+                    <option value="{{ c }}">{{ c }}</option>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Property Type Filter -->
+        <div class="filter-group">
+          <label for="propertyTypeSelect" class="filter-label">Property Typology</label>
+          <div class="input-wrapper">
+            <i data-lucide="home" class="input-icon"></i>
+            <select id="propertyTypeSelect" class="form-select">
+              <option value="all">All Typologies</option>
+              <option value="penthouse">Sky Penthouse</option>
+              <option value="villa">Waterfront & Luxury Villa</option>
+              <option value="apartment">Prime Apartment</option>
+              <option value="mansion">Historic Mansion / Estate</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Price Range Slider -->
+        <div class="filter-group">
+          <div class="filter-label-row">
+            <label class="filter-label">Max Price (USD)</label>
+            <span class="range-value gold-text" id="priceRangeDisplay">$10.0M+</span>
+          </div>
+          <input 
+            type="range" 
+            id="priceRangeSlider" 
+            min="100000" 
+            max="15000000" 
+            step="100000" 
+            value="15000000" 
+            class="custom-range-slider"
+          >
+          <div class="range-bounds">
+            <small>$100k</small>
+            <small>$5M</small>
+            <small>$15M+</small>
+          </div>
+        </div>
+
+        <!-- Bedroom Count Filter -->
+        <div class="filter-group">
+          <label class="filter-label">Bedrooms</label>
+          <div class="pill-options-grid" id="bedroomFilterPills">
+            <button type="button" class="pill-btn active" data-beds="any">Any</button>
+            <button type="button" class="pill-btn" data-beds="1">1+</button>
+            <button type="button" class="pill-btn" data-beds="2">2+</button>
+            <button type="button" class="pill-btn" data-beds="3">3+</button>
+            <button type="button" class="pill-btn" data-beds="4">4+</button>
+            <button type="button" class="pill-btn" data-beds="5">5+</button>
+          </div>
+        </div>
+
+        <!-- Filter Actions -->
+        <div class="filter-action-buttons">
+          <button type="button" class="btn-gold btn-full btn-glow" id="applyGlobeFilters">
+            <i data-lucide="filter"></i>
+            <span>Apply Filters</span>
+          </button>
+          <button type="button" class="btn-ghost btn-full" id="resetGlobeView">
+            <i data-lucide="rotate-ccw"></i>
+            <span>Reset View</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. FULL-WIDTH 3D GLOBE CANVAS (80vh) -->
+    <div class="globe-viewport-container">
+      <div id="globeExplorer" class="globe-canvas-viewport"></div>
+      
+      <!-- Zoom / Camera Float Toolbar -->
+      <div class="globe-camera-toolbar">
+        <button class="camera-btn" id="camZoomIn" title="Zoom In"><i data-lucide="plus"></i></button>
+        <button class="camera-btn" id="camZoomOut" title="Zoom Out"><i data-lucide="minus"></i></button>
+        <button class="camera-btn" id="camReset" title="Center View"><i data-lucide="compass"></i></button>
+      </div>
+
+      <!-- Quick Geographic Jump Pills -->
+      <div class="globe-geo-quicklinks">
+        <button class="geo-jump-btn" data-lat="40.7128" data-lng="-74.0060" data-alt="0.6">New York</button>
+        <button class="geo-jump-btn" data-lat="51.5074" data-lng="-0.1278" data-alt="0.6">London</button>
+        <button class="geo-jump-btn" data-lat="25.2048" data-lng="55.2708" data-alt="0.5">Dubai</button>
+        <button class="geo-jump-btn" data-lat="48.8566" data-lng="2.3522" data-alt="0.6">Paris</button>
+        <button class="geo-jump-btn" data-lat="35.6762" data-lng="139.6503" data-alt="0.5">Tokyo</button>
+        <button class="geo-jump-btn" data-lat="1.3521" data-lng="103.8198" data-alt="0.5">Singapore</button>
+      </div>
+    </div>
+
+    <!-- 3. COLLAPSIBLE PROPERTIES LIST PANEL ON THE RIGHT -->
+    <div class="floating-panel floating-right-panel glass-card" id="propertiesListPanel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <i data-lucide="building-2"></i>
+          <span>Properties in View</span>
+        </div>
+        <div class="panel-count-badge" id="visibleCountBadge">6 Assets</div>
+        <button class="panel-close-btn" id="closeListPanelBtn" aria-label="Close Properties List">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="panel-search-box">
+        <i data-lucide="search"></i>
+        <input type="text" placeholder="Filter by address or city..." id="propertySearchInView">
+      </div>
+
+      <!-- Mini Property Cards Scroll Container -->
+      <div class="mini-properties-list" id="miniPropertiesContainer">
+        <!-- Mini Card 1 -->
+        <div class="mini-property-card" data-country="United Kingdom" data-price="4250000">
+          <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80" alt="Belgravia" class="mini-thumb">
+          <div class="mini-info">
+            <span class="mini-tag">London, UK</span>
+            <h5 class="mini-title">The Belgravia Crescent Residence</h5>
+            <div class="mini-price">$4,250,000 USD</div>
+            <div class="mini-specs">4 Beds • 340 m² • Yield 4.8%</div>
+            <button class="mini-detail-btn" onclick="alert('Belgravia Residence details loaded')">
+              <span>View Details</span>
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mini Card 2 -->
+        <div class="mini-property-card" data-country="United Arab Emirates" data-price="7800000">
+          <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=200&q=80" alt="Palm Jumeirah" class="mini-thumb">
+          <div class="mini-info">
+            <span class="mini-tag gold-tag">Dubai, UAE</span>
+            <h5 class="mini-title">Palm Jumeirah Signature Beachfront</h5>
+            <div class="mini-price">$7,800,000 USD</div>
+            <div class="mini-specs">6 Beds • 710 m² • Yield 7.4%</div>
+            <button class="mini-detail-btn" onclick="alert('Palm Jumeirah Villa details loaded')">
+              <span>View Details</span>
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mini Card 3 -->
+        <div class="mini-property-card" data-country="United States" data-price="3650000">
+          <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&q=80" alt="Tribeca Loft" class="mini-thumb">
+          <div class="mini-info">
+            <span class="mini-tag">New York, USA</span>
+            <h5 class="mini-title">Tribeca Cast Iron Duplex Loft</h5>
+            <div class="mini-price">$3,650,000 USD</div>
+            <div class="mini-specs">3 Beds • 265 m² • Yield 5.1%</div>
+            <button class="mini-detail-btn" onclick="alert('Tribeca Loft details loaded')">
+              <span>View Details</span>
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mini Card 4 -->
+        <div class="mini-property-card" data-country="Japan" data-price="2950000">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=200&q=80" alt="Tokyo Penthouse" class="mini-thumb">
+          <div class="mini-info">
+            <span class="mini-tag">Tokyo, Japan</span>
+            <h5 class="mini-title">Minato-ku High Floor Penthouse</h5>
+            <div class="mini-price">$2,950,000 USD</div>
+            <div class="mini-specs">2 Beds • 190 m² • Yield 4.2%</div>
+            <button class="mini-detail-btn" onclick="alert('Minato Penthouse details loaded')">
+              <span>View Details</span>
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mini Card 5 -->
+        <div class="mini-property-card" data-country="Switzerland" data-price="5400000">
+          <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=200&q=80" alt="Zurich Estate" class="mini-thumb">
+          <div class="mini-info">
+            <span class="mini-tag">Zurich, Switzerland</span>
+            <h5 class="mini-title">Lake Zurich Contemporary Estate</h5>
+            <div class="mini-price">$5,400,000 USD</div>
+            <div class="mini-specs">5 Beds • 450 m² • Yield 3.8%</div>
+            <button class="mini-detail-btn" onclick="alert('Lake Zurich Estate details loaded')">
+              <span>View Details</span>
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mini Card 6 -->
+        <div class="mini-property-card" data-country="France" data-price="4900000">
+          <img src="https://images.unsplash.com/photo-1512915922686-57c11dde9b6b?auto=format&fit=crop&w=200&q=80" alt="Cannes Villa" class="mini-thumb">
+          <div class="mini-info">
+            <span class="mini-tag">Cannes, France</span>
+            <h5 class="mini-title">Villa de la Croisette Panoramic</h5>
+            <div class="mini-price">$4,900,000 USD</div>
+            <div class="mini-specs">5 Beds • 410 m² • Yield 6.0%</div>
+            <button class="mini-detail-btn" onclick="alert('Cannes Villa details loaded')">
+              <span>View Details</span>
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBE LEGEND BAR AT BOTTOM -->
+  <div class="globe-legend-bar glass-card">
+    <div class="legend-scale-group">
+      <span class="legend-title">Price Valuation Density:</span>
+      <div class="legend-gradient-scale"></div>
+      <div class="legend-ticks">
+        <span>&lt;$500k</span>
+        <span>$1M</span>
+        <span>$2.5M</span>
+        <span>$5M</span>
+        <span>$10M+</span>
+      </div>
+    </div>
+    
+    <div class="legend-meta-group">
+      <div class="meta-item">
+        <i data-lucide="layers"></i>
+        <span>Points: <strong>147,219</strong></span>
+      </div>
+      <div class="meta-item">
+        <i data-lucide="navigation"></i>
+        <span>Projection: <strong>Orthographic 3D</strong></span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/globe.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize Full-Screen Globe Explorer
+    if (window.GlobeViz && typeof GlobeViz.initExplorer === 'function') {
+      GlobeViz.initExplorer('globeExplorer');
+    } else if (window.GlobeViz && typeof GlobeViz.init === 'function') {
+      GlobeViz.init('globeExplorer');
+    }
+
+    // 2. Price Range Slider Binding
+    const slider = document.getElementById('priceRangeSlider');
+    const display = document.getElementById('priceRangeDisplay');
+    if (slider && display) {
+      slider.addEventListener('input', () => {
+        const val = parseInt(slider.value);
+        if (val >= 15000000) {
+          display.innerText = '$15.0M+';
+        } else {
+          display.innerText = '$' + (val / 1000000).toFixed(1) + 'M';
+        }
+      });
+    }
+
+    // 3. Bedroom Pill Selection
+    const bedPills = document.querySelectorAll('#bedroomFilterPills .pill-btn');
+    bedPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        bedPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      });
+    });
+
+    // 4. Panel Toggle Logic
+    const togglePanelBtn = document.getElementById('togglePropertiesPanel');
+    const propertiesPanel = document.getElementById('propertiesListPanel');
+    const closeListBtn = document.getElementById('closeListPanelBtn');
+
+    if (togglePanelBtn && propertiesPanel) {
+      togglePanelBtn.addEventListener('click', () => {
+        propertiesPanel.classList.toggle('collapsed');
+      });
+    }
+    if (closeListBtn && propertiesPanel) {
+      closeListBtn.addEventListener('click', () => {
+        propertiesPanel.classList.add('collapsed');
+      });
+    }
+
+    // 5. Camera Toolbar Buttons
+    const camIn = document.getElementById('camZoomIn');
+    const camOut = document.getElementById('camZoomOut');
+    const camReset = document.getElementById('camReset');
+
+    if (camIn && window.GlobeViz) camIn.addEventListener('click', () => GlobeViz.zoomIn());
+    if (camOut && window.GlobeViz) camOut.addEventListener('click', () => GlobeViz.zoomOut());
+    if (camReset && window.GlobeViz) camReset.addEventListener('click', () => GlobeViz.resetView());
+
+    // 6. Geographic Quick Jump Buttons
+    const jumpButtons = document.querySelectorAll('.geo-jump-btn');
+    jumpButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lat = parseFloat(btn.getAttribute('data-lat'));
+        const lng = parseFloat(btn.getAttribute('data-lng'));
+        const alt = parseFloat(btn.getAttribute('data-alt')) || 0.6;
+        if (window.GlobeViz && typeof GlobeViz.flyTo === 'function') {
+          GlobeViz.flyTo(lat, lng, alt);
+        }
+      });
+    });
+
+    // 7. Filter Apply Button
+    const applyBtn = document.getElementById('applyGlobeFilters');
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        const country = document.getElementById('globeCountrySelect').value;
+        const maxPrice = parseInt(slider.value);
+        if (window.GlobeViz && typeof GlobeViz.filterByCountry === 'function') {
+          GlobeViz.filterByCountry(country);
+        }
+        
+        // Filter right-side mini property cards
+        const cards = document.querySelectorAll('.mini-property-card');
+        let visibleCount = 0;
+        cards.forEach(card => {
+          const cardCountry = card.getAttribute('data-country');
+          const cardPrice = parseInt(card.getAttribute('data-price') || 0);
+          const matchCountry = country === 'All' || cardCountry === country;
+          const matchPrice = cardPrice <= maxPrice;
+          
+          if (matchCountry && matchPrice) {
+            card.style.display = 'flex';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+        
+        const countBadge = document.getElementById('visibleCountBadge');
+        if (countBadge) countBadge.innerText = visibleCount + ' Assets';
+      });
+    }
+
+    // 8. Reset View Button
+    const resetBtn = document.getElementById('resetGlobeView');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        document.getElementById('globeCountrySelect').value = 'All';
+        slider.value = 15000000;
+        display.innerText = '$15.0M+';
+        bedPills.forEach(p => p.classList.remove('active'));
+        bedPills[0]?.classList.add('active');
+        if (window.GlobeViz && typeof GlobeViz.resetView === 'function') {
+          GlobeViz.resetView();
+        }
+        document.querySelectorAll('.mini-property-card').forEach(c => c.style.display = 'flex');
+        const countBadge = document.getElementById('visibleCountBadge');
+        if (countBadge) countBadge.innerText = '6 Assets';
+      });
+    }
+  });
+</script>
+{% endblock %}

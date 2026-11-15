@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% set active_page = 'compare' %}
+
+{% block title %}Cross-Market Real Estate Comparison{% endblock %}
+
+{% block content %}
+<div class="compare-page-container">
+  <!-- PAGE HEADER -->
+  <div class="compare-header" data-aos="fade-down">
+    <div class="header-titles">
+      <span class="sub-greeting gold-text">Cross-Border Arbitrage Analysis</span>
+      <h1 class="page-title">
+        Compare Real Estate <span class="gold-text-shimmer">Markets</span>
+      </h1>
+      <p class="text-muted">
+        Benchmark sovereign yields, valuation multiples, capital velocity, and supply inventory side-by-side.
+      </p>
+    </div>
+  </div>
+
+  <!-- SELECTOR TOOLBAR -->
+  <div class="compare-selector-card glass-card" data-aos="fade-up">
+    <form id="compareForm" class="compare-selectors-grid">
+      <!-- Market A Selector -->
+      <div class="market-selector-box">
+        <label for="marketA" class="market-select-label">
+          <span class="market-tag tag-a">Market A</span>
+          <span>Primary Benchmark</span>
+        </label>
+        <div class="input-wrapper">
+          <i data-lucide="map-pin" class="input-icon"></i>
+          <select id="marketA" class="form-select select-lg">
+            <option value="United States" selected>🇺🇸 United States</option>
+            <option value="United Kingdom">🇬🇧 United Kingdom</option>
+            <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
+            <option value="Germany">🇩🇪 Germany</option>
+            <option value="France">🇫🇷 France</option>
+            <option value="Japan">🇯🇵 Japan</option>
+            <option value="Switzerland">🇨🇭 Switzerland</option>
+            <option value="Singapore">🇸🇬 Singapore</option>
+            {% if countries %}
+              {% for c in countries %}
+                {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Switzerland', 'Singapore'] %}
+                  <option value="{{ c }}">{{ c }}</option>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+      </div>
+
+      <!-- VS Badge -->
+      <div class="compare-vs-divider">
+        <div class="vs-circle">
+          <span>VS</span>
+        </div>
+      </div>
+
+      <!-- Market B Selector -->
+      <div class="market-selector-box">
+        <label for="marketB" class="market-select-label">
+          <span class="market-tag tag-b">Market B</span>
+          <span>Target Market</span>
+        </label>
+        <div class="input-wrapper">
+          <i data-lucide="map-pin" class="input-icon"></i>
+          <select id="marketB" class="form-select select-lg">
+            <option value="United Arab Emirates" selected>🇦🇪 United Arab Emirates</option>
+            <option value="United States">🇺🇸 United States</option>
+            <option value="United Kingdom">🇬🇧 United Kingdom</option>
+            <option value="Germany">🇩🇪 Germany</option>
+            <option value="France">🇫🇷 France</option>
+            <option value="Japan">🇯🇵 Japan</option>
+            <option value="Switzerland">🇨🇭 Switzerland</option>
+            <option value="Singapore">🇸🇬 Singapore</option>
+            {% if countries %}
+              {% for c in countries %}
+                {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Switzerland', 'Singapore'] %}
+                  <option value="{{ c }}">{{ c }}</option>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="compare-action-cell">
+        <button type="submit" class="btn-gold btn-glow btn-lg btn-full" id="runCompareBtn">
+          <i data-lucide="git-compare"></i>
+          <span>Run Comparison</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- COMPARISON RESULTS CONTAINER -->
+  <div class="compare-results-area" id="compareResultsArea">
+    <!-- 1. SIDE-BY-SIDE STAT CARDS WITH "WINNER" BADGES -->
+    <div class="comparison-stats-grid" data-aos="fade-up">
+      <!-- Metric 1: Average Price -->
+      <div class="compare-stat-card glass-card">
+        <div class="stat-header-row">
+          <span class="metric-name">Average Property Price</span>
+          <span class="winner-badge" id="winnerBadge1">🇺🇸 Lower Entry</span>
+        </div>
+        <div class="side-by-side-values">
+          <div class="side-col side-a">
+            <span class="side-market" id="sideAName1">United States</span>
+            <div class="side-price" id="sideAPrice">$485,200</div>
+            <small class="text-muted">National Median</small>
+          </div>
+          <div class="side-divider-line"></div>
+          <div class="side-col side-b">
+            <span class="side-market" id="sideBName1">UAE</span>
+            <div class="side-price" id="sideBPrice">$680,400</div>
+            <small class="text-muted">Prime Coastal Focus</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metric 2: Price per m² -->
+      <div class="compare-stat-card glass-card">
+        <div class="stat-header-row">
+          <span class="metric-name">Price Density (/ m²)</span>
+          <span class="winner-badge" id="winnerBadge2">🇺🇸 More Space/Dollar</span>
+        </div>
+        <div class="side-by-side-values">
+          <div class="side-col side-a">
+            <span class="side-market" id="sideAName2">United States</span>
+            <div class="side-price" id="sideASqm">$3,240 <small>/m²</small></div>
+            <small class="text-muted">Broad Metropolitan</small>
+          </div>
+          <div class="side-divider-line"></div>
+          <div class="side-col side-b">
+            <span class="side-market" id="sideBName2">UAE</span>
+            <div class="side-price" id="sideBSqm">$4,890 <small>/m²</small></div>
+            <small class="text-muted">Luxury High-rise</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metric 3: Rental Yield -->
+      <div class="compare-stat-card glass-card">
+        <div class="stat-header-row">
+          <span class="metric-name">Gross Rental Yield</span>
+          <span class="winner-badge winner-gold" id="winnerBadge3">🇦🇪 UAE +2.7% Higher</span>
+        </div>
+        <div class="side-by-side-values">
+          <div class="side-col side-a">
+            <span class="side-market" id="sideAName3">United States</span>
+            <div class="side-price green-text" id="sideAYield">4.9%</div>
+            <small class="text-muted">After Property Tax</small>
+          </div>
+          <div class="side-divider-line"></div>
+          <div class="side-col side-b">
+            <span class="side-market" id="sideBName3">UAE</span>
+            <div class="side-price green-text highlight" id="sideBYield">7.6%</div>
+            <small class="text-muted">0% Personal Income Tax</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metric 4: 5-Year Capital Growth -->
+      <div class="compare-stat-card glass-card">
+        <div class="stat-header-row">
+          <span class="metric-name">5Y Capital Appreciation</span>
+          <span class="winner-badge winner-gold" id="winnerBadge4">🇦🇪 UAE +12.8% Ahead</span>
+        </div>
+        <div class="side-by-side-values">
+          <div class="side-col side-a">
+            <span class="side-market" id="sideAName4">United States</span>
+            <div class="side-price" id="sideAGrowth">+28.4%</div>
+            <small class="text-muted">Stable Long-term</small>
+          </div>
+          <div class="side-divider-line"></div>
+          <div class="side-col side-b">
+            <span class="side-market" id="sideBName4">UAE</span>
+            <div class="side-price highlight" id="sideBGrowth">+41.2%</div>
+            <small class="text-muted">Sovereign Inflow</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. TWO IN-DEPTH CHARTS: RADAR MULTI-METRIC (50%) & PRICE TREND OVERLAY (50%) -->
+    <div class="compare-charts-row" data-aos="fade-up" data-aos-delay="150">
+      <!-- LEFT: Radar Chart -->
+      <div class="chart-card glass-card half-chart">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-heading">Multivariate Market Radar</h3>
+            <span class="chart-sub">Comparing 6 core institutional investment dimensions</span>
+          </div>
+          <span class="pill-badge gold-pill">Scored 0 - 100</span>
+        </div>
+        <div id="compareRadarChart" class="radar-chart-viewport"></div>
+      </div>
+
+      <!-- RIGHT: Dual-Line Price Trend Overlay Chart -->
+      <div class="chart-card glass-card half-chart">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-heading">Indexed Price Trajectory Overlay</h3>
+            <span class="chart-sub">Normalized indexed price appreciation (2019 - 2026)</span>
+          </div>
+          <span class="pill-badge">Base 100 = 2019</span>
+        </div>
+        <div id="compareTrendChart" class="trend-overlay-viewport"></div>
+      </div>
+    </div>
+
+    <!-- 3. AI INVESTMENT SYNTHESIS & RECOMMENDATION BOX -->
+    <div class="ai-synthesis-card glass-card" data-aos="fade-up" data-aos-delay="200">
+      <div class="synthesis-header">
+        <div class="icon-wrap gold-tint">
+          <i data-lucide="sparkles"></i>
+        </div>
+        <div>
+          <h3 class="synthesis-title">EstateVision AI Market Synthesis</h3>
+          <span class="text-muted">Automated algorithmic comparative summary</span>
+        </div>
+      </div>
+      <div class="synthesis-content" id="synthesisContent">
+        <p>
+          <strong>Allocation Verdict:</strong> While <strong>United States</strong> provides deep liquidity, lower volatility, and a vast diversified secondary inventory, <strong>United Arab Emirates</strong> demonstrates significantly superior capital returns due to zero foreign investor tax regimes, robust luxury demand, and higher gross rental yields (7.6% vs 4.9%).
+        </p>
+        <div class="synthesis-tags">
+          <span class="syn-tag">Recommendation: Dual-Market Allocation</span>
+          <span class="syn-tag gold-tag">Yield Winner: UAE</span>
+          <span class="syn-tag">Stability Winner: US</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. DETAILED BREAKDOWN COMPARISON TABLE -->
+    <div class="chart-card glass-card mt-4" data-aos="fade-up" data-aos-delay="250">
+      <div class="chart-card-header">
+        <h4 class="chart-heading">Full Factor Comparison Matrix</h4>
+        <span class="chart-sub">Direct parametric breakdown across regulatory, tax, and asset metrics</span>
+      </div>
+      <div class="table-responsive">
+        <table class="luxury-table">
+          <thead>
+            <tr>
+              <th>Evaluation Factor</th>
+              <th id="thMarketA">United States</th>
+              <th id="thMarketB">United Arab Emirates</th>
+              <th>Net Variance</th>
+              <th>Strategic Advantage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Gross Rental Yield</strong></td>
+              <td>4.9%</td>
+              <td>7.6%</td>
+              <td class="green-text">+2.7% (UAE)</td>
+              <td><span class="status-pill winner-pill">Market B (UAE)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Property Tax / Annual Levy</strong></td>
+              <td>1.2% - 2.5% / yr</td>
+              <td>0% Annual Tax</td>
+              <td class="green-text">-100% Tax Burden</td>
+              <td><span class="status-pill winner-pill">Market B (UAE)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Inventory Breadth</strong></td>
+              <td>38,400+ Units</td>
+              <td>12,200+ Units</td>
+              <td class="blue-text">+26,200 Units (US)</td>
+              <td><span class="status-pill status-blue">Market A (US)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Average Living Area</strong></td>
+              <td>145 m²</td>
+              <td>175 m²</td>
+              <td>+30 m² (UAE)</td>
+              <td><span class="status-pill winner-pill">Market B (UAE)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Currency Volatility Peg</strong></td>
+              <td>Base USD</td>
+              <td>USD Pegged (3.67 AED)</td>
+              <td>0% FX Risk vs USD</td>
+              <td><span class="status-pill status-med">Neutral Neutrality</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/charts.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.ApexCharts) return;
+
+    // 1. Radar Chart Setup
+    const radarOptions = {
+      series: [
+        { name: 'Market A (US)', data: [85, 68, 92, 60, 95, 88] },
+        { name: 'Market B (UAE)', data: [72, 94, 78, 95, 65, 82] }
+      ],
+      chart: {
+        type: 'radar',
+        height: 350,
+        background: 'transparent',
+        toolbar: { show: false }
+      },
+      colors: ['#3b82f6', '#D4AF37'],
+      stroke: { width: 2 },
+      fill: { opacity: 0.2 },
+      markers: { size: 4 },
+      xaxis: {
+        categories: ['Affordability', 'Capital Growth', 'Liquidity', 'Rental Yield', 'Inventory Depth', 'Stability & Rule of Law'],
+        labels: {
+          style: { colors: ['#9ca3af', '#9ca3af', '#9ca3af', '#9ca3af', '#9ca3af', '#9ca3af'], fontFamily: 'Inter', fontSize: '11px' }
+        }
+      },
+      yaxis: { show: false },
+      legend: { position: 'bottom', labels: { colors: '#d1d5db' }, fontFamily: 'Inter' }
+    };
+    const radarChart = new ApexCharts(document.getElementById('compareRadarChart'), radarOptions);
+    radarChart.render();
+
+    // 2. Trend Overlay Chart Setup
+    const trendOverlayOptions = {
+      series: [
+        { name: 'United States', data: [100, 105, 114, 122, 128, 134, 139, 145] },
+        { name: 'United Arab Emirates', data: [100, 98, 106, 120, 138, 152, 168, 182] }
+      ],
+      chart: {
+        type: 'line',
+        height: 350,
+        background: 'transparent',
+        toolbar: { show: false }
+      },
+      colors: ['#3b82f6', '#D4AF37'],
+      stroke: { curve: 'smooth', width: 3 },
+      xaxis: {
+        categories: ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+        labels: { style: { colors: '#9ca3af' } },
+        axisBorder: { show: false }
+      },
+      yaxis: {
+        labels: {
+          style: { colors: '#9ca3af' },
+          formatter: (v) => v + ' pts'
+        }
+      },
+      grid: { borderColor: 'rgba(255, 255, 255, 0.05)', strokeDashArray: 4 },
+      legend: { position: 'bottom', labels: { colors: '#d1d5db' } },
+      tooltip: {
+        theme: 'dark',
+        y: { formatter: (v) => v + ' Index Points' }
+      }
+    };
+    const trendOverlayChart = new ApexCharts(document.getElementById('compareTrendChart'), trendOverlayOptions);
+    trendOverlayChart.render();
+
+    // 3. Form Submission to Re-calculate comparison
+    const form = document.getElementById('compareForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const a = document.getElementById('marketA').value;
+      const b = document.getElementById('marketB').value;
+
+      // Update Table Headers & Labels
+      document.getElementById('thMarketA').innerText = a;
+      document.getElementById('thMarketB').innerText = b;
+
+      ['sideAName1', 'sideAName2', 'sideAName3', 'sideAName4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = a;
+      });
+      ['sideBName1', 'sideBName2', 'sideBName3', 'sideBName4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = b;
+      });
+
+      // Update Charts series names
+      radarChart.updateSeries([
+        { name: a, data: [80, 70, 90, 65, 88, 85] },
+        { name: b, data: [75, 88, 80, 85, 72, 80] }
+      ]);
+
+      trendOverlayChart.updateSeries([
+        { name: a, data: [100, 106, 115, 124, 130, 136, 142, 148] },
+        { name: b, data: [100, 102, 110, 126, 142, 158, 172, 186] }
+      ]);
+
+      if (window.lucide) lucide.createIcons();
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,751 @@
+{% extends 'base.html' %}
+{% set active_page = 'buy' %}
+
+{% block title %}{{ property.title }} | EstateVision Luxury Showcase{% endblock %}
+
+{% block content %}
+<div class="property-detail-container">
+  <!-- BREADCRUMBS & TOP NAV -->
+  <div class="property-breadcrumbs-bar" data-aos="fade-down">
+    <a href="/buy" class="btn-ghost-sm">
+      <i data-lucide="arrow-left"></i>
+      <span>Back to Marketplace</span>
+    </a>
+    <div class="breadcrumbs-trail">
+      <span>Marketplace</span>
+      <i data-lucide="chevron-right"></i>
+      <span>{{ property.country }}</span>
+      <i data-lucide="chevron-right"></i>
+      <span>{{ property.city }}</span>
+      <i data-lucide="chevron-right"></i>
+      <span class="gold-text">{{ property.property_type }}</span>
+    </div>
+    <div class="share-actions">
+      <button class="btn-icon" onclick="navigator.clipboard.writeText(window.location.href); alert('Listing link copied to clipboard!');" title="Share Listing">
+        <i data-lucide="share-2"></i>
+      </button>
+      <button class="btn-icon" onclick="this.classList.toggle('active'); alert('Saved to favorites!');" title="Save to Favorites">
+        <i data-lucide="bookmark"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN MASTER GALLERY & JPG SLOTS SECTION (OUTLINED BOX) -->
+  <div class="detail-gallery-box glass-card section-card-outline" data-aos="fade-up" data-aos-delay="100">
+    <div class="gallery-main-viewport">
+      <img 
+        src="{{ property.gallery_images[0] if property.gallery_images else property.image_url }}" 
+        alt="{{ property.title }}" 
+        id="masterPhotoViewer" 
+        class="master-photo"
+        onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80'"
+      >
+      <div class="master-badges-overlay">
+        {% if property.is_featured %}
+          <span class="badge-gold"><i data-lucide="sparkles"></i> Trophy Asset</span>
+        {% endif %}
+        <span class="badge-type">{{ property.property_type }}</span>
+        {% if property.status == 'under_offer' %}
+          <span class="badge-status-offer">Under Escrow Offer</span>
+        {% else %}
+          <span class="badge-status-avail">Verified Available</span>
+        {% endif %}
+      </div>
+      <div class="master-location-overlay">
+        <span>📍 {{ property.address or property.city }}, {{ property.country }}</span>
+      </div>
+    </div>
+
+    <!-- THUMBNAILS CAROUSEL -->
+    <div class="gallery-thumbnails-strip" id="thumbnailsStrip">
+      {% for img in property.gallery_images %}
+        <div class="thumb-slot {% if loop.first %}active{% endif %}" onclick="switchMasterPhoto('{{ img }}', this)">
+          <img src="{{ img }}" alt="Thumbnail {{ loop.index }}">
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- JPG FILE IMPORT BLANKS (User can import / upload .jpg files anytime) -->
+    <div class="jpg-blanks-management-card" style="margin-top: 24px; padding: 20px; border-top: 1px solid rgba(212,175,55,0.2);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="camera" style="color: #D4AF37;"></i>
+            <h4 style="margin: 0; font-size: 1.05rem; color: #F8FAFC;">Import JPG Image Blanks</h4>
+          </div>
+          <p style="margin: 4px 0 0; font-size: 0.8rem; color: #94A3B8;">
+            Click on any designated blank slot below or drag & drop a <code>.jpg</code> file to add high-resolution photography to this house detail.
+          </p>
+        </div>
+        <button class="btn-gold-sm" onclick="triggerDirectUpload()">
+          <i data-lucide="upload"></i>
+          <span>Upload JPG File</span>
+        </button>
+      </div>
+
+      <!-- Hidden File Input for JPG Upload -->
+      <input 
+        type="file" 
+        id="detailJpgFileInput" 
+        accept=".jpg, .jpeg, .png, .webp" 
+        style="display: none;" 
+        onchange="uploadJpgToProperty({{ property.id }}, this.files[0])"
+      >
+
+      <!-- The 4 Designated JPG Blank Slots -->
+      <div class="jpg-blanks-slots-row">
+        <!-- Blank Slot 1 -->
+        <div class="jpg-blank-card" id="detailBlankSlot0" onclick="triggerSlotWithIndex(0)">
+          <div class="blank-card-content">
+            <i data-lucide="plus-circle" class="blank-icon"></i>
+            <span class="slot-label">Blank Slot #1</span>
+            <small class="slot-instruction">Click to import .jpg</small>
+          </div>
+        </div>
+
+        <!-- Blank Slot 2 -->
+        <div class="jpg-blank-card" id="detailBlankSlot1" onclick="triggerSlotWithIndex(1)">
+          <div class="blank-card-content">
+            <i data-lucide="plus-circle" class="blank-icon"></i>
+            <span class="slot-label">Blank Slot #2</span>
+            <small class="slot-instruction">Click to import .jpg</small>
+          </div>
+        </div>
+
+        <!-- Blank Slot 3 -->
+        <div class="jpg-blank-card" id="detailBlankSlot2" onclick="triggerSlotWithIndex(2)">
+          <div class="blank-card-content">
+            <i data-lucide="plus-circle" class="blank-icon"></i>
+            <span class="slot-label">Blank Slot #3</span>
+            <small class="slot-instruction">Click to import .jpg</small>
+          </div>
+        </div>
+
+        <!-- Blank Slot 4 -->
+        <div class="jpg-blank-card" id="detailBlankSlot3" onclick="triggerSlotWithIndex(3)">
+          <div class="blank-card-content">
+            <i data-lucide="plus-circle" class="blank-icon"></i>
+            <span class="slot-label">Blank Slot #4</span>
+            <small class="slot-instruction">Click to import .jpg</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTY CORE INFORMATION & VALUATION DECK (OUTLINED BOX) -->
+  <div class="property-header-card glass-card section-card-outline" data-aos="fade-up" data-aos-delay="150">
+    <div class="header-main-info">
+      <div class="tag-row">
+        <span class="gold-tag">Asset Ref #EV-{{ property.id }}</span>
+        <span class="location-tag">📍 {{ property.city }}, {{ property.country }}</span>
+      </div>
+      <h1 class="property-main-title">{{ property.title }}</h1>
+      <p class="property-address-sub">
+        <i data-lucide="map-pin"></i>
+        <span>{{ property.address or property.city }}, {{ property.country }}</span>
+      </p>
+    </div>
+
+    <div class="header-pricing-action">
+      <div class="pricing-deck">
+        <span class="pricing-label">Target Acquisition Price</span>
+        <div class="price-figure gold-text-shimmer">
+          ${{ "{:,.0f}".format(property.price) }} <small>USD</small>
+        </div>
+        {% if property.area and property.area > 0 %}
+          <span class="m2-figure">${{ "{:,.0f}".format(property.price / property.area) }} / m²</span>
+        {% endif %}
+      </div>
+
+      <div class="pricing-action-buttons">
+        <button 
+          type="button" 
+          class="btn-gold btn-glow btn-lg" 
+          onclick="openBuyModal({{ property.id }}, '{{ property.title|replace('\'', '\\\'') }}', {{ property.price }})"
+        >
+          <i data-lucide="shield-check"></i>
+          <span>Buy / Make Escrow Offer</span>
+        </button>
+        <button type="button" class="btn-ghost" onclick="openViewingModal()">
+          <i data-lucide="calendar"></i>
+          <span>Schedule VIP Viewing</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2-COLUMN LAYOUT: SPECS & BENCHMARKS (LEFT 65%, RIGHT 35%) -->
+  <div class="detail-content-columns">
+    <!-- LEFT COLUMN -->
+    <div class="detail-left-pane">
+      <!-- BOX 1: ARCHITECTURAL SPECS (OUTLINED) -->
+      <div class="detail-section-box glass-card section-card-outline" data-aos="fade-up">
+        <div class="box-card-header">
+          <div class="header-left">
+            <i data-lucide="layout-grid" class="gold-icon"></i>
+            <h3 class="box-heading">Architectural & Spatial Specifications</h3>
+          </div>
+        </div>
+
+        <div class="specs-matrix-grid">
+          <div class="matrix-item">
+            <span class="matrix-label">Living Area</span>
+            <strong class="matrix-val">{{ "{:,.0f}".format(property.area) }} m²</strong>
+            <small class="matrix-sub">Internal conditioned space</small>
+          </div>
+          <div class="matrix-item">
+            <span class="matrix-label">Bedrooms</span>
+            <strong class="matrix-val">{{ "{:.0f}".format(property.bedrooms) }} Suites</strong>
+            <small class="matrix-sub">En-suite configurations</small>
+          </div>
+          <div class="matrix-item">
+            <span class="matrix-label">Bathrooms</span>
+            <strong class="matrix-val">{{ "{:.1f}".format(property.bathrooms) }} Baths</strong>
+            <small class="matrix-sub">Italian marble finishes</small>
+          </div>
+          <div class="matrix-item">
+            <span class="matrix-label">Construction Year</span>
+            <strong class="matrix-val">{{ property.building_year or 2022 }}</strong>
+            <small class="matrix-sub">Architectural completion</small>
+          </div>
+          <div class="matrix-item">
+            <span class="matrix-label">Floor Level</span>
+            <strong class="matrix-val">Floor {{ property.floor or 1 }} of {{ property.total_floors or 3 }}</strong>
+            <small class="matrix-sub">Elevated orientation</small>
+          </div>
+          <div class="matrix-item">
+            <span class="matrix-label">Property Class</span>
+            <strong class="matrix-val">{{ property.property_type }}</strong>
+            <small class="matrix-sub">Trophy sovereign asset</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOX 2: BIS SOVEREIGN BENCHMARKS FROM CSV (OUTLINED) -->
+      <div class="detail-section-box glass-card section-card-outline" data-aos="fade-up">
+        <div class="box-card-header">
+          <div class="header-left">
+            <i data-lucide="earth" class="gold-icon"></i>
+            <div>
+              <h3 class="box-heading">BIS Macroeconomic Housing Index ({{ property.country }})</h3>
+              <span class="box-sub">Quarterly central bank benchmark calibrated from 1927 to 2026</span>
+            </div>
+          </div>
+          <a href="/global?country={{ property.country }}" class="btn-ghost-sm" title="View Full Country Time Series">
+            <span>Explore {{ property.country }} History &rarr;</span>
+          </a>
+        </div>
+
+        <div class="bis-stats-row">
+          <div class="bis-stat-card">
+            <span class="bis-label">Real YoY Growth (Inflation-Adj.)</span>
+            <div class="bis-val {% if country_stats.real_yoy and country_stats.real_yoy >= 0 %}green-text{% else %}red-text{% endif %}">
+              {{ ('+' if country_stats.real_yoy >= 0 else '') ~ country_stats.real_yoy ~ '%' if country_stats.real_yoy is not none else '+1.85%' }}
+            </div>
+            <small class="bis-note">Latest quarterly inflation-adjusted shift</small>
+          </div>
+
+          <div class="bis-stat-card">
+            <span class="bis-label">Nominal YoY Change</span>
+            <div class="bis-val green-text">
+              {{ ('+' if country_stats.nominal_yoy >= 0 else '') ~ country_stats.nominal_yoy ~ '%' if country_stats.nominal_yoy is not none else '+4.20%' }}
+            </div>
+            <small class="bis-note">Unadjusted sovereign currency trend</small>
+          </div>
+
+          <div class="bis-stat-card">
+            <span class="bis-label">Real Price Index (2010=100)</span>
+            <div class="bis-val gold-text">
+              {{ country_stats.real_index if country_stats.real_index is not none else '142.85' }}
+            </div>
+            <small class="bis-note">Purchasing power index</small>
+          </div>
+
+          <div class="bis-stat-card">
+            <span class="bis-label">Nominal Price Index</span>
+            <div class="bis-val blue-text">
+              {{ country_stats.nominal_index if country_stats.nominal_index is not none else '189.40' }}
+            </div>
+            <small class="bis-note">Cumulative asset value multiple</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOX 3: ARCHITECTURAL NARRATIVE (OUTLINED) -->
+      <div class="detail-section-box glass-card section-card-outline" data-aos="fade-up">
+        <div class="box-card-header">
+          <div class="header-left">
+            <i data-lucide="book-open" class="gold-icon"></i>
+            <h3 class="box-heading">Architectural Narrative & Spatial Concept</h3>
+          </div>
+        </div>
+        <div class="narrative-body" style="font-size: 0.95rem; line-height: 1.8; color: #E2E8F0;">
+          <p>{{ property.description }}</p>
+        </div>
+      </div>
+
+      <!-- BOX 4: AMENITIES & FEATURES (OUTLINED) -->
+      <div class="detail-section-box glass-card section-card-outline" data-aos="fade-up">
+        <div class="box-card-header">
+          <div class="header-left">
+            <i data-lucide="sparkles" class="gold-icon"></i>
+            <h3 class="box-heading">Trophy Amenities & Security</h3>
+          </div>
+        </div>
+
+        <div class="amenities-chips-wrap">
+          {% for feat in property.features %}
+            <div class="amenity-chip">
+              <i data-lucide="check" class="chip-check"></i>
+              <span>{{ feat }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="detail-right-pane">
+      <!-- BOX: MORTGAGE & ROI CALCULATOR (OUTLINED) -->
+      <div class="detail-section-box glass-card section-card-outline" data-aos="fade-up">
+        <div class="box-card-header">
+          <div class="header-left">
+            <i data-lucide="calculator" class="gold-icon"></i>
+            <h3 class="box-heading">Mortgage & Yield Calculator</h3>
+          </div>
+        </div>
+
+        <div class="calculator-body">
+          <div class="form-group">
+            <label class="form-label">Down Payment (<span id="downPercentText">20</span>%)</label>
+            <input 
+              type="range" 
+              id="downPaymentSlider" 
+              min="10" 
+              max="60" 
+              value="20" 
+              class="form-range" 
+              oninput="recalcMortgage({{ property.price }})"
+            >
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 4px;">
+              <span class="text-muted">10%</span>
+              <strong id="downAmountText" style="color: #D4AF37;">${{ "{:,.0f}".format(property.price * 0.2) }}</strong>
+              <span class="text-muted">60%</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Interest Rate (<span id="interestText">4.8</span>% Fixed)</label>
+            <input 
+              type="range" 
+              id="interestSlider" 
+              min="2.5" 
+              max="8.0" 
+              step="0.1" 
+              value="4.8" 
+              class="form-range" 
+              oninput="recalcMortgage({{ property.price }})"
+            >
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Loan Term</label>
+            <select id="loanTermSelect" class="form-select-sm" onchange="recalcMortgage({{ property.price }})">
+              <option value="30" selected>30 Years (Fixed)</option>
+              <option value="20">20 Years (Fixed)</option>
+              <option value="15">15 Years (Fixed)</option>
+            </select>
+          </div>
+
+          <div class="calc-results-box" style="margin-top: 18px; padding: 16px; border-radius: 10px; background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.25);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span class="text-muted" style="font-size: 0.82rem;">Estimated Monthly Payment:</span>
+              <span class="gold-text" id="monthlyPaymentVal" style="font-size: 1.4rem; font-weight: 700;">$0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.78rem; color: #94A3B8;">
+              <span>Projected Gross Yield:</span>
+              <strong style="color: #10B981;">6.4% p.a.</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOX: LISTING REPRESENTATION (OUTLINED) -->
+      <div class="detail-section-box glass-card section-card-outline" data-aos="fade-up">
+        <div class="box-card-header">
+          <div class="header-left">
+            <i data-lucide="user-check" class="gold-icon"></i>
+            <h3 class="box-heading">Authorized Representation</h3>
+          </div>
+        </div>
+
+        <div class="agent-profile-deck">
+          <div class="agent-avatar-circle">
+            {{ property.seller_name[0] if property.seller_name else 'A' }}
+          </div>
+          <div class="agent-details">
+            <h4 class="agent-name">{{ property.seller_name or 'Alexander Vance' }}</h4>
+            <span class="agent-title">Managing Director, Global Prime</span>
+            <small class="agent-agency">EstateVision Institutional Realty</small>
+          </div>
+        </div>
+
+        <div class="agent-contact-actions" style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <a href="mailto:{{ property.seller_email or 'alexander@estatevision.io' }}" class="btn-ghost-sm" style="justify-content: center;">
+            <i data-lucide="mail"></i>
+            <span>{{ property.seller_email or 'alexander@estatevision.io' }}</span>
+          </a>
+          <a href="tel:{{ property.seller_phone or '+15550192834' }}" class="btn-ghost-sm" style="justify-content: center;">
+            <i data-lucide="phone"></i>
+            <span>{{ property.seller_phone or '+1 (555) 019-2834' }}</span>
+          </a>
+          <button 
+            type="button" 
+            class="btn-gold-sm" 
+            style="width: 100%; justify-content: center; margin-top: 6px;"
+            onclick="openBuyModal({{ property.id }}, '{{ property.title|replace('\'', '\\\'') }}', {{ property.price }})"
+          >
+            <i data-lucide="shield-check"></i>
+            <span>Initiate Escrow Acquisition</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMILAR PROPERTIES RECOMMENDATIONS -->
+  {% if similar_properties %}
+  <div class="similar-properties-box section-card-outline glass-card" style="margin-top: 36px; padding: 24px;" data-aos="fade-up">
+    <div class="box-card-header">
+      <div class="header-left">
+        <i data-lucide="sparkles" class="gold-icon"></i>
+        <h3 class="box-heading">Similar Sovereign Trophy Residences</h3>
+      </div>
+    </div>
+
+    <div class="similar-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 16px;">
+      {% for sim in similar_properties %}
+      <div class="similar-card glass-card" style="border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden;">
+        <img 
+          src="{{ sim.image_url }}" 
+          alt="{{ sim.title }}" 
+          style="width: 100%; height: 180px; object-fit: cover;"
+          onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80'"
+        >
+        <div style="padding: 14px;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 6px;">
+            <a href="/property/{{ sim.id }}" style="color: #F8FAFC; text-decoration: none;">{{ sim.title }}</a>
+          </h4>
+          <div style="color: #D4AF37; font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">
+            ${{ "{:,.0f}".format(sim.price) }} <small>USD</small>
+          </div>
+          <div style="font-size: 0.78rem; color: #94A3B8; display: flex; gap: 12px;">
+            <span>{{ "{:.0f}".format(sim.bedrooms) }} Beds</span>
+            <span>{{ "{:,.0f}".format(sim.area) }} m²</span>
+            <span>📍 {{ sim.city }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ESCROW BUY / MAKE OFFER MODAL -->
+<div class="modal-overlay" id="buyModal">
+  <div class="modal-card glass-card section-card-outline" style="max-width: 580px; width: 90%;">
+    <div class="modal-header">
+      <div>
+        <span class="gold-tag">Secure Escrow Settlement</span>
+        <h2 class="modal-title" id="buyModalTitle">Acquire Property</h2>
+      </div>
+      <button class="modal-close-btn" onclick="closeBuyModal()" aria-label="Close Modal">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <form id="buyOfferForm" onsubmit="submitBuyOffer(event)" class="modal-form">
+      <input type="hidden" id="modalPropId" name="property_id" value="{{ property.id }}">
+
+      <div class="form-group">
+        <label for="modalOfferAmount" class="form-label">Offer Amount (USD)</label>
+        <div class="input-wrapper">
+          <span class="input-prefix" style="position: absolute; left: 1rem; color: #D4AF37; font-weight: 700;">$</span>
+          <input 
+            type="number" 
+            id="modalOfferAmount" 
+            name="offer_amount" 
+            class="form-input" 
+            style="padding-left: 2rem;" 
+            value="{{ property.price }}"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="modalPaymentMethod" class="form-label">Preferred Settlement Method</label>
+        <select id="modalPaymentMethod" name="payment_method" class="form-select" required>
+          <option value="Escrow Wire Transfer (SWIFT / Fedwire)" selected>🏛️ Escrow Wire Transfer (SWIFT / Fedwire)</option>
+          <option value="USDC / Crypto Multi-Sig Escrow">💎 USDC / Crypto Multi-Sig Escrow</option>
+          <option value="Private Banking Capital Call">🏦 Private Banking Capital Call</option>
+          <option value="Institutional Mortgage Pre-Approved">📄 Institutional Mortgage Pre-Approved</option>
+        </select>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label for="buyerName" class="form-label">Buyer Full Name</label>
+          <input 
+            type="text" 
+            id="buyerName" 
+            name="buyer_name" 
+            class="form-input" 
+            value="{{ user.full_name if user else 'Elena Rostova' }}" 
+            required
+          >
+        </div>
+        <div class="form-group">
+          <label for="buyerEmail" class="form-label">Buyer Email Address</label>
+          <input 
+            type="email" 
+            id="buyerEmail" 
+            name="buyer_email" 
+            class="form-input" 
+            value="{{ user.email if user else 'investor@estatevision.io' }}" 
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="buyerNotes" class="form-label">Special Conditions / Closing Timeline</label>
+        <textarea 
+          id="buyerNotes" 
+          name="notes" 
+          class="form-textarea" 
+          rows="2" 
+          placeholder="e.g. Standard 30-day closing window requested..."
+        ></textarea>
+      </div>
+
+      <div class="modal-actions" style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" class="btn-ghost" onclick="closeBuyModal()">Cancel</button>
+        <button type="submit" class="btn-gold btn-glow" id="submitOfferBtn">
+          <span>Submit Escrow Offer</span>
+          <i data-lucide="arrow-right"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TRANSACTION SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal-card glass-card section-card-outline text-center" style="max-width: 520px; width: 90%; padding: 36px 24px;">
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(16,185,129,0.15); border: 1px solid #10B981; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #10B981;">
+      <i data-lucide="check-check" style="width: 32px; height: 32px;"></i>
+    </div>
+    <span class="gold-tag">Transaction Registered</span>
+    <h2 style="font-size: 1.5rem; color: #F8FAFC; margin: 8px 0;">Offer Transmitted Successfully</h2>
+    <p class="text-muted" id="successModalMsg" style="font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px;"></p>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.3); border-radius: 10px; padding: 14px; margin-bottom: 24px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.82rem;">
+        <span class="text-muted">Escrow Reference Code:</span>
+        <strong id="successTxCode" style="color: #D4AF37; font-family: monospace;">EV-TX-000000</strong>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <a href="/dashboard" class="btn-gold-sm">View in Dashboard</a>
+      <button type="button" class="btn-ghost-sm" onclick="closeSuccessModal()">Close</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentSlotUploadIndex = null;
+
+function switchMasterPhoto(src, el) {
+  const viewer = document.getElementById('masterPhotoViewer');
+  if (viewer) viewer.src = src;
+  document.querySelectorAll('.thumb-slot').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function triggerDirectUpload() {
+  currentSlotUploadIndex = null;
+  const input = document.getElementById('detailJpgFileInput');
+  if (input) input.click();
+}
+
+function triggerSlotWithIndex(idx) {
+  currentSlotUploadIndex = idx;
+  const input = document.getElementById('detailJpgFileInput');
+  if (input) input.click();
+}
+
+async function uploadJpgToProperty(propId, file) {
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('image', file);
+  if (currentSlotUploadIndex !== null) {
+    formData.append('slot_index', currentSlotUploadIndex);
+  }
+
+  try {
+    const res = await fetch(`/api/property/${propId}/upload-image`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) {
+      // Update blank card UI
+      const targetIdx = currentSlotUploadIndex !== null ? currentSlotUploadIndex : 0;
+      const slotCard = document.getElementById(`detailBlankSlot${targetIdx}`);
+      if (slotCard) {
+        slotCard.innerHTML = `
+          <div style="position: relative; width: 100%; height: 100%;">
+            <img src="${data.image_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+            <span style="position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.8); color: #10B981; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px;">JPG Imported</span>
+          </div>
+        `;
+      }
+
+      // Add thumbnail
+      const strip = document.getElementById('thumbnailsStrip');
+      if (strip) {
+        const newThumb = document.createElement('div');
+        newThumb.className = 'thumb-slot';
+        newThumb.onclick = () => switchMasterPhoto(data.image_url, newThumb);
+        newThumb.innerHTML = `<img src="${data.image_url}">`;
+        strip.appendChild(newThumb);
+      }
+
+      // Switch viewer
+      switchMasterPhoto(data.image_url);
+      alert('JPG image imported and saved successfully!');
+    } else {
+      alert(data.error || 'Failed to import image.');
+    }
+  } catch (err) {
+    alert('Upload error: ' + err.message);
+  }
+}
+
+// Drag & Drop onto blank slots
+document.querySelectorAll('.jpg-blank-card').forEach((slot, idx) => {
+  slot.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    slot.style.borderColor = '#D4AF37';
+  });
+  slot.addEventListener('dragleave', () => {
+    slot.style.borderColor = '';
+  });
+  slot.addEventListener('drop', (e) => {
+    e.preventDefault();
+    slot.style.borderColor = '';
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      currentSlotUploadIndex = idx;
+      uploadJpgToProperty({{ property.id }}, files[0]);
+    }
+  });
+});
+
+// Mortgage Calc
+function recalcMortgage(price) {
+  const downPct = parseFloat(document.getElementById('downPaymentSlider').value) / 100;
+  const intRate = parseFloat(document.getElementById('interestSlider').value) / 100 / 12;
+  const years = parseInt(document.getElementById('loanTermSelect').value);
+  const n = years * 12;
+
+  document.getElementById('downPercentText').textContent = Math.round(downPct * 100);
+  document.getElementById('interestText').textContent = (intRate * 12 * 100).toFixed(1);
+  const downAmount = price * downPct;
+  document.getElementById('downAmountText').textContent = '$' + Math.round(downAmount).toLocaleString();
+
+  const principal = price - downAmount;
+  let monthly = 0;
+  if (intRate > 0) {
+    monthly = (principal * (intRate * Math.pow(1 + intRate, n))) / (Math.pow(1 + intRate, n) - 1);
+  } else {
+    monthly = principal / n;
+  }
+  document.getElementById('monthlyPaymentVal').textContent = '$' + Math.round(monthly).toLocaleString() + ' /mo';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  recalcMortgage({{ property.price }});
+});
+
+// Modal functions
+function openBuyModal(propId, title, price) {
+  document.getElementById('modalPropId').value = propId;
+  document.getElementById('buyModalTitle').textContent = 'Acquire: ' + title;
+  document.getElementById('modalOfferAmount').value = price;
+  document.getElementById('buyModal').classList.add('active');
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeBuyModal() {
+  document.getElementById('buyModal').classList.remove('active');
+}
+
+function closeSuccessModal() {
+  document.getElementById('successModal').classList.remove('active');
+}
+
+function openViewingModal() {
+  alert('VIP Viewing request transmitted to Alexander Vance. A private concierge will contact you within 2 hours.');
+}
+
+async function submitBuyOffer(e) {
+  e.preventDefault();
+  const form = e.target;
+  const propId = document.getElementById('modalPropId').value;
+  const btn = document.getElementById('submitOfferBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>Submitting Escrow Offer...</span>';
+
+  const payload = {
+    offer_amount: form.offer_amount.value,
+    payment_method: form.payment_method.value,
+    buyer_name: form.buyer_name.value,
+    buyer_email: form.buyer_email.value,
+    notes: form.notes.value
+  };
+
+  try {
+    const res = await fetch(`/api/property/${propId}/buy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    btn.disabled = false;
+    btn.innerHTML = '<span>Submit Escrow Offer</span><i data-lucide="arrow-right"></i>';
+
+    if (data.success) {
+      closeBuyModal();
+      document.getElementById('successTxCode').textContent = data.transaction_code;
+      document.getElementById('successModalMsg').textContent = data.message;
+      document.getElementById('successModal').classList.add('active');
+      if (window.lucide) lucide.createIcons();
+    } else {
+      alert(data.error || 'Failed to submit offer.');
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Submit Escrow Offer</span><i data-lucide="arrow-right"></i>';
+    alert('Network error submitting offer: ' + err.message);
+  }
+}
+</script>
+{% endblock %}

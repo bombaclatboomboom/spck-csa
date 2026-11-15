@@ -1,0 +1,607 @@
+{% extends 'base.html' %}
+{% set active_page = 'dashboard' %}
+
+{% block title %}Executive Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <!-- WELCOME HEADER -->
+  <div class="dashboard-header" data-aos="fade-down">
+    <div class="header-left">
+      <span class="sub-greeting gold-text">Portfolio Intelligence & Analytics</span>
+      <h1 class="page-title">
+        Welcome back, <span class="gold-text-shimmer">{{ user.full_name if user and user.full_name else 'Distinguished Investor' }}</span>
+      </h1>
+      <p class="text-muted" id="currentDateDisplay">Real-time global real estate indices & asset monitoring</p>
+    </div>
+    
+    <!-- Quick Action Bar -->
+    <div class="quick-actions-bar">
+      <a href="/buy" class="quick-action-btn" style="border-color: rgba(212,175,55,0.4);">
+        <i data-lucide="shopping-bag" style="color: #D4AF37;"></i>
+        <span>Buy Properties</span>
+      </a>
+      <a href="/sell" class="quick-action-btn" style="border-color: rgba(16,185,129,0.4);">
+        <i data-lucide="plus-circle" style="color: #10B981;"></i>
+        <span>+ Sell Property</span>
+      </a>
+      <a href="/global" class="quick-action-btn" style="border-color: rgba(59,130,246,0.4);">
+        <i data-lucide="earth" style="color: #3B82F6;"></i>
+        <span>BIS 1927-2026 Data</span>
+      </a>
+      <a href="/explore" class="quick-action-btn">
+        <i data-lucide="globe"></i>
+        <span>3D Globe</span>
+      </a>
+      <a href="/predict" class="quick-action-btn">
+        <i data-lucide="brain"></i>
+        <span>AI Valuation</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- STAT CARDS ROW (4 CARDS WITH SPARKLINES) -->
+  <div class="stats-cards-grid" data-aos="fade-up">
+    <!-- Stat 1: Total Properties -->
+    <div class="stat-card glass-card">
+      <div class="stat-card-header">
+        <span class="stat-title">Total Properties</span>
+        <div class="stat-icon-wrapper gold-tint">
+          <i data-lucide="building"></i>
+        </div>
+      </div>
+      <div class="stat-card-body">
+        <div class="stat-value"><span class="counter" data-target="147219">147,219</span></div>
+        <div class="stat-change positive">
+          <i data-lucide="arrow-up-right"></i>
+          <span>+2,480 this month</span>
+        </div>
+      </div>
+      <div class="stat-sparkline" id="sparklineProperties"></div>
+    </div>
+
+    <!-- Stat 2: Countries Covered -->
+    <div class="stat-card glass-card">
+      <div class="stat-card-header">
+        <span class="stat-title">Countries Covered</span>
+        <div class="stat-icon-wrapper blue-tint">
+          <i data-lucide="map"></i>
+        </div>
+      </div>
+      <div class="stat-card-body">
+        <div class="stat-value"><span class="counter" data-target="52">52</span> <small>Sovereign</small></div>
+        <div class="stat-change positive">
+          <i data-lucide="check-circle-2"></i>
+          <span>Global tier-1 data</span>
+        </div>
+      </div>
+      <div class="stat-sparkline" id="sparklineCountries"></div>
+    </div>
+
+    <!-- Stat 3: Average Benchmark Price -->
+    <div class="stat-card glass-card">
+      <div class="stat-card-header">
+        <span class="stat-title">Average Property Price</span>
+        <div class="stat-icon-wrapper green-tint">
+          <i data-lucide="dollar-sign"></i>
+        </div>
+      </div>
+      <div class="stat-card-body">
+        <div class="stat-value">$<span class="counter" data-target="485200">485,200</span></div>
+        <div class="stat-change positive">
+          <i data-lucide="trending-up"></i>
+          <span>+5.8% Annualized</span>
+        </div>
+      </div>
+      <div class="stat-sparkline" id="sparklinePrice"></div>
+    </div>
+
+    <!-- Stat 4: Saved / Tracked Properties -->
+    <div class="stat-card glass-card">
+      <div class="stat-card-header">
+        <span class="stat-title">Your Watchlist</span>
+        <div class="stat-icon-wrapper purple-tint">
+          <i data-lucide="bookmark"></i>
+        </div>
+      </div>
+      <div class="stat-card-body">
+        <div class="stat-value"><span class="counter" data-target="8">8</span> <small>Assets</small></div>
+        <div class="stat-change">
+          <i data-lucide="clock"></i>
+          <span>3 alerts pending</span>
+        </div>
+      </div>
+      <div class="stat-sparkline" id="sparklineSaved"></div>
+    </div>
+  </div>
+
+  <!-- TWO-COLUMN SECTION: PRICE TRENDS (60%) & TOP CITIES (40%) -->
+  <div class="charts-two-column-grid" data-aos="fade-up" data-aos-delay="150">
+    <!-- LEFT: Price Trends Area Chart (60%) -->
+    <div class="chart-card glass-card col-span-left">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-heading">Capital Price Appreciation Trends</h3>
+          <span class="chart-sub">Historical indexed market movement across prime metropolitan centers</span>
+        </div>
+        <div class="chart-controls">
+          <select id="trendCountrySelect" class="form-select-sm">
+            <option value="United States">🇺🇸 United States</option>
+            <option value="United Kingdom">🇬🇧 United Kingdom</option>
+            <option value="United Arab Emirates">🇦🇪 UAE</option>
+            <option value="Germany">🇩🇪 Germany</option>
+            <option value="France">🇫🇷 France</option>
+            <option value="Japan">🇯🇵 Japan</option>
+            <option value="Singapore">🇸🇬 Singapore</option>
+            {% if countries %}
+              {% for c in countries %}
+                {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Singapore'] %}
+                  <option value="{{ c }}">{{ c }}</option>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+      </div>
+      <div id="dashboardTrendChart" class="chart-area-viewport"></div>
+    </div>
+
+    <!-- RIGHT: Top Cities Horizontal Bar Chart (40%) -->
+    <div class="chart-card glass-card col-span-right">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-heading">Top Metropolitan Yields</h3>
+          <span class="chart-sub">Highest valuation density per m²</span>
+        </div>
+        <span class="pill-badge gold-pill">2026 Index</span>
+      </div>
+      <div id="topCitiesChart" class="chart-bar-viewport"></div>
+    </div>
+  </div>
+
+  <!-- FULL-WIDTH ROW: PROPERTY DISTRIBUTION TREEMAP -->
+  <div class="chart-card glass-card full-width-chart-card" data-aos="fade-up" data-aos-delay="200">
+    <div class="chart-card-header">
+      <div>
+        <h3 class="chart-heading">Global Real Estate Allocation Treemap</h3>
+        <span class="chart-sub">Visualizing proportional asset inventory, capital density, and regional volume</span>
+      </div>
+      <div class="treemap-legend-tags">
+        <span class="legend-tag"><span class="legend-dot" style="background:#D4AF37;"></span> High Capital Inflow</span>
+        <span class="legend-tag"><span class="legend-dot" style="background:#3b82f6;"></span> Stable Developed</span>
+        <span class="legend-tag"><span class="legend-dot" style="background:#10b981;"></span> Emerging High Yield</span>
+      </div>
+    </div>
+    <div id="treemapChart" class="treemap-viewport"></div>
+  </div>
+
+  <!-- RECENT PROPERTIES SECTION -->
+  <div class="recent-properties-section" data-aos="fade-up" data-aos-delay="250">
+    <div class="section-title-row">
+      <div>
+        <h2 class="section-title-sm">Prime Asset Showcase</h2>
+        <p class="section-subtitle-sm">Institutional-grade listings verified across international MLS exchanges</p>
+      </div>
+      <a href="/explore" class="btn-ghost-sm">
+        <span>Explore All 147k Properties</span>
+        <i data-lucide="arrow-right"></i>
+      </a>
+    </div>
+
+    <!-- 6 Property Cards Grid -->
+    <div class="properties-grid" id="dashboardPropertiesGrid">
+      <!-- Property Card 1 -->
+      <div class="property-card glass-card">
+        <div class="property-media">
+          <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" alt="Belgravia Manor" class="property-img">
+          <span class="property-status-badge badge-exclusive">Exclusive</span>
+          <button class="property-save-btn" title="Save Property" aria-label="Save Property">
+            <i data-lucide="bookmark"></i>
+          </button>
+        </div>
+        <div class="property-content">
+          <div class="property-location">
+            <i data-lucide="map-pin"></i>
+            <span>London, United Kingdom</span>
+          </div>
+          <h4 class="property-title">The Belgravia Crescent Residence</h4>
+          <div class="property-price">
+            $4,250,000 <small>USD</small>
+          </div>
+          <div class="property-specs">
+            <span><i data-lucide="bed"></i> 4 Beds</span>
+            <span><i data-lucide="bath"></i> 3.5 Baths</span>
+            <span><i data-lucide="maximize"></i> 340 m²</span>
+          </div>
+          <div class="property-footer">
+            <span class="property-tag">High Cap Rate</span>
+            <a href="/explore" class="btn-text-gold">Details <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property Card 2 -->
+      <div class="property-card glass-card">
+        <div class="property-media">
+          <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80" alt="Palm Jumeirah Villa" class="property-img">
+          <span class="property-status-badge badge-luxury">Ultra Luxury</span>
+          <button class="property-save-btn active" title="Saved" aria-label="Saved Property">
+            <i data-lucide="bookmark"></i>
+          </button>
+        </div>
+        <div class="property-content">
+          <div class="property-location">
+            <i data-lucide="map-pin"></i>
+            <span>Dubai, United Arab Emirates</span>
+          </div>
+          <h4 class="property-title">Palm Jumeirah Signature Beachfront</h4>
+          <div class="property-price">
+            $7,800,000 <small>USD</small>
+          </div>
+          <div class="property-specs">
+            <span><i data-lucide="bed"></i> 6 Beds</span>
+            <span><i data-lucide="bath"></i> 7 Baths</span>
+            <span><i data-lucide="maximize"></i> 710 m²</span>
+          </div>
+          <div class="property-footer">
+            <span class="property-tag">Private Beach</span>
+            <a href="/explore" class="btn-text-gold">Details <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property Card 3 -->
+      <div class="property-card glass-card">
+        <div class="property-media">
+          <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80" alt="Tribeca Loft" class="property-img">
+          <span class="property-status-badge badge-new">New Listing</span>
+          <button class="property-save-btn" title="Save Property" aria-label="Save Property">
+            <i data-lucide="bookmark"></i>
+          </button>
+        </div>
+        <div class="property-content">
+          <div class="property-location">
+            <i data-lucide="map-pin"></i>
+            <span>New York City, United States</span>
+          </div>
+          <h4 class="property-title">Tribeca Cast Iron Duplex Loft</h4>
+          <div class="property-price">
+            $3,650,000 <small>USD</small>
+          </div>
+          <div class="property-specs">
+            <span><i data-lucide="bed"></i> 3 Beds</span>
+            <span><i data-lucide="bath"></i> 3 Baths</span>
+            <span><i data-lucide="maximize"></i> 265 m²</span>
+          </div>
+          <div class="property-footer">
+            <span class="property-tag">Historic Facade</span>
+            <a href="/explore" class="btn-text-gold">Details <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property Card 4 -->
+      <div class="property-card glass-card">
+        <div class="property-media">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" alt="Shibuya Tower Penthouse" class="property-img">
+          <span class="property-status-badge badge-exclusive">Exclusive</span>
+          <button class="property-save-btn" title="Save Property" aria-label="Save Property">
+            <i data-lucide="bookmark"></i>
+          </button>
+        </div>
+        <div class="property-content">
+          <div class="property-location">
+            <i data-lucide="map-pin"></i>
+            <span>Tokyo, Japan</span>
+          </div>
+          <h4 class="property-title">Minato-ku High Floor Penthouse</h4>
+          <div class="property-price">
+            $2,950,000 <small>USD</small>
+          </div>
+          <div class="property-specs">
+            <span><i data-lucide="bed"></i> 2 Beds</span>
+            <span><i data-lucide="bath"></i> 2 Baths</span>
+            <span><i data-lucide="maximize"></i> 190 m²</span>
+          </div>
+          <div class="property-footer">
+            <span class="property-tag">Skyline View</span>
+            <a href="/explore" class="btn-text-gold">Details <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property Card 5 -->
+      <div class="property-card glass-card">
+        <div class="property-media">
+          <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80" alt="Zurich Villa" class="property-img">
+          <span class="property-status-badge badge-luxury">Ultra Luxury</span>
+          <button class="property-save-btn" title="Save Property" aria-label="Save Property">
+            <i data-lucide="bookmark"></i>
+          </button>
+        </div>
+        <div class="property-content">
+          <div class="property-location">
+            <i data-lucide="map-pin"></i>
+            <span>Zurich, Switzerland</span>
+          </div>
+          <h4 class="property-title">Lake Zurich Contemporary Estate</h4>
+          <div class="property-price">
+            $5,400,000 <small>USD</small>
+          </div>
+          <div class="property-specs">
+            <span><i data-lucide="bed"></i> 5 Beds</span>
+            <span><i data-lucide="bath"></i> 5 Baths</span>
+            <span><i data-lucide="maximize"></i> 450 m²</span>
+          </div>
+          <div class="property-footer">
+            <span class="property-tag">Lake Access</span>
+            <a href="/explore" class="btn-text-gold">Details <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property Card 6 -->
+      <div class="property-card glass-card">
+        <div class="property-media">
+          <img src="https://images.unsplash.com/photo-1512915922686-57c11dde9b6b?auto=format&fit=crop&w=600&q=80" alt="Côte d'Azur Villa" class="property-img">
+          <span class="property-status-badge badge-new">New Comps</span>
+          <button class="property-save-btn" title="Save Property" aria-label="Save Property">
+            <i data-lucide="bookmark"></i>
+          </button>
+        </div>
+        <div class="property-content">
+          <div class="property-location">
+            <i data-lucide="map-pin"></i>
+            <span>Cannes, France</span>
+          </div>
+          <h4 class="property-title">Villa de la Croisette Panoramic</h4>
+          <div class="property-price">
+            $4,900,000 <small>USD</small>
+          </div>
+          <div class="property-specs">
+            <span><i data-lucide="bed"></i> 5 Beds</span>
+            <span><i data-lucide="bath"></i> 4.5 Baths</span>
+            <span><i data-lucide="maximize"></i> 410 m²</span>
+          </div>
+          <div class="property-footer">
+            <span class="property-tag">Infinity Pool</span>
+            <a href="/explore" class="btn-text-gold">Details <i data-lucide="arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: ACTIVE ESCROW ACQUISITIONS & TRANSACTIONS (OUTLINED BOX) -->
+  <div class="recent-properties-section section-card-outline glass-card" style="margin-top: 2.5rem; padding: 1.85rem;" data-aos="fade-up">
+    <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="shield-check" style="color: #10B981;"></i>
+        <h3 class="section-title" style="margin: 0;">My Escrow Acquisitions & Active Offers</h3>
+      </div>
+      <a href="/buy" class="btn-gold-sm">
+        <i data-lucide="shopping-bag"></i>
+        <span>Acquire More Assets</span>
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="luxury-table" id="dashboardTransactionsTable">
+        <thead>
+          <tr>
+            <th>Tracking Code</th>
+            <th>Property Designation</th>
+            <th>Location</th>
+            <th>Offer Amount</th>
+            <th>Payment Channel</th>
+            <th>Escrow Status</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody id="userTransactionsBody">
+          <tr>
+            <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
+              <i data-lucide="loader" class="spin"></i> Loading escrow records...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/charts.js"></script>
+<script src="/static/js/animations.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Current Date display
+    const dateEl = document.getElementById('currentDateDisplay');
+    if (dateEl) {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      dateEl.innerText = new Date().toLocaleDateString('en-US', options) + ' • Global Valuation Intelligence Active';
+    }
+
+    // 2. Render 4 Sparkline Charts
+    function renderSparkline(id, data, color) {
+      if (!window.ApexCharts) return;
+      const opts = {
+        series: [{ data }],
+        chart: { type: 'line', height: 45, sparkline: { enabled: true } },
+        stroke: { curve: 'smooth', width: 2 },
+        colors: [color],
+        tooltip: { fixed: { enabled: false }, x: { show: false }, y: { title: { formatter: () => '' } }, marker: { show: false } }
+      };
+      const chart = new ApexCharts(document.getElementById(id), opts);
+      chart.render();
+    }
+    renderSparkline('sparklineProperties', [140, 142, 143, 145, 146, 147], '#D4AF37');
+    renderSparkline('sparklineCountries', [45, 48, 50, 50, 51, 52], '#3b82f6');
+    renderSparkline('sparklinePrice', [440, 452, 460, 475, 480, 485], '#10b981');
+    renderSparkline('sparklineSaved', [3, 4, 4, 6, 7, 8], '#a855f7');
+
+    // 3. Price Trends Area Chart
+    if (window.ApexCharts) {
+      const trendOptions = {
+        series: [
+          { name: 'Prime Luxury ($)', data: [310, 335, 360, 395, 440, 485, 520, 560] },
+          { name: 'Metropolitan Median ($)', data: [220, 230, 245, 260, 285, 310, 330, 355] }
+        ],
+        chart: {
+          type: 'area',
+          height: 340,
+          background: 'transparent',
+          toolbar: { show: false }
+        },
+        colors: ['#D4AF37', '#3b82f6'],
+        fill: {
+          type: 'gradient',
+          gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 95, 100] }
+        },
+        dataLabels: { enabled: false },
+        stroke: { curve: 'smooth', width: 3 },
+        xaxis: {
+          categories: ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+          labels: { style: { colors: '#9ca3af', fontFamily: 'Inter' } },
+          axisBorder: { show: false },
+          axisTicks: { show: false }
+        },
+        yaxis: {
+          labels: {
+            style: { colors: '#9ca3af', fontFamily: 'Inter' },
+            formatter: (val) => '$' + val + 'k'
+          }
+        },
+        grid: {
+          borderColor: 'rgba(255, 255, 255, 0.06)',
+          strokeDashArray: 4
+        },
+        tooltip: {
+          theme: 'dark',
+          y: { formatter: (val) => '$' + (val * 1000).toLocaleString() + ' USD' }
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'right',
+          labels: { colors: '#d1d5db' },
+          fontFamily: 'Inter'
+        }
+      };
+
+      const trendChart = new ApexCharts(document.getElementById('dashboardTrendChart'), trendOptions);
+      trendChart.render();
+
+      // Country change listener
+      const countrySelect = document.getElementById('trendCountrySelect');
+      if (countrySelect) {
+        countrySelect.addEventListener('change', (e) => {
+          const mult = e.target.value === 'United Arab Emirates' ? 1.3 : (e.target.value === 'Germany' ? 0.9 : 1.1);
+          trendChart.updateSeries([
+            { name: 'Prime Luxury ($)', data: [310, 335, 360, 395, 440, 485, 520, 560].map(v => Math.round(v * mult)) },
+            { name: 'Metropolitan Median ($)', data: [220, 230, 245, 260, 285, 310, 330, 355].map(v => Math.round(v * mult)) }
+          ]);
+        });
+      }
+
+      // 4. Top Cities Horizontal Bar Chart
+      const citiesOptions = {
+        series: [{
+          name: 'Price / m²',
+          data: [19400, 16800, 15200, 13900, 12500, 11200]
+        }],
+        chart: {
+          type: 'bar',
+          height: 340,
+          background: 'transparent',
+          toolbar: { show: false }
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            borderRadius: 6,
+            barHeight: '55%',
+            distributed: true
+          }
+        },
+        colors: ['#D4AF37', '#e2be4b', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+        dataLabels: {
+          enabled: true,
+          formatter: (val) => '$' + val.toLocaleString(),
+          style: { colors: ['#fff'], fontFamily: 'Inter', fontWeight: 600 },
+          offsetX: 10
+        },
+        xaxis: {
+          categories: ['Monaco', 'Geneva', 'Hong Kong', 'New York', 'London', 'Tokyo'],
+          labels: {
+            style: { colors: '#9ca3af' },
+            formatter: (val) => '$' + (val / 1000).toFixed(0) + 'k'
+          },
+          axisBorder: { show: false }
+        },
+        yaxis: {
+          labels: { style: { colors: '#e5e7eb', fontFamily: 'Inter', fontWeight: 500 } }
+        },
+        grid: {
+          borderColor: 'rgba(255, 255, 255, 0.05)',
+          xaxis: { lines: { show: true } }
+        },
+        legend: { show: false },
+        tooltip: {
+          theme: 'dark',
+          y: { formatter: (val) => '$' + val.toLocaleString() + ' USD / m²' }
+        }
+      };
+      const citiesChart = new ApexCharts(document.getElementById('topCitiesChart'), citiesOptions);
+      citiesChart.render();
+
+      // 5. Treemap Chart: Property Distribution
+      const treemapOptions = {
+        series: [{
+          data: [
+            { x: 'North America (US & CA)', y: 450 },
+            { x: 'Western Europe (UK, DE, FR)', y: 380 },
+            { x: 'Middle East (UAE, SA)', y: 280 },
+            { x: 'Asia Pacific (JP, SG, AU)', y: 220 },
+            { x: 'Nordics (SE, CH, NO)', y: 150 },
+            { x: 'Southern Europe (ES, IT, PT)', y: 120 },
+            { x: 'Latin America', y: 80 },
+            { x: 'Eastern Europe', y: 70 }
+          ]
+        }],
+        chart: {
+          type: 'treemap',
+          height: 280,
+          background: 'transparent',
+          toolbar: { show: false }
+        },
+        colors: ['#D4AF37', '#b89628', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1'],
+        plotOptions: {
+          treemap: {
+            distributed: true,
+            enableShades: false
+          }
+        },
+        tooltip: {
+          theme: 'dark',
+          y: { formatter: (val) => val + 'k Verified Properties' }
+        }
+      };
+      const treemapChart = new ApexCharts(document.getElementById('treemapChart'), treemapOptions);
+      treemapChart.render();
+    }
+
+    // 6. Optional API Fetch for Properties
+    fetch('/api/properties?per_page=6')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.properties && data.properties.length > 0) {
+          // Dynamic render if API is active
+          console.log("Loaded live properties from API:", data.properties.length);
+        }
+      })
+      .catch(err => console.log("Using static template properties showcase"));
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+{% set active_page = 'buy' %}
+
+{% block title %}Buy Global Properties | Real Estate Marketplace{% endblock %}
+
+{% block content %}
+<div class="marketplace-page-container">
+  <!-- PAGE HEADER WITH SECTION OUTLINE -->
+  <div class="page-header-card glass-card section-card-outline" data-aos="fade-down">
+    <div class="header-titles">
+      <div class="section-badge-pill">
+        <span class="badge-dot"></span>
+        <span>Institutional Asset Marketplace</span>
+      </div>
+      <h1 class="page-title">
+        Discover & Acquire <span class="gold-text-shimmer">Premier Global Properties</span>
+      </h1>
+      <p class="text-muted">
+        Direct transactional access to 112+ curated penthouses, waterfront villas, and trophy architectural estates across sovereign markets. Fully protected by verified Escrow settlement.
+      </p>
+    </div>
+    <div class="header-action-group">
+      <a href="/sell" class="btn-gold btn-glow">
+        <i data-lucide="plus-circle"></i>
+        <span>List Your Property</span>
+      </a>
+      <a href="/global" class="btn-ghost">
+        <i data-lucide="earth"></i>
+        <span>BIS Century Intelligence</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- MARKET METRICS STATS BAR -->
+  <div class="global-stats-grid" data-aos="fade-up" data-aos-delay="100">
+    <div class="global-stat-card glass-card">
+      <div class="stat-icon gold-tint"><i data-lucide="building-2"></i></div>
+      <div class="stat-content">
+        <span class="stat-label">Active Listings</span>
+        <h3 class="stat-value gold-text">{{ total_count }} Assets</h3>
+      </div>
+    </div>
+    <div class="global-stat-card glass-card">
+      <div class="stat-icon blue-tint"><i data-lucide="globe"></i></div>
+      <div class="stat-content">
+        <span class="stat-label">Countries Covered</span>
+        <h3 class="stat-value">{{ available_countries|length }} Nations</h3>
+      </div>
+    </div>
+    <div class="global-stat-card glass-card">
+      <div class="stat-icon green-tint"><i data-lucide="shield-check"></i></div>
+      <div class="stat-content">
+        <span class="stat-label">Settlement Security</span>
+        <h3 class="stat-value green-text">100% Escrow</h3>
+      </div>
+    </div>
+    <div class="global-stat-card glass-card">
+      <div class="stat-icon purple-tint"><i data-lucide="camera"></i></div>
+      <div class="stat-content">
+        <span class="stat-label">Visual Verification</span>
+        <h3 class="stat-value purple-text">JPG Photos Ready</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER & SEARCH CONTROL DECK (OUTLINED BOX) -->
+  <div class="search-filter-card glass-card section-card-outline" data-aos="fade-up" data-aos-delay="150">
+    <div class="box-card-header">
+      <div class="header-left">
+        <i data-lucide="sliders-horizontal" class="gold-icon"></i>
+        <h3 class="box-heading">Refine Global Portfolio</h3>
+      </div>
+      <span class="results-count-tag">{{ total_count }} Verified Listings Found</span>
+    </div>
+
+    <form method="GET" action="/buy" id="filterForm" class="filter-controls-grid">
+      <!-- Search Keyword -->
+      <div class="filter-group">
+        <label for="searchQuery"><i data-lucide="search"></i> Search Asset / City / Title:</label>
+        <input 
+          type="text" 
+          id="searchQuery" 
+          name="search" 
+          class="form-input-sm" 
+          placeholder="e.g. Penthouse, Como, Tokyo..."
+          value="{{ filters.search }}"
+        >
+      </div>
+
+      <!-- Country Filter -->
+      <div class="filter-group">
+        <label for="countryFilter"><i data-lucide="map-pin"></i> Sovereign Market:</label>
+        <select id="countryFilter" name="country" class="form-select-sm" onchange="this.form.submit()">
+          <option value="">🌍 All Sovereign Markets</option>
+          {% for c in available_countries %}
+            <option value="{{ c }}" {% if filters.country == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Property Type Filter -->
+      <div class="filter-group">
+        <label for="typeFilter"><i data-lucide="home"></i> Property Type:</label>
+        <select id="typeFilter" name="type" class="form-select-sm" onchange="this.form.submit()">
+          <option value="">🏛️ All Property Classes</option>
+          {% for t in available_types %}
+            <option value="{{ t }}" {% if filters.type == t %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Bedrooms Filter -->
+      <div class="filter-group">
+        <label for="bedroomsFilter"><i data-lucide="bed"></i> Min Bedrooms:</label>
+        <select id="bedroomsFilter" name="bedrooms" class="form-select-sm" onchange="this.form.submit()">
+          <option value="">Any Beds</option>
+          <option value="1" {% if filters.bedrooms == '1.0' or filters.bedrooms == 1 %}selected{% endif %}>1+ Bedroom</option>
+          <option value="2" {% if filters.bedrooms == '2.0' or filters.bedrooms == 2 %}selected{% endif %}>2+ Bedrooms</option>
+          <option value="3" {% if filters.bedrooms == '3.0' or filters.bedrooms == 3 %}selected{% endif %}>3+ Bedrooms</option>
+          <option value="4" {% if filters.bedrooms == '4.0' or filters.bedrooms == 4 %}selected{% endif %}>4+ Bedrooms</option>
+          <option value="5" {% if filters.bedrooms == '5.0' or filters.bedrooms == 5 %}selected{% endif %}>5+ Bedrooms</option>
+        </select>
+      </div>
+
+      <!-- Sort Filter -->
+      <div class="filter-group">
+        <label for="sortBy"><i data-lucide="arrow-up-down"></i> Sort Listings By:</label>
+        <select id="sortBy" name="sort_by" class="form-select-sm" onchange="this.form.submit()">
+          <option value="featured" {% if filters.sort_by == 'featured' %}selected{% endif %}>Curated Trophy Assets</option>
+          <option value="price_desc" {% if filters.sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          <option value="price_asc" {% if filters.sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+          <option value="beds_desc" {% if filters.sort_by == 'beds_desc' %}selected{% endif %}>Most Bedrooms</option>
+          <option value="area_desc" {% if filters.sort_by == 'area_desc' %}selected{% endif %}>Largest Living Area</option>
+          <option value="newest" {% if filters.sort_by == 'newest' %}selected{% endif %}>Newest Additions</option>
+        </select>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="filter-actions-group">
+        <button type="submit" class="btn-gold-sm">
+          <i data-lucide="check"></i> Apply Filters
+        </button>
+        <a href="/buy" class="btn-ghost-sm" title="Clear All Filters">
+          <i data-lucide="rotate-ccw"></i> Reset
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- PROPERTY LISTINGS GRID -->
+  <div class="properties-deck-section" data-aos="fade-up" data-aos-delay="200">
+    {% if properties %}
+      <div class="properties-grid">
+        {% for prop in properties %}
+        <div class="property-market-card glass-card section-card-outline" data-prop-id="{{ prop.id }}">
+          <!-- Card Image & Badges -->
+          <div class="property-card-media">
+            <img 
+              src="{{ prop.image_url }}" 
+              alt="{{ prop.title }}" 
+              class="prop-cover-img"
+              onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'"
+              loading="lazy"
+            >
+            <div class="media-badges">
+              {% if prop.is_featured %}
+                <span class="badge-gold"><i data-lucide="sparkles"></i> Trophy Asset</span>
+              {% endif %}
+              <span class="badge-type">{{ prop.property_type }}</span>
+              {% if prop.status == 'under_offer' %}
+                <span class="badge-status-offer">Under Escrow Offer</span>
+              {% else %}
+                <span class="badge-status-avail">Verified Available</span>
+              {% endif %}
+            </div>
+            <div class="media-country-tag">
+              <span>📍 {{ prop.city }}, {{ prop.country }}</span>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="property-card-body">
+            <h3 class="property-title">
+              <a href="/property/{{ prop.id }}">{{ prop.title }}</a>
+            </h3>
+
+            <div class="property-price-row">
+              <div class="price-box">
+                <span class="price-val gold-text-shimmer">${{ "{:,.0f}".format(prop.price) }}</span>
+                <span class="price-currency">USD</span>
+              </div>
+              {% if prop.area and prop.area > 0 %}
+                <div class="price-per-m2">
+                  <span>${{ "{:,.0f}".format(prop.price / prop.area) }}/m²</span>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Key Specs Icons Row -->
+            <div class="property-specs-grid">
+              <div class="spec-pill" title="Bedrooms">
+                <i data-lucide="bed"></i>
+                <span>{{ "{:.0f}".format(prop.bedrooms) }} Beds</span>
+              </div>
+              <div class="spec-pill" title="Bathrooms">
+                <i data-lucide="bath"></i>
+                <span>{{ "{:.1f}".format(prop.bathrooms) }} Baths</span>
+              </div>
+              <div class="spec-pill" title="Living Area">
+                <i data-lucide="maximize"></i>
+                <span>{{ "{:,.0f}".format(prop.area) }} m²</span>
+              </div>
+              <div class="spec-pill" title="Construction Year">
+                <i data-lucide="calendar"></i>
+                <span>{{ prop.building_year or 2022 }}</span>
+              </div>
+            </div>
+
+            <!-- Description excerpt -->
+            <p class="property-card-desc">
+              {{ prop.description[:130] }}...
+            </p>
+
+            <!-- Card Bottom Buttons -->
+            <div class="property-card-actions">
+              <a href="/property/{{ prop.id }}" class="btn-ghost-sm" title="View Full Specs & JPG Image Blanks">
+                <i data-lucide="eye"></i>
+                <span>Details & JPGs</span>
+              </a>
+              <button 
+                type="button" 
+                class="btn-gold-sm" 
+                onclick="openBuyModal({{ prop.id }}, '{{ prop.title|replace('\'', '\\\'') }}', {{ prop.price }})"
+                title="Acquire with Escrow Settlement"
+              >
+                <i data-lucide="shield-check"></i>
+                <span>Buy / Offer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- PAGINATION CONTROLS -->
+      {% if total_pages > 1 %}
+      <div class="pagination-bar glass-card section-card-outline" data-aos="fade-up">
+        <div class="pagination-info">
+          Page <strong>{{ current_page }}</strong> of <strong>{{ total_pages }}</strong> ({{ total_count }} total assets)
+        </div>
+        <div class="pagination-links">
+          {% if current_page > 1 %}
+            <a href="/buy?page={{ current_page - 1 }}&country={{ filters.country }}&type={{ filters.type }}&search={{ filters.search }}&sort_by={{ filters.sort_by }}" class="page-btn">
+              <i data-lucide="chevron-left"></i> Previous
+            </a>
+          {% endif %}
+          
+          <span class="current-page-badge">{{ current_page }}</span>
+
+          {% if current_page < total_pages %}
+            <a href="/buy?page={{ current_page + 1 }}&country={{ filters.country }}&type={{ filters.type }}&search={{ filters.search }}&sort_by={{ filters.sort_by }}" class="page-btn">
+              Next <i data-lucide="chevron-right"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+    {% else %}
+      <!-- NO PROPERTIES FOUND EMPTY STATE -->
+      <div class="empty-state-card glass-card section-card-outline text-center" style="padding: 60px 24px;">
+        <div style="font-size: 52px; margin-bottom: 16px;">🏛️</div>
+        <h2 style="font-size: 1.6rem; color: #D4AF37; margin-bottom: 10px;">No Matching Properties Found</h2>
+        <p class="text-muted" style="max-width: 500px; margin: 0 auto 24px;">
+          Try adjusting your search criteria or resetting filters to explore properties across all 61 sovereign nations.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <a href="/buy" class="btn-gold-sm">Reset All Filters</a>
+          <a href="/sell" class="btn-ghost-sm">+ List A New Property</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ESCROW BUY / MAKE OFFER MODAL -->
+<div class="modal-overlay" id="buyModal">
+  <div class="modal-card glass-card section-card-outline" style="max-width: 580px; width: 90%;">
+    <div class="modal-header">
+      <div>
+        <span class="gold-tag">Secure Escrow Settlement</span>
+        <h2 class="modal-title" id="buyModalTitle">Acquire Property</h2>
+      </div>
+      <button class="modal-close-btn" onclick="closeBuyModal()" aria-label="Close Modal">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <form id="buyOfferForm" onsubmit="submitBuyOffer(event)" class="modal-form">
+      <input type="hidden" id="modalPropId" name="property_id">
+
+      <div class="form-group">
+        <label for="modalOfferAmount" class="form-label">Offer Amount (USD)</label>
+        <div class="input-wrapper">
+          <span class="input-prefix" style="position: absolute; left: 1rem; color: #D4AF37; font-weight: 700;">$</span>
+          <input 
+            type="number" 
+            id="modalOfferAmount" 
+            name="offer_amount" 
+            class="form-input" 
+            style="padding-left: 2rem;" 
+            required
+            oninput="updateDownPaymentCalc(this.value)"
+          >
+        </div>
+        <small class="text-muted" id="downPaymentHint">Recommended minimum down payment: 20% ($0)</small>
+      </div>
+
+      <div class="form-group">
+        <label for="modalPaymentMethod" class="form-label">Preferred Settlement Method</label>
+        <select id="modalPaymentMethod" name="payment_method" class="form-select" required>
+          <option value="Escrow Wire Transfer (SWIFT / Fedwire)" selected>🏛️ Escrow Wire Transfer (SWIFT / Fedwire)</option>
+          <option value="USDC / Crypto Multi-Sig Escrow">💎 USDC / Crypto Multi-Sig Escrow</option>
+          <option value="Private Banking Capital Call">🏦 Private Banking Capital Call</option>
+          <option value="Institutional Mortgage Pre-Approved">📄 Institutional Mortgage Pre-Approved</option>
+        </select>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label for="buyerName" class="form-label">Buyer Full Name</label>
+          <input 
+            type="text" 
+            id="buyerName" 
+            name="buyer_name" 
+            class="form-input" 
+            value="{{ user.full_name if user else 'Alexander Vance' }}" 
+            required
+          >
+        </div>
+        <div class="form-group">
+          <label for="buyerEmail" class="form-label">Buyer Email Address</label>
+          <input 
+            type="email" 
+            id="buyerEmail" 
+            name="buyer_email" 
+            class="form-input" 
+            value="{{ user.email if user else 'alexander@estatevision.io' }}" 
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="buyerNotes" class="form-label">Special Conditions / Closing Timeline</label>
+        <textarea 
+          id="buyerNotes" 
+          name="notes" 
+          class="form-textarea" 
+          rows="2" 
+          placeholder="e.g. 30-day closing requested, contingent on customary architectural survey..."
+        ></textarea>
+      </div>
+
+      <div class="escrow-guarantee-box" style="padding: 12px; border-radius: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); margin-bottom: 16px;">
+        <div style="display: flex; gap: 8px; align-items: center; color: #10B981; font-size: 0.82rem; font-weight: 600;">
+          <i data-lucide="shield-check"></i>
+          <span>Institutional Escrow Guarantee</span>
+        </div>
+        <p style="font-size: 0.76rem; color: #94A3B8; margin-top: 4px; line-height: 1.4;">
+          Your purchase offer is protected by sovereign escrow agreements. Funds are only transferred upon clean legal title clearance.
+        </p>
+      </div>
+
+      <div class="modal-actions" style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" class="btn-ghost" onclick="closeBuyModal()">Cancel</button>
+        <button type="submit" class="btn-gold btn-glow" id="submitOfferBtn">
+          <span>Submit Escrow Offer</span>
+          <i data-lucide="arrow-right"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TRANSACTION CONFIRMATION SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal-card glass-card section-card-outline text-center" style="max-width: 520px; width: 90%; padding: 36px 24px;">
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(16,185,129,0.15); border: 1px solid #10B981; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #10B981;">
+      <i data-lucide="check-check" style="width: 32px; height: 32px;"></i>
+    </div>
+    <span class="gold-tag">Transaction Registered</span>
+    <h2 style="font-size: 1.5rem; color: #F8FAFC; margin: 8px 0;">Offer Successfully Transmitted</h2>
+    <p class="text-muted" id="successModalMsg" style="font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px;">
+      Your acquisition offer has been registered with institutional escrow tracking.
+    </p>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.3); border-radius: 10px; padding: 14px; margin-bottom: 24px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.82rem;">
+        <span class="text-muted">Escrow Tracking Code:</span>
+        <strong id="successTxCode" style="color: #D4AF37; font-family: monospace;">EV-TX-000000</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+        <span class="text-muted">Settlement Status:</span>
+        <span class="badge-status-avail" style="padding: 2px 8px; font-size: 0.72rem;">Pending Escrow Review</span>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <a href="/dashboard" class="btn-gold-sm">View in Dashboard</a>
+      <button type="button" class="btn-ghost-sm" onclick="closeSuccessModal()">Continue Browsing</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openBuyModal(propId, title, price) {
+  document.getElementById('modalPropId').value = propId;
+  document.getElementById('buyModalTitle').textContent = 'Acquire: ' + title;
+  document.getElementById('modalOfferAmount').value = price;
+  updateDownPaymentCalc(price);
+  document.getElementById('buyModal').classList.add('active');
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeBuyModal() {
+  document.getElementById('buyModal').classList.remove('active');
+}
+
+function closeSuccessModal() {
+  document.getElementById('successModal').classList.remove('active');
+}
+
+function updateDownPaymentCalc(val) {
+  const num = parseFloat(val) || 0;
+  const down = num * 0.2;
+  const hint = document.getElementById('downPaymentHint');
+  if (hint) {
+    hint.textContent = `Recommended 20% down payment: $${down.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+  }
+}
+
+async function submitBuyOffer(e) {
+  e.preventDefault();
+  const form = e.target;
+  const propId = document.getElementById('modalPropId').value;
+  const btn = document.getElementById('submitOfferBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>Registering with Escrow...</span>';
+
+  const payload = {
+    offer_amount: form.offer_amount.value,
+    payment_method: form.payment_method.value,
+    buyer_name: form.buyer_name.value,
+    buyer_email: form.buyer_email.value,
+    notes: form.notes.value
+  };
+
+  try {
+    const res = await fetch(`/api/property/${propId}/buy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    btn.disabled = false;
+    btn.innerHTML = '<span>Submit Escrow Offer</span><i data-lucide="arrow-right"></i>';
+
+    if (data.success) {
+      closeBuyModal();
+      document.getElementById('successTxCode').textContent = data.transaction_code;
+      document.getElementById('successModalMsg').textContent = data.message;
+      document.getElementById('successModal').classList.add('active');
+      if (window.lucide) lucide.createIcons();
+    } else {
+      alert(data.error || 'Failed to submit offer.');
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Submit Escrow Offer</span><i data-lucide="arrow-right"></i>';
+    alert('Network error submitting offer: ' + err.message);
+  }
+}
+
+// Close modals when clicking outside
+document.querySelectorAll('.modal-overlay').forEach(modal => {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('active');
+    }
+  });
+});
+</script>
+{% endblock %}

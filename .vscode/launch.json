@@ -1,0 +1,18 @@
+{
+  version: 0.2.0,
+  configurations: [
+    {
+      name: EstateVision Run,
+      type: debugpy,
+      request: launch,
+      program: /app.py,
+      console: integratedTerminal,
+      justMyCode: true,
+      serverReadyAction: {
+        pattern: Running on (http://\\S+),
+        uriFormat: %s,
+        action: openExternally
+      }
+    }
+  ]
+}

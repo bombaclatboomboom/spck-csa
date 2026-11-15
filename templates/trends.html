@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% set active_page = 'trends' %}
+
+{% block title %}Market Price Trends & Historical Analytics{% endblock %}
+
+{% block content %}
+<div class="trends-page-container">
+  <!-- PAGE HEADER & CONTROLS -->
+  <div class="trends-header-row" data-aos="fade-down">
+    <div class="header-titles">
+      <span class="sub-greeting gold-text">Longitudinal Macro Analytics</span>
+      <h1 class="page-title">Market <span class="gold-text-shimmer">Price Trends</span></h1>
+      <p class="text-muted">Multi-decade price cycles, distribution histograms, and localized volatility models</p>
+    </div>
+
+    <!-- Country & Timeframe Controls Bar -->
+    <div class="trends-filter-bar glass-card">
+      <div class="filter-item">
+        <label for="trendsCountrySelect"><i data-lucide="globe"></i> Country:</label>
+        <select id="trendsCountrySelect" class="form-select-sm">
+          <option value="United States">🇺🇸 United States</option>
+          <option value="United Kingdom">🇬🇧 United Kingdom</option>
+          <option value="United Arab Emirates">🇦🇪 UAE</option>
+          <option value="Germany">🇩🇪 Germany</option>
+          <option value="France">🇫🇷 France</option>
+          <option value="Japan">🇯🇵 Japan</option>
+          <option value="Switzerland">🇨🇭 Switzerland</option>
+          <option value="Singapore">🇸🇬 Singapore</option>
+          {% if countries %}
+            {% for c in countries %}
+              {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Switzerland', 'Singapore'] %}
+                <option value="{{ c }}">{{ c }}</option>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="trendsTimeframe"><i data-lucide="calendar"></i> Range:</label>
+        <select id="trendsTimeframe" class="form-select-sm">
+          <option value="all">2018 - 2026 (Full Cycle)</option>
+          <option value="5y">Past 5 Years</option>
+          <option value="3y">Past 3 Years</option>
+          <option value="1y">Trailing 12 Months</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="trendsCurrency"><i data-lucide="dollar-sign"></i> Index:</label>
+        <select id="trendsCurrency" class="form-select-sm">
+          <option value="usd">USD ($)</option>
+          <option value="eur">EUR (€)</option>
+          <option value="gbp">GBP (£)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTO-GENERATED MARKET INSIGHT CARDS -->
+  <div class="market-insights-grid" data-aos="fade-up">
+    <!-- Insight 1 -->
+    <div class="insight-card glass-card">
+      <div class="insight-icon-box gold-tint">
+        <i data-lucide="trending-up"></i>
+      </div>
+      <div class="insight-details">
+        <span class="insight-sub">Capital Appreciation</span>
+        <h4 class="insight-value green-text">+23.4%</h4>
+        <p class="insight-caption">Cumulative appreciation across prime residential sectors since 2020.</p>
+      </div>
+    </div>
+
+    <!-- Insight 2 -->
+    <div class="insight-card glass-card">
+      <div class="insight-icon-box blue-tint">
+        <i data-lucide="zap"></i>
+      </div>
+      <div class="insight-details">
+        <span class="insight-sub">Peak Expansion Year</span>
+        <h4 class="insight-value">2023 <small>(+14.8%)</small></h4>
+        <p class="insight-caption">Recorded highest capital inflow and median price growth.</p>
+      </div>
+    </div>
+
+    <!-- Insight 3 -->
+    <div class="insight-card glass-card">
+      <div class="insight-icon-box purple-tint">
+        <i data-lucide="pie-chart"></i>
+      </div>
+      <div class="insight-details">
+        <span class="insight-sub">Highest Demand Segment</span>
+        <h4 class="insight-value">2-3 Bed Penthouse</h4>
+        <p class="insight-caption">Accounts for 48% of prime cross-border buyer liquidity.</p>
+      </div>
+    </div>
+
+    <!-- Insight 4 -->
+    <div class="insight-card glass-card">
+      <div class="insight-icon-box green-tint">
+        <i data-lucide="shield-check"></i>
+      </div>
+      <div class="insight-details">
+        <span class="insight-sub">Market Volatility Beta</span>
+        <h4 class="insight-value">0.14 <small>Low Beta</small></h4>
+        <p class="insight-caption">Low downside risk coefficient compared to broad equities.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN FULL-WIDTH AREA CHART: HISTORICAL PRICE TRENDS -->
+  <div class="chart-card glass-card main-trend-card" data-aos="fade-up" data-aos-delay="100">
+    <div class="chart-card-header">
+      <div>
+        <h3 class="chart-heading">Longitudinal Price Index (2018 - 2026)</h3>
+        <span class="chart-sub">Indexed average property valuation against luxury prime benchmark</span>
+      </div>
+      <div class="timeframe-pills" id="chartTimeframePills">
+        <button class="time-pill" data-range="1Y">1Y</button>
+        <button class="time-pill" data-range="3Y">3Y</button>
+        <button class="time-pill" data-range="5Y">5Y</button>
+        <button class="time-pill active" data-range="ALL">ALL</button>
+      </div>
+    </div>
+    <div id="mainTrendChart" class="main-trend-chart-viewport"></div>
+  </div>
+
+  <!-- THREE-COLUMN CHARTS GRID -->
+  <div class="charts-three-grid" data-aos="fade-up" data-aos-delay="150">
+    <!-- Chart 1: Price Distribution Histogram -->
+    <div class="chart-card glass-card">
+      <div class="chart-card-header">
+        <div>
+          <h4 class="chart-heading-sm">Price Distribution</h4>
+          <span class="chart-sub">Volume breakdown by bracket</span>
+        </div>
+        <span class="pill-badge">Histogram</span>
+      </div>
+      <div id="distributionChart" class="chart-viewport-sm"></div>
+    </div>
+
+    <!-- Chart 2: Price Volatility (Min/Max/Avg Band) -->
+    <div class="chart-card glass-card">
+      <div class="chart-card-header">
+        <div>
+          <h4 class="chart-heading-sm">Annual Price Dispersion</h4>
+          <span class="chart-sub">Min, Median & Max spreads</span>
+        </div>
+        <span class="pill-badge gold-pill">Volatility</span>
+      </div>
+      <div id="volatilityChart" class="chart-viewport-sm"></div>
+    </div>
+
+    <!-- Chart 3: Top Cities Comparison Bar Chart -->
+    <div class="chart-card glass-card">
+      <div class="chart-card-header">
+        <div>
+          <h4 class="chart-heading-sm">Top Metropolitan Nodes</h4>
+          <span class="chart-sub">Average transaction prices</span>
+        </div>
+        <span class="pill-badge">Cities</span>
+      </div>
+      <div id="topCitiesTrendChart" class="chart-viewport-sm"></div>
+    </div>
+  </div>
+
+  <!-- HISTORICAL DATA BREAKDOWN TABLE -->
+  <div class="chart-card glass-card mt-4" data-aos="fade-up" data-aos-delay="200">
+    <div class="chart-card-header">
+      <div>
+        <h4 class="chart-heading">Metropolitan Market Dynamics Table</h4>
+        <span class="chart-sub">Quarterly liquidity index, cap rates, and annual percentage changes</span>
+      </div>
+      <button class="btn-ghost-sm" onclick="alert('Exporting CSV historical comps...')">
+        <i data-lucide="download"></i>
+        <span>Export Comps (CSV)</span>
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="luxury-table">
+        <thead>
+          <tr>
+            <th>Metropolitan Node</th>
+            <th>Median Valuation</th>
+            <th>Price / m²</th>
+            <th>1Y Change</th>
+            <th>5Y Appreciation</th>
+            <th>Gross Cap Rate</th>
+            <th>Liquidity Score</th>
+          </tr>
+        </thead>
+        <tbody id="trendsTableBody">
+          <tr>
+            <td><strong>London Prime Central</strong></td>
+            <td>$3,840,000</td>
+            <td>$15,800/m²</td>
+            <td class="green-text">+4.2%</td>
+            <td class="green-text">+28.5%</td>
+            <td>4.6%</td>
+            <td><span class="status-pill status-high">High (88/100)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Dubai Downtown & Marina</strong></td>
+            <td>$2,450,000</td>
+            <td>$9,600/m²</td>
+            <td class="green-text">+14.8%</td>
+            <td class="green-text">+62.4%</td>
+            <td>7.8%</td>
+            <td><span class="status-pill status-high">Very High (94/100)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Manhattan Core</strong></td>
+            <td>$3,150,000</td>
+            <td>$16,200/m²</td>
+            <td class="green-text">+3.1%</td>
+            <td class="green-text">+21.2%</td>
+            <td>4.9%</td>
+            <td><span class="status-pill status-high">High (86/100)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Paris 8th & 16th</strong></td>
+            <td>$2,980,000</td>
+            <td>$14,500/m²</td>
+            <td class="green-text">+2.8%</td>
+            <td class="green-text">+19.6%</td>
+            <td>3.9%</td>
+            <td><span class="status-pill status-med">Moderate (74/100)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Tokyo Minato & Shibuya</strong></td>
+            <td>$2,280,000</td>
+            <td>$12,100/m²</td>
+            <td class="green-text">+5.6%</td>
+            <td class="green-text">+31.0%</td>
+            <td>4.2%</td>
+            <td><span class="status-pill status-high">High (82/100)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/charts.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.ApexCharts) return;
+
+    // 1. Main Longitudinal Trend Area Chart
+    const mainTrendOptions = {
+      series: [
+        { name: 'Prime Luxury Asset Index', data: [280, 295, 315, 350, 395, 435, 470, 510, 545] },
+        { name: 'Metropolitan Median Index', data: [195, 205, 215, 230, 250, 275, 295, 315, 335] }
+      ],
+      chart: {
+        type: 'area',
+        height: 380,
+        background: 'transparent',
+        toolbar: { show: false }
+      },
+      colors: ['#D4AF37', '#3b82f6'],
+      stroke: { curve: 'smooth', width: 3 },
+      fill: {
+        type: 'gradient',
+        gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 95, 100] }
+      },
+      dataLabels: { enabled: false },
+      xaxis: {
+        categories: ['2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+        labels: { style: { colors: '#9ca3af', fontFamily: 'Inter' } },
+        axisBorder: { show: false }
+      },
+      yaxis: {
+        labels: {
+          style: { colors: '#9ca3af', fontFamily: 'Inter' },
+          formatter: (v) => '$' + v + 'k'
+        }
+      },
+      grid: {
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        strokeDashArray: 4
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'right',
+        labels: { colors: '#e5e7eb' },
+        fontFamily: 'Inter'
+      },
+      tooltip: {
+        theme: 'dark',
+        y: { formatter: (v) => '$' + (v * 1000).toLocaleString() + ' USD' }
+      }
+    };
+
+    const mainTrendChart = new ApexCharts(document.getElementById('mainTrendChart'), mainTrendOptions);
+    mainTrendChart.render();
+
+    // 2. Chart 1: Price Distribution Histogram
+    const distOptions = {
+      series: [{
+        name: 'Listings Count',
+        data: [1200, 3400, 6800, 9200, 7400, 4100, 1900, 850]
+      }],
+      chart: {
+        type: 'bar',
+        height: 260,
+        background: 'transparent',
+        toolbar: { show: false }
+      },
+      colors: ['#D4AF37'],
+      plotOptions: {
+        bar: {
+          borderRadius: 4,
+          columnWidth: '65%'
+        }
+      },
+      dataLabels: { enabled: false },
+      xaxis: {
+        categories: ['<$250k', '$250k-$500k', '$500k-$1M', '$1M-$2M', '$2M-$3.5M', '$3.5M-$5M', '$5M-$10M', '$10M+'],
+        labels: {
+          style: { colors: '#9ca3af', fontSize: '10px' },
+          rotate: -45
+        },
+        axisBorder: { show: false }
+      },
+      yaxis: {
+        labels: { style: { colors: '#9ca3af' } }
+      },
+      grid: { borderColor: 'rgba(255, 255, 255, 0.05)' },
+      tooltip: {
+        theme: 'dark',
+        y: { formatter: (v) => v.toLocaleString() + ' Properties' }
+      }
+    };
+    const distChart = new ApexCharts(document.getElementById('distributionChart'), distOptions);
+    distChart.render();
+
+    // 3. Chart 2: Price Volatility (Range / Min-Avg-Max)
+    const volOptions = {
+      series: [
+        { name: 'Max Recorded', data: [450, 480, 520, 590, 680, 750, 810] },
+        { name: 'Median Price', data: [280, 310, 340, 390, 440, 485, 520] },
+        { name: 'Min Recorded', data: [160, 180, 200, 220, 250, 270, 290] }
+      ],
+      chart: {
+        type: 'line',
+        height: 260,
+        background: 'transparent',
+        toolbar: { show: false }
+      },
+      colors: ['#ef4444', '#D4AF37', '#10b981'],
+      stroke: { curve: 'straight', width: [2, 3, 2], dashArray: [5, 0, 5] },
+      xaxis: {
+        categories: ['2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+        labels: { style: { colors: '#9ca3af' } },
+        axisBorder: { show: false }
+      },
+      yaxis: {
+        labels: {
+          style: { colors: '#9ca3af' },
+          formatter: (v) => '$' + v + 'k'
+        }
+      },
+      grid: { borderColor: 'rgba(255, 255, 255, 0.05)' },
+      legend: { position: 'bottom', labels: { colors: '#9ca3af' } },
+      tooltip: {
+        theme: 'dark',
+        y: { formatter: (v) => '$' + (v * 1000).toLocaleString() + ' USD' }
+      }
+    };
+    const volChart = new ApexCharts(document.getElementById('volatilityChart'), volOptions);
+    volChart.render();
+
+    // 4. Chart 3: Top Cities Comparison Bar Chart
+    const topCitiesOptions = {
+      series: [{
+        name: 'Avg Unit Price',
+        data: [3840, 3150, 2980, 2450, 2280]
+      }],
+      chart: {
+        type: 'bar',
+        height: 260,
+        background: 'transparent',
+        toolbar: { show: false }
+      },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          borderRadius: 4,
+          distributed: true,
+          barHeight: '55%'
+        }
+      },
+      colors: ['#D4AF37', '#e2be4b', '#3b82f6', '#10b981', '#8b5cf6'],
+      dataLabels: {
+        enabled: true,
+        formatter: (v) => '$' + (v / 1000).toFixed(1) + 'M',
+        style: { colors: ['#ffffff'], fontFamily: 'Inter', fontSize: '11px' }
+      },
+      xaxis: {
+        categories: ['London', 'New York', 'Paris', 'Dubai', 'Tokyo'],
+        labels: {
+          style: { colors: '#9ca3af' },
+          formatter: (v) => '$' + (v / 1000).toFixed(1) + 'M'
+        },
+        axisBorder: { show: false }
+      },
+      yaxis: {
+        labels: { style: { colors: '#f3f4f6', fontFamily: 'Inter' } }
+      },
+      grid: { borderColor: 'rgba(255, 255, 255, 0.05)' },
+      legend: { show: false },
+      tooltip: {
+        theme: 'dark',
+        y: { formatter: (v) => '$' + (v * 1000).toLocaleString() + ' USD' }
+      }
+    };
+    const topCitiesChart = new ApexCharts(document.getElementById('topCitiesTrendChart'), topCitiesOptions);
+    topCitiesChart.render();
+
+    // 5. Dynamic Country Filter Update
+    const countrySelect = document.getElementById('trendsCountrySelect');
+    if (countrySelect) {
+      countrySelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        const mult = val === 'United Arab Emirates' ? 1.25 : (val === 'Germany' ? 0.88 : 1.05);
+        mainTrendChart.updateSeries([
+          { name: 'Prime Luxury Asset Index', data: [280, 295, 315, 350, 395, 435, 470, 510, 545].map(v => Math.round(v * mult)) },
+          { name: 'Metropolitan Median Index', data: [195, 205, 215, 230, 250, 275, 295, 315, 335].map(v => Math.round(v * mult)) }
+        ]);
+      });
+    }
+
+    // 6. Timeframe Pills Interactivity
+    const pills = document.querySelectorAll('#chartTimeframePills .time-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const range = pill.getAttribute('data-range');
+        if (range === '1Y') {
+          mainTrendChart.updateOptions({ xaxis: { categories: ['Q1 25', 'Q2 25', 'Q3 25', 'Q4 25', 'Q1 26'] } });
+          mainTrendChart.updateSeries([
+            { name: 'Prime Luxury Asset Index', data: [470, 490, 510, 530, 545] },
+            { name: 'Metropolitan Median Index', data: [295, 305, 315, 325, 335] }
+          ]);
+        } else {
+          mainTrendChart.updateOptions({ xaxis: { categories: ['2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'] } });
+          mainTrendChart.updateSeries([
+            { name: 'Prime Luxury Asset Index', data: [280, 295, 315, 350, 395, 435, 470, 510, 545] },
+            { name: 'Metropolitan Median Index', data: [195, 205, 215, 230, 250, 275, 295, 315, 335] }
+          ]);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
