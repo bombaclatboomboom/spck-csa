@@ -24,24 +24,20 @@ const Animations = {
     this.initAOS();
     this.heroAnimations();
     this.sectionReveals();
-    this.parallaxEffects();
-    this.staggeredCards();
     this.counterAnimations();
-    this.textAnimations();
     this.scrollIndicator();
-    this.magneticButtons();
     this.smoothReveal();
   },
 
   /**
-   * Initialize AOS (Animate on Scroll) as a lightweight reveal baseline
+   * Initialize AOS as lightweight subtle reveal
    */
   initAOS() {
     if (typeof AOS !== 'undefined') {
       AOS.init({
-        offset: 80,
-        duration: 850,
-        easing: 'ease-out-cubic',
+        offset: 40,
+        duration: 450,
+        easing: 'ease-out',
         once: true,
         disable: 'mobile'
       });
@@ -336,31 +332,7 @@ const Animations = {
    * High-Performance Magnetic Attraction on Buttons
    */
   magneticButtons() {
-    const buttons = document.querySelectorAll('.magnetic-btn, .btn-magnetic, .btn-luxury-gold');
-    if (!buttons.length) return;
-
-    buttons.forEach(btn => {
-      const xTo = gsap.quickTo(btn, 'x', { duration: 0.3, ease: 'power3' });
-      const yTo = gsap.quickTo(btn, 'y', { duration: 0.3, ease: 'power3' });
-
-      btn.addEventListener('mousemove', (e) => {
-        const { clientX, clientY } = e;
-        const { height, width, left, top } = btn.getBoundingClientRect();
-        const x = clientX - (left + width / 2);
-        const y = clientY - (top + height / 2);
-        xTo(x * 0.3);
-        yTo(y * 0.3);
-      });
-
-      btn.addEventListener('mouseleave', () => {
-        gsap.to(btn, {
-          x: 0,
-          y: 0,
-          duration: 0.7,
-          ease: 'elastic.out(1.1, 0.3)'
-        });
-      });
-    });
+    // Disabled for Apple minimalist interaction
   },
 
   /**

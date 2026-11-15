@@ -1,6 +1,6 @@
 /**
  * ====================================================================
- * AURA LUXURY REAL ESTATE — SIDEBAR CONTROLLER & NAVIGATION
+ * ESTATEVISION — SIDEBAR CONTROLLER & HOVER-EXPAND SYSTEM
  * File: static/js/sidebar.js
  * ====================================================================
  */
@@ -12,7 +12,7 @@ const Sidebar = {
   isMobile: false,
   breakpoint: 1024,
   elements: {},
-  countries: [],
+  _lastToggle: 0,
 
   /**
    * Initialize Sidebar Subsystem
@@ -23,7 +23,6 @@ const Sidebar = {
     this.restoreState();
     this.bindEvents();
     this.setActiveNavItem();
-    this.initCountrySearch();
   },
 
   /**
@@ -31,13 +30,11 @@ const Sidebar = {
    */
   cacheElements() {
     this.elements = {
-      sidebar: document.getElementById('sidebar') || document.querySelector('.app-sidebar'),
-      toggleBtns: document.querySelectorAll('#sidebar-toggle, .sidebar-toggle, .btn-sidebar-toggle'),
-      overlay: document.getElementById('sidebar-overlay') || document.querySelector('.sidebar-backdrop'),
-      mainContent: document.getElementById('main-content') || document.querySelector('.main-content') || document.querySelector('.app-main'),
-      countrySearch: document.getElementById('sidebar-country-search') || document.querySelector('[data-country-search]'),
-      countryList: document.getElementById('sidebar-country-list') || document.querySelector('.country-nav-list'),
-      navLinks: document.querySelectorAll('.sidebar-nav .nav-link, .nav-item a')
+      sidebar: document.getElementById('sidebar'),
+      toggleBtns: document.querySelectorAll('#sidebarToggle, #sidebar-toggle, .sidebar-toggle, .sidebar-close-btn, #sidebarCloseBtn'),
+      overlay: document.getElementById('sidebar-overlay'),
+      mainContent: document.getElementById('mainContent') || document.querySelector('.main-content'),
+      navLinks: document.querySelectorAll('.sidebar-nav .nav-item, .sidebar-nav a')
     };
 
     // Ensure overlay exists for mobile viewport
@@ -54,7 +51,7 @@ const Sidebar = {
         z-index: 990;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.25s ease;
       `;
       document.body.appendChild(overlay);
       this.elements.overlay = overlay;
@@ -69,7 +66,7 @@ const Sidebar = {
   },
 
   /**
-   * Restore Sidebar Open/Closed State from LocalStorage
+   * Restore Sidebar Open/Closed State
    */
   restoreState() {
     this.checkViewport();
@@ -77,7 +74,8 @@ const Sidebar = {
     if (this.isMobile) {
       this.close(false); // Mobile defaults to closed
     } else {
-      const saved = localStorage.getItem('aura_sidebar_open');
+      const saved = localStorage.getItem('ev_sidebar_pinned');
+      // Default open on desktop unless explicitly closed
       const shouldOpen = saved === null ? true : saved === 'true';
       if (shouldOpen) {
         this.open(false);
@@ -88,18 +86,22 @@ const Sidebar = {
   },
 
   /**
-   * Toggle Sidebar Open / Closed
+   * Toggle Sidebar Open / Closed with Debounce Protection
    */
   toggle() {
+    const now = Date.now();
+    if (now - this._lastToggle < 220) return;
+    this._lastToggle = now;
+
     if (this.isOpen) {
-      this.close();
+      this.close(true);
     } else {
-      this.open();
+      this.open(true);
     }
   },
 
   /**
-   * Open Sidebar
+   * Open / Expand Sidebar
    */
   open(persist = true) {
     this.isOpen = true;
@@ -116,30 +118,29 @@ const Sidebar = {
     if (this.isMobile && overlay) {
       overlay.style.pointerEvents = 'auto';
       overlay.style.opacity = '1';
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      document.body.style.overflow = 'hidden';
     }
 
     if (persist && !this.isMobile) {
-      localStorage.setItem('aura_sidebar_open', 'true');
+      localStorage.setItem('ev_sidebar_pinned', 'true');
     }
 
-    // Trigger window resize event to smoothly refit Globe and Charts
     this.dispatchResize();
   },
 
   /**
-   * Close Sidebar
+   * Close / Collapse Sidebar
    */
   close(persist = true) {
     this.isOpen = false;
     const { sidebar, overlay } = this.elements;
 
     if (sidebar) {
-      sidebar.classList.remove('sidebar-open');
+      sidebar.classList.remove('sidebar-open', 'sidebar-hover-expanded');
       sidebar.classList.add('collapsed', 'sidebar-closed', 'sidebar-collapsed');
     }
 
-    document.body.classList.remove('sidebar-expanded');
+    document.body.classList.remove('sidebar-expanded', 'sidebar-hover-active');
     document.body.classList.add('sidebar-collapsed', 'sidebar-is-collapsed');
 
     if (overlay) {
@@ -149,7 +150,7 @@ const Sidebar = {
     }
 
     if (persist && !this.isMobile) {
-      localStorage.setItem('aura_sidebar_open', 'false');
+      localStorage.setItem('ev_sidebar_pinned', 'false');
     }
 
     this.dispatchResize();
@@ -161,7 +162,7 @@ const Sidebar = {
   dispatchResize() {
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
-    }, 280);
+    }, 250);
   },
 
   /**
@@ -169,29 +170,19 @@ const Sidebar = {
    */
   setActiveNavItem() {
     const currentPath = window.location.pathname.toLowerCase();
-    const navLinks = document.querySelectorAll('.sidebar-nav a, .nav-item a, .sidebar-menu-link');
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-item');
 
     navLinks.forEach(link => {
       const href = link.getAttribute('href');
       if (!href) return;
 
       const linkPath = href.toLowerCase();
-      const isMatch = (currentPath === '/' && (linkPath === '/' || linkPath === '/home')) ||
-                      (linkPath !== '/' && linkPath !== '#' && currentPath.startsWith(linkPath));
+      const isMatch = (currentPath === '/' && linkPath === '/') ||
+                      (linkPath !== '/' && currentPath.startsWith(linkPath));
 
       if (isMatch) {
         link.classList.add('active');
         link.setAttribute('aria-current', 'page');
-        const parentItem = link.closest('.nav-item');
-        if (parentItem) parentItem.classList.add('active');
-
-        // If inside an accordion submenu, open parent
-        const parentSub = link.closest('.nav-submenu');
-        if (parentSub) {
-          parentSub.classList.add('show');
-          const toggle = parentSub.previousElementSibling;
-          if (toggle) toggle.classList.add('expanded');
-        }
       } else {
         link.classList.remove('active');
         link.removeAttribute('aria-current');
@@ -203,7 +194,7 @@ const Sidebar = {
    * Bind Event Listeners
    */
   bindEvents() {
-    // Toggle Button Clicks
+    // 1. Toggle Button Click Handlers
     this.elements.toggleBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -212,33 +203,41 @@ const Sidebar = {
       });
     });
 
-    // Mobile Backdrop Click
+    // 2. HOVER TO TURN ON / OFF:
+    // When sidebar is collapsed in dock mode, hovering over it expands it to 240px with full text.
+    // Moving the mouse away turns it off and collapses back to 68px.
+    const sidebar = this.elements.sidebar;
+    if (sidebar) {
+      sidebar.addEventListener('mouseenter', () => {
+        if (!this.isOpen && !this.isMobile) {
+          sidebar.classList.add('sidebar-hover-expanded');
+          document.body.classList.add('sidebar-hover-active');
+        }
+      });
+
+      sidebar.addEventListener('mouseleave', () => {
+        if (!this.isOpen && !this.isMobile) {
+          sidebar.classList.remove('sidebar-hover-expanded');
+          document.body.classList.remove('sidebar-hover-active');
+        }
+      });
+    }
+
+    // 3. Mobile Backdrop Click
     if (this.elements.overlay) {
       this.elements.overlay.addEventListener('click', () => {
         if (this.isMobile) this.close();
       });
     }
 
-    // Keyboard ESC to Close Mobile Sidebar
+    // 4. Keyboard ESC to Close Mobile Sidebar
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.isMobile && this.isOpen) {
         this.close();
       }
     });
 
-    // Submenu Accordions
-    document.querySelectorAll('.nav-has-sub > .nav-link-toggle').forEach(toggle => {
-      toggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        const submenu = toggle.nextElementSibling;
-        if (submenu) {
-          submenu.classList.toggle('show');
-          toggle.classList.toggle('expanded');
-        }
-      });
-    });
-
-    // Viewport Resize Listener with Debounce
+    // 5. Viewport Resize Listener with Debounce
     let resizeTimer = null;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
@@ -250,150 +249,18 @@ const Sidebar = {
           if (this.isMobile) {
             this.close(false);
           } else {
-            const saved = localStorage.getItem('aura_sidebar_open');
+            const saved = localStorage.getItem('ev_sidebar_pinned');
             if (saved !== 'false') this.open(false);
           }
         }
       }, 150);
     });
-  },
-
-  /**
-   * Country Filter & Quick Search inside Sidebar
-   */
-  async initCountrySearch() {
-    const searchInput = this.elements.countrySearch;
-    const countryList = this.elements.countryList;
-
-    if (!searchInput && !countryList) return;
-
-    // Fetch live countries if list container exists but is empty
-    if (countryList && countryList.children.length === 0) {
-      await this.populateCountryList(countryList);
-    }
-
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
-        this.filterCountryList(query);
-      });
-    }
-  },
-
-  /**
-   * Fetch Countries from Flask API & Populate Sidebar
-   */
-  async populateCountryList(listEl) {
-    try {
-      let countries = [];
-      if (window.App && typeof window.App.api === 'function') {
-        const res = await window.App.api('/api/countries');
-        countries = res.countries || res.data || res;
-      }
-
-      if (!Array.isArray(countries) || countries.length === 0) {
-        countries = [
-          'United States', 'United Kingdom', 'United Arab Emirates', 'France',
-          'Monaco', 'Japan', 'Singapore', 'Switzerland', 'Australia', 'Italy', 'Canada'
-        ];
-      }
-
-      this.countries = countries;
-
-      listEl.innerHTML = `
-        <li class="country-list-item active" data-country="all">
-          <a href="#" class="country-link">
-            <span class="country-flag">🌐</span>
-            <span class="country-name">All Territories</span>
-          </a>
-        </li>
-      `;
-
-      countries.forEach(country => {
-        const li = document.createElement('li');
-        li.className = 'country-list-item';
-        li.setAttribute('data-country', country);
-        li.innerHTML = `
-          <a href="#" class="country-link">
-            <span class="country-bullet">•</span>
-            <span class="country-name">${country}</span>
-          </a>
-        `;
-        listEl.appendChild(li);
-      });
-
-      // Bind Country Click Events
-      listEl.querySelectorAll('.country-list-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-          e.preventDefault();
-          const country = item.getAttribute('data-country');
-          this.selectCountry(country, item);
-        });
-      });
-
-    } catch (err) {
-      console.warn('[Sidebar.populateCountryList] Could not fetch countries:', err);
-    }
-  },
-
-  /**
-   * Live Search Filter for Country Items
-   */
-  filterCountryList(query) {
-    const items = document.querySelectorAll('.country-list-item, [data-country-item]');
-    let matchCount = 0;
-
-    items.forEach(item => {
-      const country = (item.getAttribute('data-country') || item.textContent).toLowerCase();
-      if (!query || country.includes(query) || country === 'all') {
-        item.style.display = '';
-        matchCount++;
-      } else {
-        item.style.display = 'none';
-      }
-    });
-
-    const noResultsEl = document.getElementById('sidebar-country-no-results');
-    if (noResultsEl) {
-      noResultsEl.style.display = matchCount === 0 ? 'block' : 'none';
-    }
-  },
-
-  /**
-   * Action when a Country is Selected in Sidebar
-   */
-  selectCountry(country, activeElement = null) {
-    // Update active highlight
-    document.querySelectorAll('.country-list-item').forEach(el => el.classList.remove('active'));
-    if (activeElement) {
-      activeElement.classList.add('active');
-    }
-
-    if (window.App) {
-      window.App.state.activeCountry = country;
-    }
-
-    // Interlock with 3D Globe Visualizer if present
-    if (window.GlobeViz && typeof window.GlobeViz.filterByCountry === 'function') {
-      window.GlobeViz.filterByCountry(country);
-    }
-
-    // On mobile, auto close sidebar so user views map/data immediately
-    if (this.isMobile) {
-      this.close();
-    }
-
-    // Fire custom event for any listening analytics/chart widgets
-    window.dispatchEvent(new CustomEvent('countrySelected', {
-      detail: { country: country }
-    }));
   }
 };
 
-// Expose globally
+// Global Exposure & Auto-initialization
 window.Sidebar = Sidebar;
 
-// Auto-run when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => Sidebar.init());
 } else {

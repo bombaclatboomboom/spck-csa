@@ -416,8 +416,24 @@ def safe_render_template(template_name, **context):
 # -----------------------------------------------------------------------------
 @app.route('/', methods=['GET'])
 def page_home():
-    """Landing Page (public, no authentication required)."""
-    return safe_render_template('index.html', is_public=False, active_page='home')
+    """Landing Page (Apple-style minimalist showcase)."""
+    featured = []
+    try:
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("""
+            SELECT id, title, price, city, country, bedrooms, bathrooms, area, image_url, property_type 
+            FROM properties 
+            WHERE is_featured = 1 
+            ORDER BY price DESC 
+            LIMIT 3
+        """)
+        cols = [col[0] for col in c.description]
+        featured = [dict(zip(cols, row)) for row in c.fetchall()]
+        conn.close()
+    except Exception as e:
+        logger.warning(f"Error loading featured properties for homepage: {e}")
+    return safe_render_template('index.html', is_public=False, active_page='home', featured_properties=featured)
 
 @app.route('/login', methods=['GET', 'POST'])
 def page_login():

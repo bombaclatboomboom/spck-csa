@@ -3,117 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="EstateVision - AI-Powered Global Real Estate Intelligence, 3D Globe Explorer & Market Analytics">
-  <title>{% block title %}EstateVision{% endblock %} | Global Real Estate Intelligence</title>
+  <meta name="description" content="EstateVision - Luxury Real Estate Intelligence & Acquisition. Powered by BIS Sovereign Data.">
+  <title>{% block title %}EstateVision{% endblock %} | Luxury Real Estate Intelligence</title>
   
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
   
-  <!-- Google Fonts: Inter & Playfair Display -->
+  <!-- Apple System & Inter Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- AOS Animation CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
   
-  <!-- Main Platform Stylesheet -->
+  <!-- Main Minimalist Stylesheet -->
   <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body class="{% block body_class %}{% endblock %}">
   <!-- Scroll Progress Bar -->
   <div class="scroll-progress" id="scrollProgress"></div>
   
-  <!-- Page Loader -->
+  <!-- Page Loader (Minimalist) -->
   <div class="page-loader" id="pageLoader">
     <div class="loader-content">
-      <div class="spinner"></div>
-      <span class="loader-text gold-text-shimmer">EstateVision</span>
+      <div class="minimal-spinner"></div>
     </div>
   </div>
   
   {% if not hide_navigation %}
-  <!-- TOP BAR -->
+  <!-- APPLE-STYLE MINIMAL TOP BAR -->
   <header class="topbar" id="topbar">
     <div class="topbar-left">
-      <button class="sidebar-toggle btn-icon" id="sidebarToggle" onclick="Sidebar.toggle()" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+      <button class="sidebar-toggle btn-icon" id="sidebarToggle" title="Toggle Navigation" aria-label="Toggle Navigation">
         <i data-lucide="menu"></i>
       </button>
       <a href="/" class="topbar-logo">
-        <span class="logo-icon">🏛️</span>
-        <span class="logo-text gold-text-shimmer">EstateVision</span>
+        <span class="logo-mark">EV</span>
+        <span class="logo-text">EstateVision</span>
       </a>
     </div>
     
-    <div class="topbar-center">
-      <!-- Quick Navigation Nav Pills -->
-      <nav class="topbar-nav-pills" id="topbarNavPills">
-        <a href="/buy" class="topbar-pill {% if active_page == 'buy' %}active{% endif %}">
-          <i data-lucide="shopping-bag"></i> <span>Buy Assets</span>
-        </a>
-        <a href="/sell" class="topbar-pill {% if active_page == 'sell' %}active{% endif %}">
-          <i data-lucide="plus-circle"></i> <span>Sell Property</span>
-        </a>
-        <a href="/global" class="topbar-pill {% if active_page == 'global' %}active{% endif %}">
-          <i data-lucide="earth"></i> <span>Global Intelligence</span>
-        </a>
-        <a href="/explore" class="topbar-pill {% if active_page == 'explore' %}active{% endif %}">
-          <i data-lucide="globe"></i> <span>3D Globe</span>
-        </a>
-        <a href="/predict" class="topbar-pill {% if active_page == 'predict' %}active{% endif %}">
-          <i data-lucide="brain"></i> <span>AI Valuation</span>
-        </a>
-      </nav>
-      
-      <div class="topbar-search">
-        <i data-lucide="search" class="topbar-search-icon"></i>
-        <input type="text" placeholder="Search 112+ properties, cities, 61 countries..." id="globalSearch" onkeydown="if(event.key==='Enter') window.location.href='/buy?search='+encodeURIComponent(this.value)">
-      </div>
-    </div>
+    <!-- Selective Calm Navigation (Apple Style) -->
+    <nav class="topbar-center" id="topbarNav">
+      <a href="/buy" class="topbar-link {% if active_page == 'buy' %}active{% endif %}">Marketplace</a>
+      <a href="/global" class="topbar-link {% if active_page == 'global' %}active{% endif %}">Global Trends</a>
+      <a href="/dashboard" class="topbar-link {% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="/sell" class="topbar-link {% if active_page == 'sell' %}active{% endif %}">Sell</a>
+    </nav>
     
     <div class="topbar-right">
-      <a href="/sell" class="btn-gold-sm topbar-sell-btn" title="List your property with JPG photos">
-        <i data-lucide="plus"></i> <span>+ List Property</span>
-      </a>
-      
-      <button class="btn-icon" id="themeToggle" onclick="App.toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+      <button class="btn-icon theme-toggle-btn" id="themeToggle" onclick="App.toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
         <i data-lucide="moon"></i>
       </button>
-      
-      <div class="notification-wrapper">
-        <button class="btn-icon notification-btn" id="notificationBtn" aria-label="Notifications">
-          <i data-lucide="bell"></i>
-          <span class="notification-badge">3</span>
-        </button>
-        <div class="notification-dropdown" id="notificationDropdown">
-          <div class="dropdown-header">
-            <strong>Real Estate Alerts</strong>
-            <span class="badge-count">3 Live</span>
-          </div>
-          <div class="notification-list">
-            <div class="notification-item unread">
-              <span class="dot"></span>
-              <div class="notif-text">
-                <p><strong>Italy & US</strong> BIS 2026 Housing Index updated</p>
-                <small>Quarterly time-series live</small>
-              </div>
-            </div>
-            <div class="notification-item unread">
-              <span class="dot"></span>
-              <div class="notif-text">
-                <p>New trophy listing: <strong>Manhattan Sky Penthouse</strong></p>
-                <small>Offers accepted via Escrow</small>
-              </div>
-            </div>
-            <div class="notification-item">
-              <div class="notif-text">
-                <p>AI Valuation precision calibrated to <strong>92% R²</strong></p>
-                <small>61 Sovereign nations indexed</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       
       <div class="user-menu" id="userMenu">
         <button class="user-avatar-btn" onclick="this.parentElement.classList.toggle('active')" aria-haspopup="true">
@@ -130,78 +72,67 @@
           <a href="/dashboard"><i data-lucide="layout-dashboard"></i> Portfolio Dashboard</a>
           <a href="/buy"><i data-lucide="shopping-bag"></i> Browse Marketplace</a>
           <a href="/sell"><i data-lucide="plus-circle"></i> List New Property</a>
-          <a href="/global"><i data-lucide="earth"></i> BIS 1927-2026 Trends</a>
+          <a href="/global"><i data-lucide="earth"></i> BIS 1927–2026 Trends</a>
           <a href="/predict"><i data-lucide="brain"></i> AI Appraisal</a>
           <hr>
-          <div style="padding: 6px 12px; font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Switch Demo Role:</div>
-          <a href="/demo-login/agent" style="font-size: 0.82rem; color: #D4AF37;"><i data-lucide="shield-check"></i> Broker: Alexander Vance</a>
-          <a href="/demo-login/investor" style="font-size: 0.82rem; color: #10B981;"><i data-lucide="briefcase"></i> Investor: Elena Rostova</a>
+          <div class="dropdown-section-title">Perspective Switch:</div>
+          <a href="/demo-login/agent"><i data-lucide="shield-check"></i> Broker: Alexander Vance</a>
+          <a href="/demo-login/investor"><i data-lucide="briefcase"></i> Investor: Elena Rostova</a>
           <hr>
-          <a href="/logout" class="text-danger"><i data-lucide="log-out"></i> Logout / Reset Session</a>
+          <a href="/logout" class="text-danger"><i data-lucide="log-out"></i> Logout / Reset</a>
         </div>
       </div>
     </div>
   </header>
   
-  <!-- LEFT SIDEBAR -->
+  <!-- MINIMALIST SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <a href="/" class="sidebar-logo">
-        <span class="logo-icon">🏛️</span>
-        <span class="sidebar-logo-text gold-text-shimmer">EstateVision</span>
+        <span class="logo-mark">EV</span>
+        <span class="sidebar-logo-text">EstateVision</span>
       </a>
-      <button class="sidebar-close-btn" onclick="Sidebar.toggle()" aria-label="Close Sidebar">
-        <i data-lucide="chevron-left"></i>
+      <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close Sidebar">
+        <i data-lucide="x"></i>
       </button>
     </div>
     
     <nav class="sidebar-nav">
-      <div class="sidebar-section-title">Marketplace</div>
+      <div class="sidebar-section-title">Platform</div>
       <a href="/buy" class="nav-item {% if active_page == 'buy' %}active{% endif %}">
         <i data-lucide="shopping-bag" class="nav-item-icon"></i>
-        <span class="nav-item-text">Buy Properties</span>
-        <span class="nav-item-badge">112+</span>
+        <span class="nav-item-text">Marketplace</span>
       </a>
       <a href="/sell" class="nav-item {% if active_page == 'sell' %}active{% endif %}">
         <i data-lucide="plus-circle" class="nav-item-icon"></i>
         <span class="nav-item-text">Sell Property</span>
-        <span class="nav-item-badge" style="background: rgba(16, 185, 129, 0.2); color: #10B981;">+List</span>
+      </a>
+      <a href="/global" class="nav-item {% if active_page == 'global' %}active{% endif %}">
+        <i data-lucide="earth" class="nav-item-icon"></i>
+        <span class="nav-item-text">Global 1927–2026</span>
+      </a>
+      <a href="/dashboard" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+        <i data-lucide="layout-dashboard" class="nav-item-icon"></i>
+        <span class="nav-item-text">Executive Dashboard</span>
       </a>
       
       <div class="sidebar-divider"></div>
-      <div class="sidebar-section-title">Intelligence & AI</div>
-      <a href="/global" class="nav-item {% if active_page == 'global' %}active{% endif %}">
-        <i data-lucide="earth" class="nav-item-icon"></i>
-        <span class="nav-item-text">Global 1927-2026</span>
-        <span class="nav-item-badge" style="background: rgba(212, 175, 55, 0.25); color: #D4AF37;">61 Ctrs</span>
-      </a>
+      <div class="sidebar-section-title">Analytical Tools</div>
       <a href="/explore" class="nav-item {% if active_page == 'explore' %}active{% endif %}">
         <i data-lucide="globe" class="nav-item-icon"></i>
         <span class="nav-item-text">3D Globe Visualizer</span>
-        <span class="nav-item-badge">3D</span>
       </a>
       <a href="/predict" class="nav-item {% if active_page == 'predict' %}active{% endif %}">
         <i data-lucide="brain" class="nav-item-icon"></i>
         <span class="nav-item-text">AI Hedonic Valuation</span>
       </a>
-      
-      <div class="sidebar-divider"></div>
-      <div class="sidebar-section-title">Analytics & Portfolio</div>
-      <a href="/dashboard" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
-        <i data-lucide="layout-dashboard" class="nav-item-icon"></i>
-        <span class="nav-item-text">Dashboard</span>
-      </a>
       <a href="/trends" class="nav-item {% if active_page == 'trends' %}active{% endif %}">
         <i data-lucide="trending-up" class="nav-item-icon"></i>
-        <span class="nav-item-text">Price Trends</span>
+        <span class="nav-item-text">Market Price Trends</span>
       </a>
       <a href="/compare" class="nav-item {% if active_page == 'compare' %}active{% endif %}">
         <i data-lucide="git-compare" class="nav-item-icon"></i>
         <span class="nav-item-text">Compare Markets</span>
-      </a>
-      <a href="/projects" class="nav-item {% if active_page == 'projects' %}active{% endif %}">
-        <i data-lucide="building-2" class="nav-item-icon"></i>
-        <span class="nav-item-text">Prime Projects</span>
       </a>
     </nav>
     
@@ -213,9 +144,9 @@
           <span class="sidebar-user-role">{{ user.role|capitalize if user and user.role else 'Prime Broker' }}</span>
         </div>
       </div>
-      <div class="sidebar-footer-actions" style="margin-top: 8px; display: flex; gap: 6px;">
-        <a href="/demo-login/agent" class="btn-micro" title="Switch to Agent" style="flex: 1; padding: 4px; font-size: 0.68rem; text-align: center; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.3); border-radius: 6px; color: #D4AF37; text-decoration: none;">Broker</a>
-        <a href="/demo-login/investor" class="btn-micro" title="Switch to Investor" style="flex: 1; padding: 4px; font-size: 0.68rem; text-align: center; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; color: #10B981; text-decoration: none;">Investor</a>
+      <div class="sidebar-footer-actions">
+        <a href="/demo-login/agent" class="btn-role-switch" title="Switch to Agent">Broker</a>
+        <a href="/demo-login/investor" class="btn-role-switch" title="Switch to Investor">Investor</a>
       </div>
     </div>
   </aside>
@@ -229,16 +160,13 @@
   <!-- Global Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
   
-  <!-- CDN Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/tsparticles@3/tsparticles.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
+  <!-- Essential Core Scripts (Stripped heavy tsParticles) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   
-  <!-- Custom Core JS Modules -->
+  <!-- Platform JS Modules -->
   <script src="/static/js/app.js"></script>
   <script src="/static/js/sidebar.js"></script>
   
@@ -250,13 +178,13 @@
       lucide.createIcons();
     }
     
-    // Initialize AOS Animations
+    // Initialize Subtle AOS (no stagger delays, high performance)
     if (window.AOS) {
       AOS.init({
-        duration: 800,
-        easing: 'ease-out-cubic',
+        duration: 500,
+        easing: 'ease-out',
         once: true,
-        offset: 60
+        offset: 40
       });
     }
     
@@ -264,13 +192,11 @@
     window.addEventListener('load', () => {
       const loader = document.getElementById('pageLoader');
       if (loader) {
-        setTimeout(() => {
-          loader.classList.add('hidden');
-        }, 600);
+        loader.classList.add('hidden');
       }
     });
     
-    // Scroll progress bar indicator
+    // Scroll progress bar
     window.addEventListener('scroll', () => {
       const progress = document.getElementById('scrollProgress');
       if (progress) {
@@ -279,7 +205,7 @@
         const percent = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
         progress.style.width = percent + '%';
       }
-    });
+    }, { passive: true });
     
     // Close user dropdown when clicking outside
     document.addEventListener('click', (e) => {
@@ -287,22 +213,7 @@
       if (userMenu && !userMenu.contains(e.target)) {
         userMenu.classList.remove('active');
       }
-      
-      const notifWrapper = document.querySelector('.notification-wrapper');
-      if (notifWrapper && !notifWrapper.contains(e.target)) {
-        const notifDropdown = document.getElementById('notificationDropdown');
-        if (notifDropdown) notifDropdown.classList.remove('active');
-      }
     });
-    
-    const notifBtn = document.getElementById('notificationBtn');
-    if (notifBtn) {
-      notifBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const notifDropdown = document.getElementById('notificationDropdown');
-        if (notifDropdown) notifDropdown.classList.toggle('active');
-      });
-    }
   </script>
 </body>
 </html>

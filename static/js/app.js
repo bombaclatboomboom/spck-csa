@@ -29,8 +29,7 @@ const App = {
     this.initTheme();
     this.initScrollProgress();
     this.transitionPage();
-    this.initMagneticElements();
-    this.initRippleEffect();
+    // Magnetic & ripple effects stripped for Apple minimalist high FPS
     this.animateCounters();
     this.initNavbarScroll();
     this.bindGlobalEvents();
@@ -415,26 +414,7 @@ const App = {
    * Magnetic Hover Effect for Luxury Elements & Buttons
    */
   initMagneticElements() {
-    const magneticItems = document.querySelectorAll('.magnetic-hover, .btn-magnetic, .btn-luxury-gold');
-    if (!magneticItems.length) return;
-
-    magneticItems.forEach(item => {
-      item.addEventListener('mousemove', (e) => {
-        const rect = item.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const deltaX = (e.clientX - centerX) * 0.22;
-        const deltaY = (e.clientY - centerY) * 0.22;
-
-        item.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-        item.style.transition = 'transform 0.1s ease-out';
-      });
-
-      item.addEventListener('mouseleave', () => {
-        item.style.transform = 'translate(0px, 0px)';
-        item.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-      });
-    });
+    // Disabled for Apple minimalist performance & high FPS
   },
 
   /**
@@ -470,38 +450,10 @@ const App = {
   },
 
   /**
-   * Text Scramble (Cyber-Luxury Reveal Effect)
+   * Text Scramble (Disabled for Apple crisp minimalism)
    */
-  textScramble(element, newText, duration = 1200) {
-    if (!element) return;
-    const chars = '!<>-_\\/[]{}—=+*^?#________0123456789ABCDEF';
-    const oldText = element.textContent;
-    const length = Math.max(oldText.length, newText.length);
-    const startTime = performance.now();
-
-    const update = (now) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      let output = '';
-
-      for (let i = 0; i < length; i++) {
-        if (progress * length > i) {
-          output += newText[i] || '';
-        } else {
-          output += chars[Math.floor(Math.random() * chars.length)];
-        }
-      }
-
-      element.textContent = output;
-
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      } else {
-        element.textContent = newText;
-      }
-    };
-
-    requestAnimationFrame(update);
+  textScramble(element, newText) {
+    if (element) element.textContent = newText;
   },
 
   /**
@@ -550,84 +502,10 @@ const App = {
   },
 
   /**
-   * tsParticles Luxury Gold Particle Constellation
+   * Particles (Stripped for high FPS Apple minimalism)
    */
   async initParticles(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container || typeof tsParticles === 'undefined') return;
-
-    try {
-      await tsParticles.load(containerId, {
-        background: {
-          color: { value: 'transparent' }
-        },
-        fpsLimit: 60,
-        particles: {
-          number: {
-            value: 45,
-            density: { enable: true, area: 900 }
-          },
-          color: {
-            value: ['#D4AF37', '#F5D76E', '#FFFFFF', '#94A3B8']
-          },
-          shape: {
-            type: 'circle'
-          },
-          opacity: {
-            value: { min: 0.15, max: 0.6 },
-            animation: {
-              enable: true,
-              speed: 0.8,
-              minimumValue: 0.1,
-              sync: false
-            }
-          },
-          size: {
-            value: { min: 1, max: 2.8 }
-          },
-          links: {
-            enable: true,
-            distance: 140,
-            color: '#D4AF37',
-            opacity: 0.16,
-            width: 1
-          },
-          move: {
-            enable: true,
-            speed: 0.6,
-            direction: 'none',
-            random: true,
-            straight: false,
-            outModes: { default: 'out' }
-          }
-        },
-        interactivity: {
-          detectsOn: 'canvas',
-          events: {
-            onHover: {
-              enable: true,
-              mode: 'grab'
-            },
-            onClick: {
-              enable: false
-            },
-            resize: true
-          },
-          modes: {
-            grab: {
-              distance: 160,
-              links: {
-                opacity: 0.35,
-                color: '#F5D76E'
-              }
-            }
-          }
-        },
-        detectRetina: true
-      });
-    } catch (err) {
-      console.warn('[App.initParticles] Could not initialize tsParticles:', err);
-    }
+    // Disabled
   },
 
   /**
@@ -708,39 +586,7 @@ const App = {
    * Click Ripple Effect on Interactive Elements
    */
   initRippleEffect() {
-    document.addEventListener('click', (e) => {
-      const button = e.target.closest('.btn, .ripple-effect, .nav-item, .card-action');
-      if (!button) return;
-
-      const rect = button.getBoundingClientRect();
-      const circle = document.createElement('span');
-      const diameter = Math.max(rect.width, rect.height);
-      const radius = diameter / 2;
-
-      circle.style.width = circle.style.height = `${diameter}px`;
-      circle.style.left = `${e.clientX - rect.left - radius}px`;
-      circle.style.top = `${e.clientY - rect.top - radius}px`;
-      circle.className = 'ripple-wave';
-      circle.style.cssText += `
-        position: absolute;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, rgba(212, 175, 55, 0) 70%);
-        transform: scale(0);
-        animation: rippleEffect 0.6s linear;
-        pointer-events: none;
-      `;
-
-      const existingWave = button.querySelector('.ripple-wave');
-      if (existingWave) existingWave.remove();
-
-      button.style.position = button.style.position || 'relative';
-      button.style.overflow = 'hidden';
-      button.appendChild(circle);
-
-      setTimeout(() => {
-        circle.remove();
-      }, 600);
-    });
+    // Disabled for instantaneous Apple interactions
   },
 
   /**
