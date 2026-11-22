@@ -332,12 +332,17 @@ def get_current_user():
         db = get_db()
         cursor = db.cursor()
         cursor.execute(
-            "SELECT id, email, full_name, role, company, phone, created_at FROM users WHERE id = ?",
+            "SELECT id, email, full_name, role, company, phone, created_at, cash_balance, invested_balance, username FROM users WHERE id = ?",
             (user_id,)
         )
         row = cursor.fetchone()
         if row:
-            return dict(row)
+            d = dict(row)
+            if d.get('cash_balance') is None:
+                d['cash_balance'] = 45000000.0 if d.get('role') == 'customer' else 15000000.0
+            if d.get('invested_balance') is None:
+                d['invested_balance'] = 19400000.0 if d.get('role') == 'customer' else 9700000.0
+            return d
     except Exception as e:
         logger.error(f"Error fetching current user: {e}")
     return None
@@ -1730,7 +1735,7 @@ def api_user():
         cursor = db.cursor()
         cursor.execute(
             """
-            SELECT id, email, full_name, role, company, phone, created_at
+            SELECT id, email, full_name, role, company, phone, created_at, cash_balance, invested_balance, username
             FROM users WHERE id = ?
             """,
             (user_id,)
@@ -1744,13 +1749,145 @@ def api_user():
                 'error': 'User record no longer exists'
             }), 401
 
+        user_dict = dict(user)
+        if user_dict.get('cash_balance') is None:
+            user_dict['cash_balance'] = 45000000.0 if user_dict.get('role') == 'customer' else 15000000.0
+        if user_dict.get('invested_balance') is None:
+            user_dict['invested_balance'] = 19400000.0 if user_dict.get('role') == 'customer' else 9700000.0
+
         return jsonify({
             'authenticated': True,
-            'user': dict(user)
+            'user': user_dict
         })
     except Exception as e:
         logger.error(f"Error in api_user: {e}", exc_info=True)
         return jsonify({'authenticated': False, 'error': str(e)}), 500
+
+
+@app.route('/api/user/profile', methods=['POST', 'PUT'])
+def api_user_update_profile():
+    """
+    Update user profile information (full_name, company, phone).
+    """
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Authentication required'}), 401
+
+        data = request.get_json(silent=True) or request.form or {}
+        full_name = str(data.get('full_name', '')).strip()
+        company = str(data.get('company', '')).strip()
+        phone = str(data.get('phone', '')).strip()
+
+        if not full_name:
+            return jsonify({'success': False, 'error': 'Full name cannot be blank'}), 400
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(
+            """
+            UPDATE users
+            SET full_name = ?, company = ?, phone = ?
+            WHERE id = ?
+            """,
+            (full_name, company, phone, user_id)
+        )
+        db.commit()
+
+        session['user_name'] = full_name
+
+        return jsonify({
+            'success': True,
+            'message': 'Profile updated successfully',
+            'user': {
+                'id': user_id,
+                'full_name': full_name,
+                'company': company,
+                'phone': phone
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error updating user profile: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/user/deposit', methods=['POST'])
+def api_user_deposit():
+    """
+    Simulate depositing funds into the institutional multisig treasury.
+    """
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Authentication required'}), 401
+
+        data = request.get_json(silent=True) or request.form or {}
+        amount = float(data.get('amount', 0))
+        source = str(data.get('source', 'JPMorgan Chase Private Bank')).strip()
+
+        if amount <= 0:
+            return jsonify({'success': False, 'error': 'Deposit amount must be greater than zero'}), 400
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT cash_balance FROM users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        current_balance = float(row['cash_balance']) if row and row['cash_balance'] is not None else 45000000.0
+        new_balance = current_balance + amount
+
+        cursor.execute("UPDATE users SET cash_balance = ? WHERE id = ?", (new_balance, user_id))
+        db.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f"Successfully credited ${amount:,.2f} USD to your multisig treasury.",
+            'cash_balance': new_balance,
+            'source': source
+        })
+    except Exception as e:
+        logger.error(f"Error processing deposit: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/user/wire', methods=['POST'])
+def api_user_wire():
+    """
+    Simulate wiring funds from the institutional multisig treasury.
+    """
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Authentication required'}), 401
+
+        data = request.get_json(silent=True) or request.form or {}
+        amount = float(data.get('amount', 0))
+        recipient = str(data.get('recipient', 'Escrow Clearing Custody')).strip()
+
+        if amount <= 0:
+            return jsonify({'success': False, 'error': 'Wire amount must be greater than zero'}), 400
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT cash_balance FROM users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        current_balance = float(row['cash_balance']) if row and row['cash_balance'] is not None else 45000000.0
+
+        if current_balance < amount:
+            return jsonify({'success': False, 'error': 'Insufficient liquid treasury balance'}), 400
+
+        new_balance = current_balance - amount
+        cursor.execute("UPDATE users SET cash_balance = ? WHERE id = ?", (new_balance, user_id))
+        db.commit()
+
+        return jsonify({
+            'success': True,
+            'message': f"Wire transfer of ${amount:,.2f} USD initiated to {recipient}.",
+            'cash_balance': new_balance,
+            'recipient': recipient
+        })
+    except Exception as e:
+        logger.error(f"Error processing wire: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 # -----------------------------------------------------------------------------

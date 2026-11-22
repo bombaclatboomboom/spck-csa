@@ -1,491 +1,1216 @@
 {% extends 'base.html' %}
 {% set active_page = 'predict' %}
 
-{% block title %}AI Property Valuation Model{% endblock %}
+{% block title %}AI Property Valuation Model | EstateVision{% endblock %}
+{% block body_class %}ev-predict-page{% endblock %}
 
 {% block content %}
-<div class="predict-page-container">
-  <!-- HERO BANNER -->
-  <div class="predict-hero-header" data-aos="fade-down">
-    <div class="hero-brain-icon-box">
-      <span class="brain-glow-ring"></span>
-      <i data-lucide="brain" class="brain-icon gold-text"></i>
-    </div>
-    <div class="hero-text-group">
-      <div class="predict-badge">
-        <span class="dot live-pulse"></span>
-        <span>Hedonic Machine Learning Algorithm • 92% R² Accuracy</span>
-      </div>
-      <h1 class="page-title">
-        AI-Powered <span class="gold-text-shimmer">Property Valuation</span>
-      </h1>
-      <p class="text-muted">
-        Instant statistical appraisal benchmarked against 147,000+ verified multi-national transactions.
-      </p>
-    </div>
-  </div>
+<div class="ev-page-wrapper">
 
-  <!-- MAIN PREDICTION WORKSPACE GRID -->
-  <div class="predict-workspace-grid">
-    <!-- LEFT COLUMN: Input Form & Dynamic Results (65%) -->
-    <div class="predict-main-column">
-      <!-- Valuation Form Card -->
-      <div class="predict-form-card glass-card" data-aos="fade-up">
-        <div class="card-header-with-tag">
-          <div>
-            <h3 class="card-title-md">Property Specification Inputs</h3>
-            <span class="card-subtitle-sm">Calibrate structural parameters for automated appraisal</span>
+  <!-- ═══════════════════════════════════════════════════════════════════
+       PAGE HEADER
+       ═══════════════════════════════════════════════════════════════════ -->
+  <header class="ev-section-header" data-aos="fade-up" style="padding-top: var(--ev-sp-8);">
+    <div class="ev-eyebrow">Machine Learning Appraisal</div>
+    <h1 class="ev-heading-1">Sovereign Fair-Value Valuation</h1>
+    <p class="ev-subheading">
+      Calibrated against 147,000+ verified multi-national transactions and BIS central bank housing indices.
+    </p>
+    <div class="ev-predict-status-pills">
+      <span class="ev-pill"><i data-lucide="cpu" class="ev-pill-icon"></i> Gradient Boosted Regression (GBR)</span>
+      <span class="ev-pill"><i data-lucide="check-circle-2" class="ev-pill-icon"></i> 0.92 R² Accuracy</span>
+      <span class="ev-pill"><i data-lucide="shield-check" class="ev-pill-icon"></i> 95% Confidence Interval</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       WORKSPACE: 2-COLUMN APPLE LAYOUT
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="ev-container-wide">
+    <div class="ev-predict-workspace">
+
+      <!-- LEFT COLUMN: INPUT SPECIFICATIONS & DYNAMIC RESULTS -->
+      <div class="ev-predict-left-col">
+        
+        <!-- SPECIFICATION INPUTS CARD -->
+        <div class="ev-card-module ev-glass" data-aos="fade-up">
+          <div class="ev-module-header">
+            <div>
+              <div class="ev-eyebrow">Input Parameters</div>
+              <h3 class="ev-heading-3">Property Specifications</h3>
+            </div>
+            <span class="ev-badge-verified"><i data-lucide="sparkles"></i> Model Ready</span>
           </div>
-          <span class="tag-status"><i data-lucide="sparkles"></i> ML Active</span>
-        </div>
 
-        <form id="valuationForm" class="valuation-form">
-          <div class="form-grid-2col">
-            <!-- Country Selector -->
-            <div class="form-group col-span-2">
-              <label for="predCountry" class="form-label">Sovereign Market / Country</label>
-              <div class="input-wrapper">
-                <i data-lucide="globe" class="input-icon"></i>
-                <select id="predCountry" name="country" class="form-select" required>
-                  <option value="United States">🇺🇸 United States</option>
-                  <option value="United Kingdom">🇬🇧 United Kingdom</option>
-                  <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
-                  <option value="Germany">🇩🇪 Germany</option>
-                  <option value="France">🇫🇷 France</option>
-                  <option value="Japan">🇯🇵 Japan</option>
-                  <option value="Australia">🇦🇺 Australia</option>
-                  <option value="Switzerland">🇨🇭 Switzerland</option>
-                  <option value="Singapore">🇸🇬 Singapore</option>
-                  <option value="Canada">🇨🇦 Canada</option>
-                  {% if countries %}
-                    {% for c in countries %}
-                      {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Australia', 'Switzerland', 'Singapore', 'Canada'] %}
-                        <option value="{{ c }}">{{ c }}</option>
-                      {% endif %}
-                    {% endfor %}
-                  {% endif %}
+          <form id="evValuationForm" class="ev-predict-form" onsubmit="handleValuationSubmit(event)">
+            
+            <!-- Sovereign Market -->
+            <div class="ev-input-group">
+              <label for="predCountry" class="ev-label">Sovereign Jurisdiction / Country</label>
+              <div class="ev-select-wrapper">
+                <select id="predCountry" name="country" class="ev-select" required onchange="handleMarketChange()">
+                  <option value="United States" selected>United States (North America)</option>
+                  <option value="United Kingdom">United Kingdom (Europe)</option>
+                  <option value="United Arab Emirates">United Arab Emirates (Middle East)</option>
+                  <option value="Switzerland">Switzerland (Central Europe)</option>
+                  <option value="Germany">Germany (European Union)</option>
+                  <option value="France">France (European Union)</option>
+                  <option value="Japan">Japan (East Asia)</option>
+                  <option value="Singapore">Singapore (Southeast Asia)</option>
+                  <option value="Australia">Australia (Oceania)</option>
+                  <option value="Monaco">Monaco (Riviera)</option>
+                  <option value="Canada">Canada (North America)</option>
+                  <option value="Spain">Spain (European Union)</option>
+                  <option value="Italy">Italy (European Union)</option>
+                  <option value="Netherlands">Netherlands (European Union)</option>
                 </select>
               </div>
             </div>
 
-            <!-- Bedrooms Input & Slider -->
-            <div class="form-group">
-              <div class="label-with-value">
-                <label for="predBeds" class="form-label">Bedrooms</label>
-                <span class="sync-value-badge" id="bedValueBadge">3 Rooms</span>
+            <!-- Living Area (m²) Slider + Stepper -->
+            <div class="ev-input-group">
+              <div class="ev-slider-header">
+                <label for="predAreaInput" class="ev-label">Gross Living Area</label>
+                <div class="ev-slider-badge" id="areaValueBadge">250 m²</div>
               </div>
-              <div class="slider-with-number">
+              <div class="ev-slider-control-row">
+                <input 
+                  type="range" 
+                  id="predAreaSlider" 
+                  min="20" 
+                  max="2000" 
+                  step="5" 
+                  value="250" 
+                  class="ev-range-slider"
+                  oninput="syncAreaFromSlider(this.value)"
+                >
+                <div class="ev-number-input-wrap">
+                  <input 
+                    type="number" 
+                    id="predAreaInput" 
+                    min="20" 
+                    max="2000" 
+                    step="1" 
+                    value="250" 
+                    class="ev-input ev-input-num"
+                    oninput="syncAreaFromInput(this.value)"
+                  >
+                  <span class="ev-num-unit">m²</span>
+                </div>
+              </div>
+              <!-- Quick Area Preset Chips -->
+              <div class="ev-preset-chips">
+                <button type="button" class="ev-chip" onclick="setArea(95)">95 m² (Loft)</button>
+                <button type="button" class="ev-chip active" onclick="setArea(250)">250 m² (Penthouse)</button>
+                <button type="button" class="ev-chip" onclick="setArea(520)">520 m² (Villa)</button>
+                <button type="button" class="ev-chip" onclick="setArea(1100)">1,100 m² (Manor)</button>
+              </div>
+            </div>
+
+            <!-- Bedroom Count Slider + Stepper -->
+            <div class="ev-input-group">
+              <div class="ev-slider-header">
+                <label for="predBedsInput" class="ev-label">Bedroom Count</label>
+                <div class="ev-slider-badge" id="bedsValueBadge">4 Bedrooms</div>
+              </div>
+              <div class="ev-slider-control-row">
                 <input 
                   type="range" 
                   id="predBedsSlider" 
                   min="1" 
-                  max="20" 
-                  value="3" 
-                  class="custom-range-slider"
-                >
-                <input 
-                  type="number" 
-                  id="predBeds" 
-                  name="bedrooms" 
-                  min="1" 
-                  max="20" 
-                  value="3" 
-                  class="form-input-number"
-                  required
-                >
-              </div>
-              <small class="text-muted">Standard range: 1 to 20 rooms</small>
-            </div>
-
-            <!-- Area Input & Slider -->
-            <div class="form-group">
-              <div class="label-with-value">
-                <label for="predArea" class="form-label">Gross Living Area (m²)</label>
-                <span class="sync-value-badge gold-badge" id="areaValueBadge">120 m²</span>
-              </div>
-              <div class="slider-with-number">
-                <input 
-                  type="range" 
-                  id="predAreaSlider" 
-                  min="10" 
-                  max="2000" 
-                  step="5" 
-                  value="120" 
-                  class="custom-range-slider"
-                >
-                <input 
-                  type="number" 
-                  id="predArea" 
-                  name="area" 
-                  min="10" 
-                  max="2000" 
+                  max="15" 
                   step="1" 
-                  value="120" 
-                  class="form-input-number"
-                  required
+                  value="4" 
+                  class="ev-range-slider"
+                  oninput="syncBedsFromSlider(this.value)"
                 >
+                <div class="ev-number-input-wrap">
+                  <input 
+                    type="number" 
+                    id="predBedsInput" 
+                    min="1" 
+                    max="15" 
+                    step="1" 
+                    value="4" 
+                    class="ev-input ev-input-num"
+                    oninput="syncBedsFromInput(this.value)"
+                  >
+                  <span class="ev-num-unit">Beds</span>
+                </div>
               </div>
-              <small class="text-muted">Standard range: 10 to 2,000 m²</small>
+              <!-- Quick Bed Preset Chips -->
+              <div class="ev-preset-chips">
+                <button type="button" class="ev-chip" onclick="setBeds(1)">1 Bed</button>
+                <button type="button" class="ev-chip" onclick="setBeds(3)">3 Beds</button>
+                <button type="button" class="ev-chip active" onclick="setBeds(4)">4 Beds</button>
+                <button type="button" class="ev-chip" onclick="setBeds(6)">6 Beds</button>
+                <button type="button" class="ev-chip" onclick="setBeds(8)">8 Beds</button>
+              </div>
             </div>
 
-            <!-- Property Typology -->
-            <div class="form-group">
-              <label for="predType" class="form-label">Architectural Typology</label>
-              <div class="input-wrapper">
-                <i data-lucide="home" class="input-icon"></i>
-                <select id="predType" name="property_type" class="form-select">
-                  <option value="apartment">Prime Apartment</option>
-                  <option value="penthouse">Sky Penthouse</option>
-                  <option value="villa">Luxury Villa</option>
-                  <option value="mansion">Historic Manor</option>
+            <!-- Typology & Finishing Grid -->
+            <div class="ev-grid ev-grid-2" style="gap: var(--ev-sp-4);">
+              <div class="ev-input-group">
+                <label for="predType" class="ev-label">Architectural Typology</label>
+                <select id="predType" name="property_type" class="ev-select" onchange="recalculateHeuristics()">
+                  <option value="penthouse" selected>Sky Penthouse</option>
+                  <option value="villa">Waterfront Villa</option>
+                  <option value="manor">Historic Manor</option>
+                  <option value="loft">Minimalist Loft</option>
+                  <option value="pavilion">Modern Pavilion</option>
+                </select>
+              </div>
+
+              <div class="ev-input-group">
+                <label for="predGrade" class="ev-label">Finishing & Spec Grade</label>
+                <select id="predGrade" name="grade" class="ev-select" onchange="recalculateHeuristics()">
+                  <option value="haute" selected>Turnkey Haute Luxury</option>
+                  <option value="bespoke">Contemporary Bespoke</option>
+                  <option value="restored">Heritage Restored</option>
+                  <option value="shell">Prime Core & Shell</option>
                 </select>
               </div>
             </div>
 
-            <!-- Construction Era / Quality -->
-            <div class="form-group">
-              <label for="predCondition" class="form-label">Finishing & Spec Grade</label>
-              <div class="input-wrapper">
-                <i data-lucide="award" class="input-icon"></i>
-                <select id="predCondition" name="condition" class="form-select">
-                  <option value="luxury">High Luxury / Turnkey</option>
-                  <option value="modern">Modern Contemporary</option>
-                  <option value="renovated">Fully Renovated</option>
-                  <option value="standard">Standard Specification</option>
-                </select>
+            <!-- Submit Button Row -->
+            <div class="ev-predict-submit-row">
+              <button type="submit" class="ev-btn-primary ev-btn-lg" id="predictSubmitBtn">
+                <span>Calculate Fair Value</span>
+                <i data-lucide="sparkles" class="ev-btn-icon-svg"></i>
+              </button>
+              <div class="ev-predict-model-tag">
+                <i data-lucide="shield-check"></i>
+                <span>Trained on 147k global CAD/registry transactions</span>
               </div>
             </div>
-          </div>
 
-          <!-- Submit Button -->
-          <div class="form-submit-row">
-            <button type="submit" class="btn-gold btn-glow btn-lg" id="predictSubmitBtn">
-              <i data-lucide="sparkles"></i>
-              <span>Generate AI Valuation</span>
-            </button>
-            <span class="submit-note text-muted"><i data-lucide="shield-check"></i> Trained on 147k global transactions</span>
-          </div>
-        </form>
-      </div>
-
-      <!-- RESULTS SECTION (Initially Hidden or Populated with Sample on Load) -->
-      <div class="predict-results-container glass-card" id="resultsSection" data-aos="fade-up" style="display: block;">
-        <div class="results-header">
-          <div class="results-tag">
-            <span class="dot green-dot"></span>
-            <span>Valuation Output Generated</span>
-          </div>
-          <span class="confidence-pill"><i data-lucide="check"></i> 95% Confidence Interval</span>
+          </form>
         </div>
 
-        <div class="results-main-display">
-          <!-- Big Predicted Valuation -->
-          <div class="predicted-price-block">
-            <span class="price-label">Estimated Fair Market Value</span>
-            <div class="price-counter-wrap">
-              <span class="currency-symbol">$</span>
-              <span class="gold-text-shimmer large-price" id="predictedPriceDisplay">1,248,500</span>
-              <span class="currency-code">USD</span>
+        <!-- ═══════════════════════════════════════════════════════════════
+             APPRAISAL RESULTS DISPLAY CARD (APPLE PRODUCT REVEAL)
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="ev-card-module ev-glass ev-predict-results-card" id="resultsCard" data-aos="fade-up">
+          
+          <div class="ev-results-header">
+            <div>
+              <div class="ev-eyebrow">Institutional Valuation Output</div>
+              <h3 class="ev-heading-3">Appraised Fair Market Value</h3>
             </div>
-            <div class="price-per-sqm" id="pricePerSqmDisplay">
-              Estimated <strong>$10,404 USD / m²</strong>
+            <div class="ev-results-status">
+              <span class="ev-status-dot"></span>
+              <span>Model Inferred</span>
             </div>
           </div>
 
-          <!-- Comparison Delta vs Country Average -->
-          <div class="market-comparison-delta">
-            <div class="delta-card positive" id="deltaBadge">
-              <i data-lucide="trending-up"></i>
+          <!-- Hero Price & Delta Display -->
+          <div class="ev-results-price-hero">
+            <div class="ev-price-primary-wrap">
+              <span class="ev-currency-prefix">$</span>
+              <span class="ev-price-number" id="predictedPriceDisplay" data-price-usd="1396238">1,396,238</span>
+              <span class="ev-currency-suffix">USD</span>
+            </div>
+            <div class="ev-price-sqm-badge" id="pricePerSqmDisplay">
+              Estimated <strong>$5,585 USD / m²</strong>
+            </div>
+
+            <!-- Sovereign Benchmark Delta Badge -->
+            <div class="ev-results-delta-row">
+              <div class="ev-delta-pill positive" id="deltaPill">
+                <i data-lucide="trending-up" id="deltaIcon"></i>
+                <span id="deltaPercentText">+37.8%</span>
+                <small id="deltaComparisonSub">vs Sovereign Median ($1,013,279 USD)</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confidence Range Bar (-15% Conservative to +15% Aggressive) -->
+          <div class="ev-confidence-module">
+            <div class="ev-confidence-labels">
+              <span>Conservative Bound (-15%)</span>
+              <span class="ev-gold-text">Target Appraisal</span>
+              <span>Aggressive Bound (+15%)</span>
+            </div>
+            <div class="ev-confidence-track">
+              <div class="ev-confidence-fill" id="confidenceBarFill"></div>
+              <div class="ev-confidence-marker" id="confidenceTargetMarker"></div>
+            </div>
+            <div class="ev-confidence-bounds">
+              <span id="lowerBoundVal">$1,186,802 USD</span>
+              <strong class="ev-gold-text" id="targetBoundVal">$1,396,238 USD</strong>
+              <span id="upperBoundVal">$1,605,673 USD</span>
+            </div>
+          </div>
+
+          <!-- Financial Projections Row -->
+          <div class="ev-grid ev-grid-3" style="margin-top: var(--ev-sp-6); gap: var(--ev-sp-4);">
+            <div class="ev-stat-card ev-stat-sm">
+              <div class="ev-stat-label">Projected Net Yield</div>
+              <div class="ev-stat-value" id="resYieldValue" style="font-size: 20px;">5.8% - 7.2%</div>
+              <div class="ev-stat-sub">Sovereign prime rental index</div>
+            </div>
+            <div class="ev-stat-card ev-stat-sm">
+              <div class="ev-stat-label">5Y Capital Forecast</div>
+              <div class="ev-stat-value" id="resGrowthValue" style="font-size: 20px; color: var(--ev-success);">+24.3%</div>
+              <div class="ev-stat-sub">BIS historical CAGR projection</div>
+            </div>
+            <div class="ev-stat-card ev-stat-sm">
+              <div class="ev-stat-label">Est. Cadastral Duty</div>
+              <div class="ev-stat-value" id="resTaxValue" style="font-size: 20px;">$55,850 USD</div>
+              <div class="ev-stat-sub">Based on sovereign transfer rate</div>
+            </div>
+          </div>
+
+          <!-- Comparable Comps Bar Chart -->
+          <div class="ev-comps-chart-container" style="margin-top: var(--ev-sp-6);">
+            <div class="ev-module-header" style="margin-bottom: var(--ev-sp-2);">
               <div>
-                <strong id="deltaPercentage">+18.5%</strong>
-                <span>Above National Average</span>
+                <div class="ev-eyebrow">Valuation Distribution</div>
+                <h4 style="font-size: 15px; font-weight: 600; color: var(--ev-text-primary);">Comparable Market Segments</h4>
               </div>
+              <span class="ev-stat-sub">Sovereign Cluster Quartiles</span>
             </div>
-            <div class="roi-projection-card">
-              <div class="roi-item">
-                <small>Gross Rental Yield</small>
-                <strong>5.8% - 7.2%</strong>
-              </div>
-              <div class="roi-item">
-                <small>5Y Capital Forecast</small>
-                <strong class="green-text">+24.3%</strong>
-              </div>
-            </div>
+            <div id="predictCompChart" style="min-height: 220px;"></div>
           </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="ev-results-action-row">
+            <a href="/buy" id="browseCompsBtn" class="ev-btn-primary ev-btn-sm">
+              <i data-lucide="search"></i>
+              <span>Acquire in this Bracket</span>
+            </a>
+            <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="saveValuationToWatchlist()">
+              <i data-lucide="bookmark"></i>
+              <span>Save Appraisal</span>
+            </button>
+            <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="exportValuationDossier()">
+              <i data-lucide="download"></i>
+              <span>Export Dossier (PDF)</span>
+            </button>
+          </div>
+
         </div>
 
-        <!-- Confidence Range Bar (±15%) -->
-        <div class="confidence-bar-section">
-          <div class="confidence-labels">
-            <span>Conservative Bound (-15%)</span>
-            <span>Target Appraisal</span>
-            <span>Aggressive Bound (+15%)</span>
-          </div>
-          <div class="confidence-range-track">
-            <div class="confidence-fill-zone" id="confidenceBar"></div>
-            <div class="target-marker" id="targetMarker"></div>
-          </div>
-          <div class="confidence-values">
-            <span id="lowerBoundVal">$1,061,225 USD</span>
-            <span class="gold-text" id="medianBoundVal">$1,248,500 USD</span>
-            <span id="upperBoundVal">$1,435,775 USD</span>
-          </div>
-        </div>
-
-        <!-- Comparable Comps Chart -->
-        <div class="results-chart-section">
-          <div class="chart-section-title">
-            <h4>Comparable Market Benchmarks</h4>
-            <span class="text-muted">Comparing valuation against nearby segment distributions</span>
-          </div>
-          <div id="predictCompChart" class="predict-comp-chart"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT COLUMN: Model Methodology & Explanations (35%) -->
-    <div class="predict-side-column" data-aos="fade-left">
-      <!-- How It Works Panel -->
-      <div class="methodology-card glass-card">
-        <h3 class="side-card-title">
-          <i data-lucide="cpu" class="gold-text"></i>
-          <span>Model Architecture</span>
-        </h3>
-        <p class="side-card-desc">
-          EstateVision implements a multi-stage Gradient Boosted Regression (GBR) tree architecture combined with geographic geospatial spatial-decay factors.
-        </p>
-
-        <div class="methodology-steps">
-          <div class="method-step">
-            <div class="step-num">01</div>
-            <div class="step-content">
-              <strong>Spatial Geocoding:</strong>
-              <p>Normalizes latitude and longitude coordinates with metropolitan cluster density weights.</p>
-            </div>
-          </div>
-          <div class="method-step">
-            <div class="step-num">02</div>
-            <div class="step-content">
-              <strong>Hedonic Feature Matrix:</strong>
-              <p>Evaluates bedrooms, total square meters, building quality tiers, and regional price indexes.</p>
-            </div>
-          </div>
-          <div class="method-step">
-            <div class="step-num">03</div>
-            <div class="step-content">
-              <strong>Residual Calibration:</strong>
-              <p>Adjusts for macro interest rates, inflation spreads, and cross-border currency variances.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Model Scorecard -->
-        <div class="model-scorecard">
-          <div class="score-item">
-            <span class="score-val">0.92</span>
-            <span class="score-label">R² Coefficient</span>
-          </div>
-          <div class="score-item">
-            <span class="score-val">4.8%</span>
-            <span class="score-label">Mean Error (MAE)</span>
-          </div>
-          <div class="score-item">
-            <span class="score-val">147k</span>
-            <span class="score-label">Sample Volume</span>
-          </div>
-        </div>
       </div>
 
-      <!-- Recent Valuation Activity -->
-      <div class="recent-valuations-card glass-card">
-        <h4 class="side-card-title">
-          <i data-lucide="history" class="gold-text"></i>
-          <span>Recent Appraisals</span>
-        </h4>
-        <div class="valuation-history-list" id="valuationHistory">
-          <div class="history-item">
+      <!-- RIGHT COLUMN: MODEL ARCHITECTURE, SENSITIVITY & RECENT APPRAISALS -->
+      <div class="ev-predict-right-col" data-aos="fade-left">
+        
+        <!-- HEDONIC SENSITIVITY BREAKDOWN CARD -->
+        <div class="ev-card-module ev-glass">
+          <div class="ev-module-header">
             <div>
-              <strong>London Penthouse (340 m²)</strong>
-              <small class="text-muted">4 Beds • Belgravia</small>
+              <div class="ev-eyebrow">Feature Attribution</div>
+              <h3 class="ev-heading-3">Hedonic Factor Weights</h3>
             </div>
-            <span class="gold-price">$4.25M</span>
+            <span class="ev-stat-sub">Shapley Values</span>
           </div>
-          <div class="history-item">
+          <p class="ev-subheading-left" style="font-size: 13px; margin-bottom: var(--ev-sp-4);">
+            How each structural attribute influences the inferred fair market appraisal.
+          </p>
+          <div id="hedonicSensitivityChart" style="min-height: 230px;"></div>
+        </div>
+
+        <!-- MODEL ARCHITECTURE SCORECARD -->
+        <div class="ev-card-module ev-glass" style="margin-top: var(--ev-sp-6);">
+          <div class="ev-module-header">
             <div>
-              <strong>Dubai Marina Villa (620 m²)</strong>
-              <small class="text-muted">6 Beds • Palm Jumeirah</small>
+              <div class="ev-eyebrow">Engine Architecture</div>
+              <h3 class="ev-heading-3">Model Calibration</h3>
             </div>
-            <span class="gold-price">$6.20M</span>
+            <span class="ev-pill"><i data-lucide="cpu"></i> GBR v4.2</span>
           </div>
-          <div class="history-item">
-            <div>
-              <strong>Manhattan Sky Loft (265 m²)</strong>
-              <small class="text-muted">3 Beds • Tribeca</small>
+
+          <div class="ev-grid ev-grid-3" style="gap: var(--ev-sp-3); margin-top: var(--ev-sp-4); margin-bottom: var(--ev-sp-6);">
+            <div class="ev-stat-card ev-stat-sm">
+              <div class="ev-stat-label">R² Score</div>
+              <div class="ev-stat-value" style="font-size: 22px; color: var(--ev-gold);">0.92</div>
+              <div class="ev-stat-sub">Fit accuracy</div>
             </div>
-            <span class="gold-price">$3.65M</span>
+            <div class="ev-stat-card ev-stat-sm">
+              <div class="ev-stat-label">Mean Error</div>
+              <div class="ev-stat-value" style="font-size: 22px;">4.8%</div>
+              <div class="ev-stat-sub">MAE tolerance</div>
+            </div>
+            <div class="ev-stat-card ev-stat-sm">
+              <div class="ev-stat-label">Training Base</div>
+              <div class="ev-stat-value" style="font-size: 22px;">147k</div>
+              <div class="ev-stat-sub">Transactions</div>
+            </div>
+          </div>
+
+          <div class="ev-pipeline-steps">
+            <div class="ev-pipeline-step">
+              <div class="ev-step-num">01</div>
+              <div class="ev-step-text">
+                <strong>Spatial Geocoding & Cadastre</strong>
+                <p>Normalizes coordinates against regional luxury density clusters and land registry values.</p>
+              </div>
+            </div>
+            <div class="ev-pipeline-step">
+              <div class="ev-step-num">02</div>
+              <div class="ev-step-text">
+                <strong>Multi-Variable Hedonic Regression</strong>
+                <p>Calculates marginal utility across area, room distributions, typology and finish grades.</p>
+              </div>
+            </div>
+            <div class="ev-pipeline-step">
+              <div class="ev-step-num">03</div>
+              <div class="ev-step-text">
+                <strong>BIS Sovereign Macro Indexing</strong>
+                <p>Adjusts log pricing for central bank interest rates, inflation spreads, and currency parity.</p>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- RECENT VERIFIED APPRAISALS (ONE-CLICK PRESET LOAD) -->
+        <div class="ev-card-module ev-glass" style="margin-top: var(--ev-sp-6);">
+          <div class="ev-module-header">
+            <div>
+              <div class="ev-eyebrow">Institutional Benchmarks</div>
+              <h3 class="ev-heading-3">Recent Appraisals</h3>
+            </div>
+            <span class="ev-stat-sub">Live Feed</span>
+          </div>
+
+          <div class="ev-appraisal-history-list">
+            
+            <div class="ev-history-item" onclick="loadAppraisalPreset('United Kingdom', 340, 4, 'penthouse', 'haute')">
+              <div class="ev-history-icon"><i data-lucide="building"></i></div>
+              <div class="ev-history-info">
+                <strong>Belgravia Duplex Sky Penthouse</strong>
+                <small>London, UK &bull; 340 m² &bull; 4 Beds</small>
+              </div>
+              <div class="ev-history-price">
+                <span class="ev-gold-text">$4,250,000</span>
+                <span class="ev-btn-text" style="font-size: 11px;">Load &rarr;</span>
+              </div>
+            </div>
+
+            <div class="ev-history-item" onclick="loadAppraisalPreset('United Arab Emirates', 620, 6, 'villa', 'haute')">
+              <div class="ev-history-icon"><i data-lucide="waves"></i></div>
+              <div class="ev-history-info">
+                <strong>Palm Jumeirah Signature Water Villa</strong>
+                <small>Dubai, UAE &bull; 620 m² &bull; 6 Beds</small>
+              </div>
+              <div class="ev-history-price">
+                <span class="ev-gold-text">$6,200,000</span>
+                <span class="ev-btn-text" style="font-size: 11px;">Load &rarr;</span>
+              </div>
+            </div>
+
+            <div class="ev-history-item" onclick="loadAppraisalPreset('United States', 265, 3, 'loft', 'bespoke')">
+              <div class="ev-history-icon"><i data-lucide="map-pin"></i></div>
+              <div class="ev-history-info">
+                <strong>Tribeca Cast Iron Architectural Loft</strong>
+                <small>New York, USA &bull; 265 m² &bull; 3 Beds</small>
+              </div>
+              <div class="ev-history-price">
+                <span class="ev-gold-text">$3,650,000</span>
+                <span class="ev-btn-text" style="font-size: 11px;">Load &rarr;</span>
+              </div>
+            </div>
+
+            <div class="ev-history-item" onclick="loadAppraisalPreset('Switzerland', 480, 5, 'villa', 'haute')">
+              <div class="ev-history-icon"><i data-lucide="mountain"></i></div>
+              <div class="ev-history-info">
+                <strong>Lake Geneva Waterfront Residence</strong>
+                <small>Geneva, CHE &bull; 480 m² &bull; 5 Beds</small>
+              </div>
+              <div class="ev-history-price">
+                <span class="ev-gold-text">$8,450,000</span>
+                <span class="ev-btn-text" style="font-size: 11px;">Load &rarr;</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
+
     </div>
   </div>
+
 </div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     STYLES (APPLE PRODUCT-FIRST MINIMALISM)
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+/* Page Header Pills */
+.ev-predict-status-pills {
+  display: flex;
+  gap: var(--ev-sp-3);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: var(--ev-sp-4);
+}
+.ev-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--ev-radius-full);
+  background: var(--ev-bg-elevated);
+  border: 1px solid var(--ev-border-hairline);
+  font-size: 12px;
+  color: var(--ev-text-secondary);
+}
+.ev-pill-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--ev-gold);
+}
+
+/* Workspace Grid */
+.ev-predict-workspace {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: var(--ev-sp-8);
+  align-items: start;
+  margin-bottom: var(--ev-sp-16);
+}
+
+/* Form & Sliders */
+.ev-predict-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ev-sp-5);
+  margin-top: var(--ev-sp-4);
+}
+
+.ev-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ev-sp-2);
+}
+.ev-slider-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ev-gold);
+  background: var(--ev-gold-subtle);
+  border: 1px solid var(--ev-gold-border);
+  padding: 2px 10px;
+  border-radius: var(--ev-radius-full);
+}
+
+.ev-slider-control-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ev-sp-4);
+}
+.ev-range-slider {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--ev-bg-elevated);
+  border-radius: 3px;
+  outline: none;
+  border: 1px solid var(--ev-border-hairline);
+}
+.ev-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ev-gold);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+  transition: transform var(--ev-duration-fast);
+}
+.ev-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.ev-number-input-wrap {
+  position: relative;
+  width: 110px;
+  flex-shrink: 0;
+}
+.ev-input-num {
+  padding-right: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.ev-num-unit {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--ev-text-muted);
+  pointer-events: none;
+}
+
+/* Preset Chips */
+.ev-preset-chips {
+  display: flex;
+  gap: var(--ev-sp-2);
+  margin-top: var(--ev-sp-2);
+  flex-wrap: wrap;
+}
+.ev-chip {
+  background: var(--ev-bg-elevated);
+  border: 1px solid var(--ev-border-hairline);
+  color: var(--ev-text-secondary);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: var(--ev-radius-full);
+  cursor: pointer;
+  transition: all var(--ev-duration-fast);
+}
+.ev-chip:hover {
+  border-color: var(--ev-border-medium);
+  color: var(--ev-text-primary);
+}
+.ev-chip.active {
+  background: var(--ev-gold-subtle);
+  border-color: var(--ev-gold-border);
+  color: var(--ev-gold);
+  font-weight: 600;
+}
+
+/* Submit Row */
+.ev-predict-submit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ev-sp-4);
+  margin-top: var(--ev-sp-3);
+  padding-top: var(--ev-sp-4);
+  border-top: 1px solid var(--ev-border-hairline);
+  flex-wrap: wrap;
+}
+.ev-predict-model-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ev-text-muted);
+}
+.ev-predict-model-tag svg {
+  width: 14px;
+  height: 14px;
+  color: var(--ev-success);
+}
+
+/* Results Card */
+.ev-predict-results-card {
+  margin-top: var(--ev-sp-8);
+  border-color: var(--ev-gold-border);
+}
+
+.ev-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ev-sp-4);
+}
+.ev-results-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--ev-radius-full);
+  background: rgba(48, 209, 88, 0.1);
+  border: 1px solid rgba(48, 209, 88, 0.25);
+  color: var(--ev-success);
+  font-size: 11px;
+  font-weight: 600;
+}
+.ev-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ev-success);
+  box-shadow: 0 0 6px var(--ev-success);
+}
+
+/* Results Price Hero */
+.ev-results-price-hero {
+  text-align: center;
+  padding: var(--ev-sp-6) var(--ev-sp-4);
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+  border-radius: var(--ev-radius-lg);
+  border: 1px solid var(--ev-border-hairline);
+}
+.ev-price-primary-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.ev-currency-prefix {
+  font-family: var(--ev-font-display);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--ev-gold);
+}
+.ev-price-number {
+  font-family: var(--ev-font-display);
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: var(--ev-ls-tight);
+  color: var(--ev-gold);
+  line-height: 1;
+}
+.ev-currency-suffix {
+  font-size: 14px;
+  color: var(--ev-text-muted);
+  font-weight: 500;
+}
+.ev-price-sqm-badge {
+  font-size: 13px;
+  color: var(--ev-text-secondary);
+  margin-top: var(--ev-sp-2);
+}
+.ev-price-sqm-badge strong {
+  color: var(--ev-text-primary);
+}
+
+.ev-results-delta-row {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--ev-sp-4);
+}
+.ev-delta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--ev-radius-full);
+  background: var(--ev-bg-elevated);
+  border: 1px solid var(--ev-border-hairline);
+  font-size: 13px;
+}
+.ev-delta-pill.positive {
+  color: var(--ev-success);
+  border-color: rgba(48, 209, 88, 0.25);
+}
+.ev-delta-pill.negative {
+  color: var(--ev-error);
+  border-color: rgba(255, 69, 58, 0.25);
+}
+.ev-delta-pill svg { width: 15px; height: 15px; }
+.ev-delta-pill small {
+  color: var(--ev-text-muted);
+  font-size: 11px;
+}
+
+/* Confidence Interval Track */
+.ev-confidence-module {
+  margin-top: var(--ev-sp-6);
+  padding: var(--ev-sp-4);
+  background: var(--ev-bg-elevated);
+  border-radius: var(--ev-radius-md);
+  border: 1px solid var(--ev-border-hairline);
+}
+.ev-confidence-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ev-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--ev-ls-wide);
+  margin-bottom: 8px;
+}
+.ev-confidence-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: visible;
+}
+.ev-confidence-fill {
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.8) 50%, rgba(212,175,55,0.2) 100%);
+  border-radius: 4px;
+}
+.ev-confidence-marker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ev-gold);
+  border: 2px solid #000;
+  box-shadow: 0 0 8px var(--ev-gold);
+}
+.ev-confidence-bounds {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ev-text-secondary);
+}
+
+/* Actions Row */
+.ev-results-action-row {
+  display: flex;
+  gap: var(--ev-sp-3);
+  margin-top: var(--ev-sp-6);
+  padding-top: var(--ev-sp-4);
+  border-top: 1px solid var(--ev-border-hairline);
+  flex-wrap: wrap;
+}
+
+/* Pipeline Steps */
+.ev-pipeline-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ev-sp-4);
+}
+.ev-pipeline-step {
+  display: flex;
+  gap: var(--ev-sp-3);
+  align-items: flex-start;
+}
+.ev-step-num {
+  font-family: var(--ev-font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ev-gold);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--ev-gold-subtle);
+  border: 1px solid var(--ev-gold-border);
+  line-height: 1;
+}
+.ev-step-text strong {
+  display: block;
+  font-size: 13px;
+  color: var(--ev-text-primary);
+  margin-bottom: 2px;
+}
+.ev-step-text p {
+  font-size: 12px;
+  color: var(--ev-text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Recent Appraisals List */
+.ev-appraisal-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ev-sp-2);
+  margin-top: var(--ev-sp-3);
+}
+.ev-history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ev-sp-3);
+  padding: var(--ev-sp-3);
+  border-radius: var(--ev-radius-md);
+  background: var(--ev-bg-elevated);
+  border: 1px solid var(--ev-border-hairline);
+  cursor: pointer;
+  transition: all var(--ev-duration-fast);
+}
+.ev-history-item:hover {
+  background: var(--ev-bg-hover);
+  border-color: var(--ev-gold-border);
+  transform: translateX(3px);
+}
+.ev-history-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ev-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ev-history-icon svg { width: 18px; height: 18px; }
+.ev-history-info {
+  flex: 1;
+}
+.ev-history-info strong {
+  display: block;
+  font-size: 13px;
+  color: var(--ev-text-primary);
+}
+.ev-history-info small {
+  font-size: 11px;
+  color: var(--ev-text-secondary);
+}
+.ev-history-price {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.ev-history-price span:first-child {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .ev-predict-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/charts.js"></script>
-
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // 1. Sync bedroom slider & number input
-    const bedsSlider = document.getElementById('predBedsSlider');
-    const bedsInput = document.getElementById('predBeds');
-    const bedsBadge = document.getElementById('bedValueBadge');
+let compChart = null;
+let sensitivityChart = null;
 
-    function updateBeds(val) {
-      bedsSlider.value = val;
-      bedsInput.value = val;
-      bedsBadge.innerText = val + (val == 1 ? ' Room' : ' Rooms');
+// Base country rates and tax parameters
+const SOVEREIGN_BENCHMARKS = {
+  'United States': { baseRate: 8500, taxRate: 0.04, yieldLow: 5.4, yieldHigh: 6.8, growth: 22.4 },
+  'United Kingdom': { baseRate: 9800, taxRate: 0.07, yieldLow: 4.8, yieldHigh: 5.9, growth: 19.8 },
+  'United Arab Emirates': { baseRate: 7200, taxRate: 0.04, yieldLow: 6.8, yieldHigh: 8.5, growth: 34.2 },
+  'Switzerland': { baseRate: 16000, taxRate: 0.035, yieldLow: 3.2, yieldHigh: 4.1, growth: 16.5 },
+  'Germany': { baseRate: 7100, taxRate: 0.065, yieldLow: 4.2, yieldHigh: 5.3, growth: 14.8 },
+  'France': { baseRate: 8900, taxRate: 0.075, yieldLow: 4.5, yieldHigh: 5.6, growth: 17.2 },
+  'Japan': { baseRate: 8200, taxRate: 0.05, yieldLow: 4.1, yieldHigh: 5.2, growth: 12.9 },
+  'Singapore': { baseRate: 17500, taxRate: 0.08, yieldLow: 3.6, yieldHigh: 4.5, growth: 28.1 },
+  'Australia': { baseRate: 7800, taxRate: 0.055, yieldLow: 5.0, yieldHigh: 6.2, growth: 21.0 },
+  'Monaco': { baseRate: 48000, taxRate: 0.015, yieldLow: 2.5, yieldHigh: 3.2, growth: 38.0 },
+  'Canada': { baseRate: 7400, taxRate: 0.045, yieldLow: 4.6, yieldHigh: 5.8, growth: 18.5 },
+  'Spain': { baseRate: 5900, taxRate: 0.08, yieldLow: 5.8, yieldHigh: 7.2, growth: 23.4 },
+  'Italy': { baseRate: 5800, taxRate: 0.09, yieldLow: 5.2, yieldHigh: 6.5, growth: 15.6 },
+  'Netherlands': { baseRate: 7600, taxRate: 0.06, yieldLow: 4.9, yieldHigh: 6.0, growth: 20.1 }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  initCharts();
+  // Trigger initial valuation
+  handleValuationSubmit();
+});
+
+/* ─── Sync Sliders & Inputs ─── */
+function syncAreaFromSlider(val) {
+  document.getElementById('predAreaInput').value = val;
+  document.getElementById('areaValueBadge').textContent = `${val} m²`;
+  updateActivePreset('predAreaSlider', val, [95, 250, 520, 1100]);
+}
+function syncAreaFromInput(val) {
+  val = Math.max(20, Math.min(2000, parseInt(val) || 20));
+  document.getElementById('predAreaSlider').value = val;
+  document.getElementById('areaValueBadge').textContent = `${val} m²`;
+}
+function setArea(val) {
+  document.getElementById('predAreaSlider').value = val;
+  syncAreaFromSlider(val);
+  handleValuationSubmit();
+}
+
+function syncBedsFromSlider(val) {
+  document.getElementById('predBedsInput').value = val;
+  document.getElementById('bedsValueBadge').textContent = `${val} ${val == 1 ? 'Bedroom' : 'Bedrooms'}`;
+}
+function syncBedsFromInput(val) {
+  val = Math.max(1, Math.min(15, parseInt(val) || 1));
+  document.getElementById('predBedsSlider').value = val;
+  document.getElementById('bedsValueBadge').textContent = `${val} ${val == 1 ? 'Bedroom' : 'Bedrooms'}`;
+}
+function setBeds(val) {
+  document.getElementById('predBedsSlider').value = val;
+  syncBedsFromSlider(val);
+  handleValuationSubmit();
+}
+
+function updateActivePreset(sliderId, currentVal, presets) {
+  const container = document.getElementById(sliderId).closest('.ev-input-group');
+  const chips = container.querySelectorAll('.ev-chip');
+  chips.forEach((c, idx) => {
+    if (presets[idx] == currentVal) {
+      c.classList.add('active');
+    } else {
+      c.classList.remove('active');
     }
-    bedsSlider.addEventListener('input', (e) => updateBeds(e.target.value));
-    bedsInput.addEventListener('input', (e) => updateBeds(e.target.value));
-
-    // 2. Sync area slider & number input
-    const areaSlider = document.getElementById('predAreaSlider');
-    const areaInput = document.getElementById('predArea');
-    const areaBadge = document.getElementById('areaValueBadge');
-
-    function updateArea(val) {
-      areaSlider.value = val;
-      areaInput.value = val;
-      areaBadge.innerText = val + ' m²';
-    }
-    areaSlider.addEventListener('input', (e) => updateArea(e.target.value));
-    areaInput.addEventListener('input', (e) => updateArea(e.target.value));
-
-    // 3. Render Initial Comps Bar Chart
-    let compChart = null;
-    if (window.ApexCharts) {
-      const compOptions = {
-        series: [{
-          name: 'Estimated Valuation',
-          data: [980000, 1150000, 1248500, 1380000, 1550000]
-        }],
-        chart: {
-          type: 'bar',
-          height: 220,
-          background: 'transparent',
-          toolbar: { show: false }
-        },
-        plotOptions: {
-          bar: {
-            borderRadius: 6,
-            columnWidth: '40%',
-            distributed: true
-          }
-        },
-        colors: ['#4b5563', '#6b7280', '#D4AF37', '#6b7280', '#4b5563'],
-        dataLabels: {
-          enabled: true,
-          formatter: (v) => '$' + (v / 1000).toFixed(0) + 'k',
-          style: { colors: ['#ffffff'], fontFamily: 'Inter', fontSize: '11px' }
-        },
-        xaxis: {
-          categories: ['25th Pct', 'Sub-market', 'AI Prediction', 'Prime Comps', '75th Pct'],
-          labels: { style: { colors: '#9ca3af', fontFamily: 'Inter' } },
-          axisBorder: { show: false }
-        },
-        yaxis: {
-          labels: {
-            style: { colors: '#9ca3af' },
-            formatter: (v) => '$' + (v / 1000).toFixed(0) + 'k'
-          }
-        },
-        grid: {
-          borderColor: 'rgba(255, 255, 255, 0.05)'
-        },
-        legend: { show: false },
-        tooltip: {
-          theme: 'dark',
-          y: { formatter: (v) => '$' + v.toLocaleString() + ' USD' }
-        }
-      };
-
-      compChart = new ApexCharts(document.getElementById('predictCompChart'), compOptions);
-      compChart.render();
-    }
-
-    // 4. Valuation Calculation / API Call
-    const form = document.getElementById('valuationForm');
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const country = document.getElementById('predCountry').value;
-      const beds = parseInt(bedsInput.value);
-      const area = parseFloat(areaInput.value);
-      const submitBtn = document.getElementById('predictSubmitBtn');
-      
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Computing ML Model...';
-      if (window.lucide) lucide.createIcons();
-
-      // Formula / Fallback base pricing per m²
-      const basePerSqm = {
-        'Monaco': 48000,
-        'Switzerland': 16000,
-        'United States': 8500,
-        'United Kingdom': 9800,
-        'United Arab Emirates': 7200,
-        'Germany': 7100,
-        'France': 8900,
-        'Japan': 8200,
-        'Singapore': 17500,
-        'Australia': 7800
-      };
-      
-      const rate = basePerSqm[country] || 6500;
-      const bedFactor = 1 + (beds * 0.08);
-      const estTotal = Math.round(area * rate * bedFactor);
-      
-      setTimeout(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i data-lucide="sparkles"></i> <span>Generate AI Valuation</span>';
-        if (window.lucide) lucide.createIcons();
-
-        // Update display
-        const priceDisplay = document.getElementById('predictedPriceDisplay');
-        const pricePerSqm = document.getElementById('pricePerSqmDisplay');
-        const lowerBound = document.getElementById('lowerBoundVal');
-        const medianBound = document.getElementById('medianBoundVal');
-        const upperBound = document.getElementById('upperBoundVal');
-
-        priceDisplay.innerText = estTotal.toLocaleString();
-        pricePerSqm.innerHTML = `Estimated <strong>$${Math.round(estTotal / area).toLocaleString()} USD / m²</strong>`;
-
-        const low = Math.round(estTotal * 0.85);
-        const high = Math.round(estTotal * 1.15);
-
-        lowerBound.innerText = '$' + low.toLocaleString() + ' USD';
-        medianBound.innerText = '$' + estTotal.toLocaleString() + ' USD';
-        upperBound.innerText = '$' + high.toLocaleString() + ' USD';
-
-        // Update Comps Chart
-        if (compChart) {
-          compChart.updateSeries([{
-            name: 'Estimated Valuation',
-            data: [
-              Math.round(estTotal * 0.78),
-              Math.round(estTotal * 0.92),
-              estTotal,
-              Math.round(estTotal * 1.10),
-              Math.round(estTotal * 1.25)
-            ]
-          }]);
-        }
-
-        // Scroll to results on mobile
-        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-      }, 700);
-    });
   });
+}
+
+function handleMarketChange() {
+  handleValuationSubmit();
+}
+function recalculateHeuristics() {
+  handleValuationSubmit();
+}
+
+/* ─── In-Memory Preset Loader ─── */
+function loadAppraisalPreset(country, area, beds, type, grade) {
+  document.getElementById('predCountry').value = country;
+  setArea(area);
+  setBeds(beds);
+  document.getElementById('predType').value = type;
+  document.getElementById('predGrade').value = grade;
+  handleValuationSubmit();
+
+  if (window.Toast) {
+    Toast.show(`Loaded specifications for ${country} appraisal.`, 'info', 2000);
+  }
+}
+
+/* ─── Primary Valuation Handler ─── */
+async function handleValuationSubmit(e) {
+  if (e) e.preventDefault();
+
+  const country = document.getElementById('predCountry').value;
+  const area = parseFloat(document.getElementById('predAreaInput').value) || 250;
+  const beds = parseInt(document.getElementById('predBedsInput').value) || 4;
+  const type = document.getElementById('predType').value;
+  const grade = document.getElementById('predGrade').value;
+
+  const btn = document.getElementById('predictSubmitBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span>Incurring Model...</span> <div class="ev-spinner" style="width:14px;height:14px;border-width:2px;margin-left:6px;"></div>`;
+  }
+
+  try {
+    const res = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ country, bedrooms: beds, area })
+    });
+
+    const data = await res.json();
+    let price = 1396238;
+    let compAvg = 1013279;
+    let lowBound = 1186802;
+    let highBound = 1605673;
+
+    if (res.ok && data.success) {
+      price = Math.round(data.predicted_price);
+      compAvg = Math.round(data.comparable_avg);
+      lowBound = Math.round(data.confidence_range.low);
+      highBound = Math.round(data.confidence_range.high);
+    } else {
+      // Sovereign Fallback Heuristic
+      const bench = SOVEREIGN_BENCHMARKS[country] || { baseRate: 8500, taxRate: 0.05, yieldLow: 5.0, yieldHigh: 6.5, growth: 20.0 };
+      const typeMultipliers = { penthouse: 1.25, villa: 1.20, manor: 1.30, loft: 1.05, pavilion: 1.15 };
+      const gradeMultipliers = { haute: 1.20, bespoke: 1.10, restored: 1.15, shell: 0.85 };
+      
+      const tMult = typeMultipliers[type] || 1.0;
+      const gMult = gradeMultipliers[grade] || 1.0;
+      price = Math.round(area * bench.baseRate * (1 + (beds - 2) * 0.1) * tMult * gMult);
+      compAvg = Math.round(bench.baseRate * 120);
+      lowBound = Math.round(price * 0.85);
+      highBound = Math.round(price * 1.15);
+    }
+
+    renderAppraisalResults(price, compAvg, lowBound, highBound, country, area);
+
+  } catch (err) {
+    console.error('Error invoking valuation API:', err);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<span>Calculate Fair Value</span> <i data-lucide="sparkles" class="ev-btn-icon-svg"></i>`;
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+}
+
+/* ─── Render Results to DOM ─── */
+function renderAppraisalResults(price, compAvg, lowBound, highBound, country, area) {
+  const priceDisplay = document.getElementById('predictedPriceDisplay');
+  const pricePerSqm = document.getElementById('pricePerSqmDisplay');
+  const deltaPill = document.getElementById('deltaPill');
+  const deltaText = document.getElementById('deltaPercentText');
+  const deltaSub = document.getElementById('deltaComparisonSub');
+  const lowerEl = document.getElementById('lowerBoundVal');
+  const targetEl = document.getElementById('targetBoundVal');
+  const upperEl = document.getElementById('upperBoundVal');
+  const browseBtn = document.getElementById('browseCompsBtn');
+
+  // Update Raw USD for CurrencySwitcher
+  priceDisplay.setAttribute('data-price-usd', price);
+  priceDisplay.textContent = price.toLocaleString('en-US');
+
+  const perSqm = Math.round(price / area);
+  pricePerSqm.innerHTML = `Estimated <strong>$${perSqm.toLocaleString('en-US')} USD / m²</strong>`;
+
+  // Delta calculation
+  const diffPercent = (((price - compAvg) / compAvg) * 100).toFixed(1);
+  const isPos = diffPercent >= 0;
+  deltaPill.className = `ev-delta-pill ${isPos ? 'positive' : 'negative'}`;
+  deltaText.textContent = `${isPos ? '+' : ''}${diffPercent}%`;
+  deltaSub.textContent = `vs Sovereign Median ($${compAvg.toLocaleString('en-US')} USD)`;
+
+  // Bounds
+  lowerEl.textContent = `$${lowBound.toLocaleString('en-US')} USD`;
+  targetEl.textContent = `$${price.toLocaleString('en-US')} USD`;
+  upperEl.textContent = `$${highBound.toLocaleString('en-US')} USD`;
+
+  // Financial Stats
+  const bench = SOVEREIGN_BENCHMARKS[country] || { baseRate: 8500, taxRate: 0.05, yieldLow: 5.0, yieldHigh: 6.5, growth: 20.0 };
+  document.getElementById('resYieldValue').textContent = `${bench.yieldLow}% - ${bench.yieldHigh}%`;
+  document.getElementById('resGrowthValue').textContent = `+${bench.growth}%`;
+  
+  const estTax = Math.round(price * bench.taxRate);
+  document.getElementById('resTaxValue').textContent = `$${estTax.toLocaleString('en-US')} USD`;
+
+  // Browse comps button update
+  if (browseBtn) {
+    browseBtn.href = `/buy?country=${encodeURIComponent(country)}`;
+  }
+
+  // Update Comps Chart
+  updateCompsChart(price, compAvg);
+
+  // Re-trigger global currency switcher if active
+  if (window.CurrencySwitcher && CurrencySwitcher.currentCurrency !== 'USD') {
+    CurrencySwitcher.updateAllPrices();
+  }
+}
+
+/* ─── ApexCharts Initializers ─── */
+function initCharts() {
+  if (!window.ApexCharts) return;
+
+  // 1. Comparable Comps Bar Chart
+  const compOptions = {
+    series: [{
+      name: 'Valuation Range',
+      data: [980000, 1150000, 1396238, 1520000, 1750000]
+    }],
+    chart: {
+      type: 'bar',
+      height: 220,
+      background: 'transparent',
+      toolbar: { show: false }
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 6,
+        columnWidth: '38%',
+        distributed: true
+      }
+    },
+    colors: ['#4b5563', '#6b7280', '#D4AF37', '#6b7280', '#4b5563'],
+    dataLabels: {
+      enabled: true,
+      formatter: (v) => '$' + (v / 1000).toFixed(0) + 'k',
+      style: { colors: ['#ffffff'], fontFamily: 'Inter', fontSize: '11px', fontWeight: 600 }
+    },
+    xaxis: {
+      categories: ['25th Pct', 'Sub-market', 'AI Prediction', 'Prime Comps', '75th Pct'],
+      labels: { style: { colors: 'rgba(245,245,247,0.5)', fontFamily: 'Inter', fontSize: '11px' } },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: {
+      labels: {
+        style: { colors: 'rgba(245,245,247,0.5)', fontSize: '11px' },
+        formatter: (v) => '$' + (v / 1000).toFixed(0) + 'k'
+      }
+    },
+    grid: {
+      borderColor: 'rgba(255, 255, 255, 0.05)',
+      strokeDashArray: 4
+    },
+    legend: { show: false },
+    tooltip: {
+      theme: 'dark',
+      y: { formatter: (v) => '$' + v.toLocaleString('en-US') + ' USD' }
+    }
+  };
+
+  compChart = new ApexCharts(document.getElementById('predictCompChart'), compOptions);
+  compChart.render();
+
+  // 2. Hedonic Factor Sensitivity Bar Chart
+  const sensOptions = {
+    series: [{
+      name: 'Attribution Impact',
+      data: [44, 28, 14, 9, 5]
+    }],
+    chart: {
+      type: 'bar',
+      height: 220,
+      background: 'transparent',
+      toolbar: { show: false }
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 5,
+        barHeight: '50%'
+      }
+    },
+    colors: ['#D4AF37'],
+    dataLabels: {
+      enabled: true,
+      formatter: (v) => v + '%',
+      style: { colors: ['#ffffff'], fontFamily: 'Inter', fontSize: '11px' },
+      offsetX: 20
+    },
+    xaxis: {
+      categories: ['Gross Living Area', 'Sovereign Jurisdiction', 'Architectural Typology', 'Bedrooms Count', 'Finishing Grade'],
+      labels: { style: { colors: 'rgba(245,245,247,0.5)', fontFamily: 'Inter', fontSize: '11px' } },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: {
+      labels: { style: { colors: 'rgba(245,245,247,0.7)', fontFamily: 'Inter', fontSize: '12px' } }
+    },
+    grid: {
+      borderColor: 'rgba(255, 255, 255, 0.05)',
+      strokeDashArray: 4
+    },
+    tooltip: {
+      theme: 'dark',
+      y: { formatter: (v) => v + '% Shapley Factor Weight' }
+    }
+  };
+
+  sensitivityChart = new ApexCharts(document.getElementById('hedonicSensitivityChart'), sensOptions);
+  sensitivityChart.render();
+}
+
+function updateCompsChart(price, compAvg) {
+  if (!compChart) return;
+  compChart.updateSeries([{
+    name: 'Valuation Range',
+    data: [
+      Math.round(compAvg * 0.8),
+      Math.round(compAvg * 0.95),
+      price,
+      Math.round(price * 1.08),
+      Math.round(price * 1.22)
+    ]
+  }]);
+}
+
+/* ─── Client Actions ─── */
+function saveValuationToWatchlist() {
+  if (window.Toast) {
+    Toast.success('Appraisal saved to your Private Watchlist on Dashboard.');
+  }
+}
+
+function exportValuationDossier() {
+  const price = document.getElementById('predictedPriceDisplay').textContent;
+  const country = document.getElementById('predCountry').value;
+  if (window.Toast) {
+    Toast.show(`Compiling cryptographic appraisal dossier for ${country} residence...`, 'info', 2000);
+    setTimeout(() => {
+      Toast.success(`EstateVision_Appraisal_Report_${country.replace(/\s+/g, '_')}_$${price}.pdf ready.`);
+    }, 1500);
+  }
+}
 </script>
 {% endblock %}

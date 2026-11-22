@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% set hide_navigation = true %}
+
+{% block title %}500 — Server Error | EstateVision{% endblock %}
+
+{% block content %}
+<div class="ev-error-page">
+  <div class="ev-error-card ev-glass">
+    <div class="ev-error-code">500</div>
+    <h1 class="ev-error-title">Something went wrong.</h1>
+    <p class="ev-error-subtitle">We experienced an unexpected server error. Please try again shortly.</p>
+    <a href="/buy" class="ev-btn-primary">
+      <span>Back to marketplace</span>
+      <i data-lucide="arrow-right"></i>
+    </a>
+  </div>
+</div>
+
+<style>
+.ev-error-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.ev-error-card {
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  padding: 48px 32px;
+  border-radius: 28px;
+}
+.ev-error-code {
+  font-family: var(--ev-font-sans);
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ev-gold);
+  letter-spacing: -0.04em;
+  margin-bottom: 16px;
+}
+.ev-error-title {
+  font-family: var(--ev-font-sans);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ev-text-primary);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.ev-error-subtitle {
+  font-size: 15px;
+  color: var(--ev-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+</style>
+{% endblock %}

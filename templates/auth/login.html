@@ -2,254 +2,700 @@
 {% set is_public = true %}
 {% set hide_navigation = true %}
 
-{% block title %}Sign In{% endblock %}
-{% block body_class %}public-page auth-page{% endblock %}
+{% block title %}Sign In | EstateVision{% endblock %}
+{% block body_class %}ev-auth-page{% endblock %}
 
 {% block content %}
-<div class="auth-layout">
-  <!-- LEFT SIDE: Luxury Branding & Parallax Cards (50%) -->
-  <div class="auth-visual-side">
-    <div class="auth-visual-bg">
-      <div class="glowing-orb orb-1"></div>
-      <div class="glowing-orb orb-2"></div>
-    </div>
-    
-    <div class="auth-visual-content">
-      <a href="/" class="auth-brand-logo">
-        <span class="logo-icon">🏛️</span>
-        <span class="logo-text gold-text-shimmer">EstateVision</span>
-      </a>
-      
-      <div class="auth-visual-hero">
-        <span class="hero-tag"><span class="dot"></span> Global Real Estate Intelligence</span>
-        <h2 class="auth-visual-title">
-          Institutional Insight for the Modern Property Investor.
-        </h2>
-        <p class="auth-visual-desc">
-          Monitor 147,000+ luxury listings, run instant machine-learning appraisals, and capitalize on macroeconomic real estate shifts worldwide.
-        </p>
-      </div>
-      
-      <!-- Floating Parallax Property Cards -->
-      <div class="floating-cards-container">
-        <!-- Card 1 -->
-        <div class="floating-property-card float-anim-1">
-          <div class="card-thumb">
-            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=300&q=80" alt="Penthouse">
-          </div>
-          <div class="card-details">
-            <span class="card-badge">Top Valuation</span>
-            <div class="card-title">Manhattan Sky Penthouse</div>
-            <div class="card-price">$4,850,000 <small>USD</small></div>
-            <div class="card-metrics">
-              <span><i data-lucide="bed"></i> 4 Beds</span>
-              <span><i data-lucide="maximize"></i> 380 m²</span>
-              <span class="green-text">+12.4% YoY</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Card 2 -->
-        <div class="floating-property-card float-anim-2">
-          <div class="card-thumb">
-            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=300&q=80" alt="Dubai Villa">
-          </div>
-          <div class="card-details">
-            <span class="card-badge gold-badge">Prime Luxury</span>
-            <div class="card-title">Palm Jumeirah Villa</div>
-            <div class="card-price">$6,200,000 <small>USD</small></div>
-            <div class="card-metrics">
-              <span><i data-lucide="bed"></i> 6 Beds</span>
-              <span><i data-lucide="maximize"></i> 620 m²</span>
-              <span class="green-text">7.8% Yield</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Social Proof Stat -->
-      <div class="auth-social-proof">
-        <div class="avatar-stack">
-          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" alt="User 1" class="avatar-sm">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" alt="User 2" class="avatar-sm">
-          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=80&q=80" alt="User 3" class="avatar-sm">
-          <div class="avatar-sm avatar-more">+10k</div>
-        </div>
-        <div class="proof-text">
-          <strong>Join 10,000+ investors & agents</strong>
-          <span>Deploying capital across 50+ countries</span>
-        </div>
-      </div>
+<div class="ev-auth-split">
+  
+  <!-- LEFT: 50% Full-height Photo with Slow 20s Ken Burns & ONE Line of Text -->
+  <div class="ev-auth-visual">
+    <div class="ev-auth-photo"></div>
+    <div class="ev-auth-visual-scrim"></div>
+    <div class="ev-auth-visual-content">
+      <h1 class="ev-hero-headline">Own the world’s finest homes.</h1>
     </div>
   </div>
-  
-  <!-- RIGHT SIDE: Sign In Form (50%) -->
-  <div class="auth-form-side">
-    <div class="auth-card glass-card" data-aos="fade-left">
-      <!-- Mobile Brand Header -->
-      <div class="auth-mobile-header">
-        <a href="/" class="mobile-logo">
-          <span class="logo-icon">🏛️</span>
-          <span class="logo-text gold-text-shimmer">EstateVision</span>
+
+  <!-- RIGHT: 50% Centered Glass Card (max-width: 420px, radius 28px) -->
+  <div class="ev-auth-panel">
+    <div class="ev-auth-card ev-glass">
+      
+      <!-- 1. Logo -->
+      <div class="ev-auth-header-row">
+        <a href="/" class="ev-auth-logo">
+          <span class="ev-logo-mark">EV</span>
+          <span class="ev-logo-text">EstateVision</span>
         </a>
       </div>
-      
-      <div class="auth-card-header">
-        <h1 class="auth-title">Welcome Back</h1>
-        <p class="auth-subtitle">Sign in to your global intelligence portal</p>
+
+      <!-- 2. Segmented Control Styled as a Pill (Sign in | Create account) -->
+      <div class="ev-pill-switch" role="tablist">
+        <button 
+          type="button" 
+          class="ev-pill-tab active" 
+          id="tabSignIn" 
+          onclick="setAuthMode('signin')"
+        >
+          Sign in
+        </button>
+        <button 
+          type="button" 
+          class="ev-pill-tab" 
+          id="tabCreate" 
+          onclick="setAuthMode('signup')"
+        >
+          Create account
+        </button>
       </div>
-      
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="auth-alerts">
-            {% for category, message in messages %}
-              <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
-                <i data-lucide="alert-circle"></i>
-                <span>{{ message }}</span>
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
-      
-      <form id="loginForm" data-auth="login" method="POST" action="/login" class="auth-form" novalidate>
-        <!-- Email Input -->
-        <div class="form-group">
-          <label for="email" class="form-label">Email Address</label>
-          <div class="input-wrapper">
-            <i data-lucide="mail" class="input-icon"></i>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              class="form-input" 
-              placeholder="name@company.com" 
-              value="alexander@estatevision.io"
-              required
-              autocomplete="email"
-            >
-          </div>
-          <span class="form-error" id="emailError"></span>
+
+      <!-- Heading -->
+      <h2 class="ev-auth-title" id="authHeaderTitle">Welcome back</h2>
+
+      <!-- Inline Notification -->
+      <div id="authAlert" class="ev-auth-error-note" style="display: none;">
+        <span id="authAlertText"></span>
+      </div>
+
+      <!-- Form (Sign In / Create Account Unified) -->
+      <form id="evAuthForm" class="ev-auth-form" onsubmit="handleAuthSubmit(event)">
+        <input type="hidden" name="role" id="authRoleInput" value="customer">
+
+        <!-- Role Selector as 2 Compact Cards (1 line each, Sign-up only) -->
+        <div class="ev-role-grid" id="authRoleRow" style="display: none;">
+          <button 
+            type="button" 
+            class="ev-role-tile active" 
+            id="roleInvestorTile" 
+            onclick="selectRole('customer')"
+          >
+            <i data-lucide="briefcase"></i>
+            <span>Investor</span>
+          </button>
+          <button 
+            type="button" 
+            class="ev-role-tile" 
+            id="roleBrokerTile" 
+            onclick="selectRole('agent')"
+          >
+            <i data-lucide="shield-check"></i>
+            <span>Broker</span>
+          </button>
         </div>
-        
-        <!-- Password Input -->
-        <div class="form-group">
-          <div class="label-row">
-            <label for="password" class="form-label">Password</label>
-            <a href="#" class="forgot-link">Forgot password?</a>
-          </div>
-          <div class="input-wrapper">
-            <i data-lucide="lock" class="input-icon"></i>
+
+        <!-- Full Name (Sign-up only) -->
+        <div class="ev-field" id="nameFieldGroup" style="display: none;">
+          <label class="ev-field-label" for="authFullName">Full name</label>
+          <input 
+            type="text" 
+            id="authFullName" 
+            name="full_name" 
+            class="ev-field-input" 
+            placeholder="Elena Rostova" 
+            autocomplete="name"
+          >
+        </div>
+
+        <!-- Email Address -->
+        <div class="ev-field">
+          <label class="ev-field-label" for="authEmail">Email</label>
+          <input 
+            type="email" 
+            id="authEmail" 
+            name="email" 
+            class="ev-field-input" 
+            placeholder="name@estatevision.io" 
+            value="investor@estatevision.io" 
+            required 
+            autocomplete="email"
+          >
+        </div>
+
+        <!-- Password (Eye icon INSIDE field) -->
+        <div class="ev-field">
+          <label class="ev-field-label" for="authPassword">Password</label>
+          <div class="ev-input-container">
             <input 
               type="password" 
-              id="password" 
+              id="authPassword" 
               name="password" 
-              class="form-input" 
+              class="ev-field-input ev-field-input-icon" 
               placeholder="••••••••••••" 
-              value="Luxury2026!"
-              required
+              value="Investor2026!" 
+              required 
               autocomplete="current-password"
+              oninput="updateStrength(this.value)"
             >
-            <button type="button" class="btn-toggle-password" id="togglePasswordBtn" aria-label="Toggle password visibility">
-              <i data-lucide="eye" id="passwordEyeIcon"></i>
+            <button 
+              type="button" 
+              class="ev-field-toggle-btn" 
+              onclick="togglePasswordVisibility()" 
+              aria-label="Toggle password visibility"
+            >
+              <i data-lucide="eye" id="passwordToggleIcon"></i>
             </button>
           </div>
-          <span class="form-error" id="passwordError"></span>
+
+          <!-- Strength Bar: 4 Thin Segments (Sign-up only) -->
+          <div class="ev-strength-segments" id="passwordStrengthRow" style="display: none;">
+            <span class="ev-strength-bar" id="strBar1"></span>
+            <span class="ev-strength-bar" id="strBar2"></span>
+            <span class="ev-strength-bar" id="strBar3"></span>
+            <span class="ev-strength-bar" id="strBar4"></span>
+          </div>
         </div>
-        
-        <!-- Remember Me Checkbox -->
-        <div class="form-checkbox-row">
-          <label class="custom-checkbox">
-            <input type="checkbox" name="remember" id="rememberMe" checked>
-            <span class="checkmark"></span>
-            <span class="checkbox-label">Keep me signed in for 30 days</span>
-          </label>
-        </div>
-        
-        <!-- Submit Button -->
-        <button type="submit" class="btn-gold btn-full btn-glow" id="submitLoginBtn">
-          <span>Sign In</span>
-          <i data-lucide="arrow-right"></i>
+
+        <!-- ONE Gold Button: "Continue" -->
+        <button type="submit" class="ev-btn-primary ev-auth-submit" id="authSubmitBtn">
+          <span>Continue</span>
         </button>
       </form>
 
-      <!-- 1-Click Instant Demo Login Access -->
-      <div class="demo-login-box" style="margin-top: 1.25rem; padding: 1rem; border: 1px dashed rgba(212, 175, 55, 0.4); border-radius: 12px; background: rgba(212, 175, 55, 0.05);">
-        <div style="font-size: 0.78rem; font-weight: 700; color: #D4AF37; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between;">
-          <span>⚡ Instant 1-Click Demo Accounts</span>
-          <span style="font-size: 0.7rem; color: #94A3B8;">Pre-configured</span>
-        </div>
-        <div style="display: flex; gap: 8px; flex-direction: column;">
-          <a href="/demo-login/agent" class="btn-demo-acc" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.25); text-decoration: none; color: #F8FAFC; font-size: 0.84rem; transition: all 0.2s ease;">
-            <span>🏛️ <strong>Alexander Vance</strong> (Prime Broker)</span>
-            <span style="color: #D4AF37; font-weight: 600;">Login &rarr;</span>
-          </a>
-          <a href="/demo-login/investor" class="btn-demo-acc" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.25); text-decoration: none; color: #F8FAFC; font-size: 0.84rem; transition: all 0.2s ease;">
-            <span>💼 <strong>Elena Rostova</strong> (Institutional Investor)</span>
-            <span style="color: #10B981; font-weight: 600;">Login &rarr;</span>
-          </a>
-        </div>
-      </div>
-      
-      <!-- Divider -->
-      <div class="auth-divider">
-        <span>or continue with</span>
-      </div>
-      
-      <!-- Social Sign In Row -->
-      <div class="social-auth-row">
-        <button type="button" class="social-btn" title="Continue with Google" aria-label="Google Sign In">
-          <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-          </svg>
+      <!-- Social Logins (2-column grid, no overflow) -->
+      <div class="ev-social-grid">
+        <button type="button" class="ev-btn-secondary ev-social-btn" onclick="simulateOAuth('Google')">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
           <span>Google</span>
         </button>
-        <button type="button" class="social-btn" title="Continue with Apple" aria-label="Apple Sign In">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.77 1.06-1.85.94-2.93-.93.04-2.07.62-2.73 1.39-.58.67-1.09 1.76-.95 2.82 1.04.08 2.11-.51 2.74-1.28z"/>
-          </svg>
+        <button type="button" class="ev-btn-secondary ev-social-btn" onclick="simulateOAuth('Apple')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.38c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.65-1.07 1.72-.93 2.74 1.01.08 2.02-.49 2.64-1.24z"/></svg>
           <span>Apple</span>
         </button>
       </div>
-      
-      <!-- Bottom Redirection -->
-      <div class="auth-bottom-text">
-        <span>Don't have an account?</span>
-        <a href="/signup" class="auth-gold-link">Create an account</a>
+
+      <!-- ONE Small Line: Switch Mode -->
+      <div class="ev-auth-footer-line">
+        <span id="footerPromptText">Don’t have an account?</span>
+        <button type="button" class="ev-link-action" id="footerActionBtn" onclick="toggleAuthMode()">Create account</button>
       </div>
+
+      <!-- Quiet Demo Accounts Row -->
+      <div class="ev-demo-accounts-row">
+        <span class="ev-demo-label">Try a demo:</span>
+        <a href="/demo-login/investor" class="ev-demo-link">Investor</a>
+        <span class="ev-demo-dot">&bull;</span>
+        <a href="/demo-login/agent" class="ev-demo-link">Broker</a>
+      </div>
+
     </div>
   </div>
+
 </div>
+
+<style>
+/* ── Reset Body & Page Shell ── */
+body.ev-auth-page {
+  background: var(--ev-bg-page);
+  color: var(--ev-text-primary);
+  font-family: var(--ev-font-sans);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Split Layout: 50 / 50 ── */
+.ev-auth-split {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--ev-bg-page);
+}
+
+/* ── Left Half: Full-height Photo with Slow 20s Ken Burns Zoom (1.00 -> 1.06) ── */
+.ev-auth-visual {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  padding: 64px;
+  box-sizing: border-box;
+}
+
+.ev-auth-photo {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=85');
+  background-size: cover;
+  background-position: center;
+  animation: ev-kenburns 20s ease-in-out infinite alternate;
+}
+
+@keyframes ev-kenburns {
+  0%   { transform: scale(1.00); }
+  100% { transform: scale(1.06); }
+}
+
+.ev-auth-visual-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg, 
+    rgba(0, 0, 0, 0.1) 0%, 
+    rgba(0, 0, 0, 0.45) 60%, 
+    rgba(0, 0, 0, 0.90) 100%
+  );
+}
+
+.ev-auth-visual-content {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+}
+
+.ev-hero-headline {
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* ── Right Half: Vertically Centered Card ── */
+.ev-auth-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  background: var(--ev-bg-page);
+  height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.ev-auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 36px 32px;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+  margin: auto;
+  transition: transform 300ms var(--ev-ease);
+}
+
+.ev-auth-card.shake {
+  animation: ev-shake 300ms ease-in-out;
+}
+
+@keyframes ev-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.ev-auth-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ev-auth-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ev-auth-title {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ev-text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+/* Role Selector */
+.ev-role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ev-role-tile {
+  height: 44px;
+  border-radius: var(--ev-radius-input);
+  background: var(--ev-glass-3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--ev-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all var(--ev-duration-fast);
+}
+
+.ev-role-tile.active {
+  background: var(--ev-gold-soft);
+  border-color: var(--ev-gold-line);
+  color: var(--ev-gold);
+}
+
+/* Fields & Inputs */
+.ev-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ev-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ev-field-label {
+  font-size: 13px;
+  color: var(--ev-text-secondary);
+  font-weight: 500;
+}
+
+.ev-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.ev-field-input {
+  width: 100%;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--ev-glass-3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 16px;
+  color: var(--ev-text-primary);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--ev-duration-fast), box-shadow var(--ev-duration-fast);
+}
+
+.ev-field-input:focus {
+  border-color: var(--ev-gold-line);
+  box-shadow: 0 0 0 3px var(--ev-gold-soft);
+}
+
+.ev-field-input-icon {
+  padding-right: 46px;
+}
+
+.ev-field-toggle-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--ev-text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ev-field-toggle-btn:hover {
+  color: var(--ev-text-primary);
+}
+
+/* Password Strength Segments */
+.ev-strength-segments {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+  height: 3px;
+}
+
+.ev-strength-bar {
+  background: var(--ev-border-hairline);
+  border-radius: 2px;
+  height: 100%;
+  transition: background var(--ev-duration-fast);
+}
+
+.ev-strength-bar.active-weak   { background: var(--ev-down); }
+.ev-strength-bar.active-fair   { background: #FFD60A; }
+.ev-strength-bar.active-good   { background: var(--ev-gold); }
+.ev-strength-bar.active-strong { background: var(--ev-up); }
+
+.ev-auth-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* Social Buttons: 2-column grid */
+.ev-social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ev-social-btn {
+  height: 44px;
+  padding: 0 12px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Footer Line & Demo Row */
+.ev-auth-footer-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ev-text-secondary);
+}
+
+.ev-link-action {
+  background: transparent;
+  border: none;
+  color: var(--ev-gold);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ev-demo-accounts-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ev-border-hairline);
+  font-size: 13px;
+}
+
+.ev-demo-label {
+  color: var(--ev-text-tertiary);
+}
+
+.ev-demo-link {
+  color: var(--ev-text-secondary);
+  text-decoration: none;
+  transition: color var(--ev-duration-fast);
+}
+
+.ev-demo-link:hover {
+  color: var(--ev-gold);
+}
+
+.ev-demo-dot {
+  color: var(--ev-text-decor);
+}
+
+.ev-auth-error-note {
+  font-size: 13px;
+  color: var(--ev-down);
+  padding: 10px 14px;
+  border-radius: var(--ev-radius-input);
+  background: rgba(255, 69, 58, 0.12);
+  border: 1px solid rgba(255, 69, 58, 0.25);
+  text-align: center;
+}
+
+/* Mobile: Photo becomes a 30vh blurred header strip, card full-width */
+@media (max-width: 1024px) {
+  .ev-auth-split {
+    flex-direction: column;
+  }
+  .ev-auth-visual {
+    height: 22vh;
+    min-height: 150px;
+    padding: 16px 20px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .ev-hero-headline {
+    font-size: 22px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .ev-auth-panel {
+    height: auto;
+    padding: 32px 24px 64px;
+  }
+  .ev-auth-card {
+    max-width: 100%;
+  }
+}
+</style>
+
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/auth.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Password visibility toggle
-    const toggleBtn = document.getElementById('togglePasswordBtn');
-    const pwdInput = document.getElementById('password');
-    const eyeIcon = document.getElementById('passwordEyeIcon');
-    
-    if (toggleBtn && pwdInput) {
-      toggleBtn.addEventListener('click', () => {
-        const isPassword = pwdInput.type === 'password';
-        pwdInput.type = isPassword ? 'text' : 'password';
-        if (eyeIcon) {
-          eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
-          if (window.lucide) lucide.createIcons();
-        }
-      });
-    }
+let currentMode = 'signin';
+let currentRole = 'customer';
 
-    // Initialize Auth module if defined
-    if (window.Auth && typeof Auth.initLogin === 'function') {
-      Auth.initLogin();
-    }
+function setAuthMode(mode) {
+  currentMode = mode;
+  const tabSign = document.getElementById('tabSignIn');
+  const tabCreate = document.getElementById('tabCreate');
+  const nameGroup = document.getElementById('nameFieldGroup');
+  const roleRow = document.getElementById('authRoleRow');
+  const strengthRow = document.getElementById('passwordStrengthRow');
+  const promptText = document.getElementById('footerPromptText');
+  const actionBtn = document.getElementById('footerActionBtn');
+  const headerTitle = document.getElementById('authHeaderTitle');
+  const authForm = document.getElementById('evAuthForm');
+
+  if (mode === 'signin') {
+    tabSign.classList.add('active');
+    tabCreate.classList.remove('active');
+    nameGroup.style.display = 'none';
+    roleRow.style.display = 'none';
+    strengthRow.style.display = 'none';
+    headerTitle.textContent = "Welcome back";
+    promptText.textContent = "Don’t have an account?";
+    actionBtn.textContent = "Create account";
+    authForm.action = "/login";
+  } else {
+    tabCreate.classList.add('active');
+    tabSign.classList.remove('active');
+    nameGroup.style.display = 'flex';
+    roleRow.style.display = 'grid';
+    strengthRow.style.display = 'grid';
+    headerTitle.textContent = "Create account";
+    promptText.textContent = "Already have an account?";
+    actionBtn.textContent = "Sign in";
+    authForm.action = "/signup";
+  }
+}
+
+function toggleAuthMode() {
+  setAuthMode(currentMode === 'signin' ? 'signup' : 'signin');
+}
+
+function selectRole(role) {
+  currentRole = role;
+  document.getElementById('authRoleInput').value = role;
+  const isInvestor = role === 'customer';
+  document.getElementById('roleInvestorTile').classList.toggle('active', isInvestor);
+  document.getElementById('roleBrokerTile').classList.toggle('active', !isInvestor);
+}
+
+function togglePasswordVisibility() {
+  const input = document.getElementById('authPassword');
+  const icon = document.getElementById('passwordToggleIcon');
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+  if (window.lucide) lucide.createIcons();
+}
+
+function updateStrength(pwd) {
+  if (currentMode !== 'signup') return;
+  const bars = [
+    document.getElementById('strBar1'),
+    document.getElementById('strBar2'),
+    document.getElementById('strBar3'),
+    document.getElementById('strBar4')
+  ];
+
+  bars.forEach(b => {
+    b.className = 'ev-strength-bar';
   });
+
+  if (!pwd) return;
+
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (/[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+  const styles = ['active-weak', 'active-fair', 'active-good', 'active-strong'];
+  for (let i = 0; i < score; i++) {
+    bars[i].classList.add(styles[score - 1]);
+  }
+}
+
+function simulateOAuth(provider) {
+  if (window.Toast) {
+    Toast.show(`Connecting with ${provider}...`, 'info', 2000);
+  }
+  setTimeout(() => {
+    window.location.href = '/demo-login/investor';
+  }, 800);
+}
+
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+  const alertBox = document.getElementById('authAlert');
+  const alertText = document.getElementById('authAlertText');
+  const submitBtn = document.getElementById('authSubmitBtn');
+  const card = document.querySelector('.ev-auth-card');
+
+  alertBox.style.display = 'none';
+  card.classList.remove('shake');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = `<span>Continuing...</span>`;
+
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const fullName = document.getElementById('authFullName').value.trim();
+  const role = currentRole;
+
+  const endpoint = currentMode === 'signin' ? '/api/auth/login' : '/api/auth/signup';
+  const payload = currentMode === 'signin' 
+    ? { email, password } 
+    : { email, password, full_name: fullName || 'Elena Rostova', role };
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      submitBtn.innerHTML = `<span>Success</span> <i data-lucide="check"></i>`;
+      if (window.lucide) lucide.createIcons();
+      setTimeout(() => {
+        window.location.href = data.redirect || '/dashboard';
+      }, 500);
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>Continue</span>`;
+      alertText.textContent = data.error || "Invalid credentials.";
+      alertBox.style.display = 'block';
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 350);
+    }
+  } catch (err) {
+    // Fallback standard submit
+    document.getElementById('evAuthForm').submit();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.lucide) lucide.createIcons();
+  if (window.location.pathname.includes('signup') || window.location.search.includes('signup')) {
+    setAuthMode('signup');
+  }
+});
 </script>
 {% endblock %}

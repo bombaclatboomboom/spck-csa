@@ -1,432 +1,445 @@
 {% extends 'base.html' %}
 {% set active_page = 'explore' %}
 
-{% block title %}3D Geospatial Explorer{% endblock %}
+{% block title %}3D Geospatial Globe | EstateVision{% endblock %}
+{% block body_class %}ev-explore-page{% endblock %}
 
 {% block content %}
-<div class="explorer-page-wrapper">
-  <!-- EXPLORER HEADER -->
-  <div class="explorer-header-bar" data-aos="fade-down">
-    <div class="header-titles">
-      <h1 class="explorer-title">
-        <i data-lucide="globe" class="title-icon gold-text"></i>
-        <span>3D Global Property Explorer</span>
-      </h1>
-      <span class="explorer-badge"><span class="dot live-pulse"></span> 147k Real Estate Datapoints</span>
+<div class="ev-globe-page-wrapper">
+  
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FLOATING TOP CONTROLS BAR
+       ═══════════════════════════════════════════════════════════════════ -->
+  <header class="ev-globe-top-bar ev-glass" data-aos="fade-down">
+    <div class="ev-globe-title-area">
+      <i data-lucide="globe" class="ev-gold-text"></i>
+      <h1 class="ev-globe-heading">3D Geospatial Intelligence</h1>
+      <span class="ev-globe-live-pill"><span class="ev-live-dot"></span> 144k+ Verified Assets</span>
     </div>
-    
-    <div class="explorer-actions">
-      <button class="btn-ghost-sm" id="toggleLayerPins" title="Toggle Property Markers">
-        <i data-lucide="map-pin"></i>
-        <span>Pins</span>
-      </button>
-      <button class="btn-ghost-sm" id="toggleHeatmap" title="Toggle Valuation Heatmap">
-        <i data-lucide="flame"></i>
-        <span>Heatmap</span>
-      </button>
-      <button class="btn-ghost-sm" id="toggleAutoSpin" title="Toggle Auto-Rotation">
+
+    <!-- Quick Geo Jump Pills -->
+    <div class="ev-globe-geo-pills">
+      <button type="button" class="ev-geo-pill" onclick="jumpToCoordinates(40.7128, -74.0060, 0.5)">New York</button>
+      <button type="button" class="ev-geo-pill" onclick="jumpToCoordinates(51.5074, -0.1278, 0.5)">London</button>
+      <button type="button" class="ev-geo-pill" onclick="jumpToCoordinates(25.2048, 55.2708, 0.5)">Dubai</button>
+      <button type="button" class="ev-geo-pill" onclick="jumpToCoordinates(46.2044, 6.1432, 0.5)">Geneva</button>
+      <button type="button" class="ev-geo-pill" onclick="jumpToCoordinates(35.6762, 139.6503, 0.5)">Tokyo</button>
+    </div>
+
+    <div class="ev-globe-actions-right">
+      <button type="button" class="ev-btn-icon" id="evAutoRotateBtn" onclick="toggleAutoRotate()" title="Auto-Rotate">
         <i data-lucide="rotate-cw"></i>
-        <span>Auto-Rotate</span>
       </button>
-      <button class="btn-ghost-sm" id="togglePropertiesPanel" title="Toggle Properties List">
-        <i data-lucide="panel-right"></i>
-        <span>List View</span>
+      <button type="button" class="ev-btn-icon" onclick="toggleListDrawer()" title="Show Properties List">
+        <i data-lucide="layout-grid"></i>
+      </button>
+      <a href="/buy" class="ev-btn-primary ev-btn-sm">
+        <span>Marketplace</span>
+        <i data-lucide="arrow-right"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       3D GLOBE CANVAS (FULL VIEWPORT)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="ev-globe-stage" id="globeExplorer"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FLOATING LEFT FILTER DOCK
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="ev-globe-left-dock ev-glass" id="globeFilterDock">
+    <div class="ev-dock-header">
+      <span class="ev-eyebrow" style="margin-bottom:0;">Sovereign Filter</span>
+      <button type="button" class="ev-btn-icon" onclick="toggleFilterDock()" style="width:28px;height:28px;">
+        <i data-lucide="chevron-left"></i>
       </button>
     </div>
-  </div>
 
-  <!-- MAIN EXPLORER STAGE -->
-  <div class="explorer-stage">
-    <!-- 1. FLOATING CONTROL PANEL ON THE LEFT -->
-    <div class="floating-panel floating-left-panel glass-card" id="filterPanel">
-      <div class="panel-header">
-        <div class="panel-title">
-          <i data-lucide="sliders-horizontal"></i>
-          <span>Market Filters</span>
-        </div>
-        <button class="panel-close-btn" id="collapseFilterBtn" aria-label="Collapse Filters">
-          <i data-lucide="chevron-left"></i>
-        </button>
+    <div class="ev-dock-body">
+      <div class="ev-input-group">
+        <label class="ev-label">Target Nation</label>
+        <select class="ev-select" id="globeNationSelect" onchange="filterGlobeByCountry(this.value)">
+          <option value="All">All 61 Sovereign Nations</option>
+          <option value="United States">United States</option>
+          <option value="United Kingdom">United Kingdom</option>
+          <option value="United Arab Emirates">United Arab Emirates</option>
+          <option value="Switzerland">Switzerland</option>
+          <option value="France">France</option>
+          <option value="Japan">Japan</option>
+          <option value="Germany">Germany</option>
+          <option value="Singapore">Singapore</option>
+        </select>
       </div>
 
-      <div class="panel-body">
-        <!-- Country Selector -->
-        <div class="filter-group">
-          <label for="globeCountrySelect" class="filter-label">Country / Region</label>
-          <div class="input-wrapper">
-            <i data-lucide="globe" class="input-icon"></i>
-            <select id="globeCountrySelect" class="form-select">
-              <option value="All">All Sovereign Markets (50+)</option>
-              <option value="United States">United States</option>
-              <option value="United Kingdom">United Kingdom</option>
-              <option value="United Arab Emirates">United Arab Emirates</option>
-              <option value="Germany">Germany</option>
-              <option value="France">France</option>
-              <option value="Japan">Japan</option>
-              <option value="Australia">Australia</option>
-              <option value="Switzerland">Switzerland</option>
-              <option value="Singapore">Singapore</option>
-              <option value="Canada">Canada</option>
-              {% if countries %}
-                {% for c in countries %}
-                  {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Australia', 'Switzerland', 'Singapore', 'Canada'] %}
-                    <option value="{{ c }}">{{ c }}</option>
-                  {% endif %}
-                {% endfor %}
-              {% endif %}
-            </select>
-          </div>
-        </div>
-
-        <!-- Property Type Filter -->
-        <div class="filter-group">
-          <label for="propertyTypeSelect" class="filter-label">Property Typology</label>
-          <div class="input-wrapper">
-            <i data-lucide="home" class="input-icon"></i>
-            <select id="propertyTypeSelect" class="form-select">
-              <option value="all">All Typologies</option>
-              <option value="penthouse">Sky Penthouse</option>
-              <option value="villa">Waterfront & Luxury Villa</option>
-              <option value="apartment">Prime Apartment</option>
-              <option value="mansion">Historic Mansion / Estate</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Price Range Slider -->
-        <div class="filter-group">
-          <div class="filter-label-row">
-            <label class="filter-label">Max Price (USD)</label>
-            <span class="range-value gold-text" id="priceRangeDisplay">$10.0M+</span>
-          </div>
-          <input 
-            type="range" 
-            id="priceRangeSlider" 
-            min="100000" 
-            max="15000000" 
-            step="100000" 
-            value="15000000" 
-            class="custom-range-slider"
-          >
-          <div class="range-bounds">
-            <small>$100k</small>
-            <small>$5M</small>
-            <small>$15M+</small>
-          </div>
-        </div>
-
-        <!-- Bedroom Count Filter -->
-        <div class="filter-group">
-          <label class="filter-label">Bedrooms</label>
-          <div class="pill-options-grid" id="bedroomFilterPills">
-            <button type="button" class="pill-btn active" data-beds="any">Any</button>
-            <button type="button" class="pill-btn" data-beds="1">1+</button>
-            <button type="button" class="pill-btn" data-beds="2">2+</button>
-            <button type="button" class="pill-btn" data-beds="3">3+</button>
-            <button type="button" class="pill-btn" data-beds="4">4+</button>
-            <button type="button" class="pill-btn" data-beds="5">5+</button>
-          </div>
-        </div>
-
-        <!-- Filter Actions -->
-        <div class="filter-action-buttons">
-          <button type="button" class="btn-gold btn-full btn-glow" id="applyGlobeFilters">
-            <i data-lucide="filter"></i>
-            <span>Apply Filters</span>
-          </button>
-          <button type="button" class="btn-ghost btn-full" id="resetGlobeView">
-            <i data-lucide="rotate-ccw"></i>
-            <span>Reset View</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. FULL-WIDTH 3D GLOBE CANVAS (80vh) -->
-    <div class="globe-viewport-container">
-      <div id="globeExplorer" class="globe-canvas-viewport"></div>
-      
-      <!-- Zoom / Camera Float Toolbar -->
-      <div class="globe-camera-toolbar">
-        <button class="camera-btn" id="camZoomIn" title="Zoom In"><i data-lucide="plus"></i></button>
-        <button class="camera-btn" id="camZoomOut" title="Zoom Out"><i data-lucide="minus"></i></button>
-        <button class="camera-btn" id="camReset" title="Center View"><i data-lucide="compass"></i></button>
+      <div class="ev-input-group">
+        <label class="ev-label">Typology</label>
+        <select class="ev-select" id="globeTypeSelect" onchange="filterGlobeByType(this.value)">
+          <option value="All">All Typologies</option>
+          <option value="Penthouse">Sky Penthouse</option>
+          <option value="Villa">Prime Villa</option>
+          <option value="Apartment">Apartment</option>
+          <option value="Mansion">Historic Estate</option>
+        </select>
       </div>
 
-      <!-- Quick Geographic Jump Pills -->
-      <div class="globe-geo-quicklinks">
-        <button class="geo-jump-btn" data-lat="40.7128" data-lng="-74.0060" data-alt="0.6">New York</button>
-        <button class="geo-jump-btn" data-lat="51.5074" data-lng="-0.1278" data-alt="0.6">London</button>
-        <button class="geo-jump-btn" data-lat="25.2048" data-lng="55.2708" data-alt="0.5">Dubai</button>
-        <button class="geo-jump-btn" data-lat="48.8566" data-lng="2.3522" data-alt="0.6">Paris</button>
-        <button class="geo-jump-btn" data-lat="35.6762" data-lng="139.6503" data-alt="0.5">Tokyo</button>
-        <button class="geo-jump-btn" data-lat="1.3521" data-lng="103.8198" data-alt="0.5">Singapore</button>
-      </div>
-    </div>
-
-    <!-- 3. COLLAPSIBLE PROPERTIES LIST PANEL ON THE RIGHT -->
-    <div class="floating-panel floating-right-panel glass-card" id="propertiesListPanel">
-      <div class="panel-header">
-        <div class="panel-title">
-          <i data-lucide="building-2"></i>
-          <span>Properties in View</span>
+      <div class="ev-input-group" style="margin-bottom: 8px;">
+        <div class="ev-label-row">
+          <label class="ev-label">Max Price</label>
+          <span class="ev-gold-text" id="globePriceLabel">$20M+</span>
         </div>
-        <div class="panel-count-badge" id="visibleCountBadge">6 Assets</div>
-        <button class="panel-close-btn" id="closeListPanelBtn" aria-label="Close Properties List">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-
-      <div class="panel-search-box">
-        <i data-lucide="search"></i>
-        <input type="text" placeholder="Filter by address or city..." id="propertySearchInView">
-      </div>
-
-      <!-- Mini Property Cards Scroll Container -->
-      <div class="mini-properties-list" id="miniPropertiesContainer">
-        <!-- Mini Card 1 -->
-        <div class="mini-property-card" data-country="United Kingdom" data-price="4250000">
-          <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80" alt="Belgravia" class="mini-thumb">
-          <div class="mini-info">
-            <span class="mini-tag">London, UK</span>
-            <h5 class="mini-title">The Belgravia Crescent Residence</h5>
-            <div class="mini-price">$4,250,000 USD</div>
-            <div class="mini-specs">4 Beds • 340 m² • Yield 4.8%</div>
-            <button class="mini-detail-btn" onclick="alert('Belgravia Residence details loaded')">
-              <span>View Details</span>
-              <i data-lucide="chevron-right"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mini Card 2 -->
-        <div class="mini-property-card" data-country="United Arab Emirates" data-price="7800000">
-          <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=200&q=80" alt="Palm Jumeirah" class="mini-thumb">
-          <div class="mini-info">
-            <span class="mini-tag gold-tag">Dubai, UAE</span>
-            <h5 class="mini-title">Palm Jumeirah Signature Beachfront</h5>
-            <div class="mini-price">$7,800,000 USD</div>
-            <div class="mini-specs">6 Beds • 710 m² • Yield 7.4%</div>
-            <button class="mini-detail-btn" onclick="alert('Palm Jumeirah Villa details loaded')">
-              <span>View Details</span>
-              <i data-lucide="chevron-right"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mini Card 3 -->
-        <div class="mini-property-card" data-country="United States" data-price="3650000">
-          <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&q=80" alt="Tribeca Loft" class="mini-thumb">
-          <div class="mini-info">
-            <span class="mini-tag">New York, USA</span>
-            <h5 class="mini-title">Tribeca Cast Iron Duplex Loft</h5>
-            <div class="mini-price">$3,650,000 USD</div>
-            <div class="mini-specs">3 Beds • 265 m² • Yield 5.1%</div>
-            <button class="mini-detail-btn" onclick="alert('Tribeca Loft details loaded')">
-              <span>View Details</span>
-              <i data-lucide="chevron-right"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mini Card 4 -->
-        <div class="mini-property-card" data-country="Japan" data-price="2950000">
-          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=200&q=80" alt="Tokyo Penthouse" class="mini-thumb">
-          <div class="mini-info">
-            <span class="mini-tag">Tokyo, Japan</span>
-            <h5 class="mini-title">Minato-ku High Floor Penthouse</h5>
-            <div class="mini-price">$2,950,000 USD</div>
-            <div class="mini-specs">2 Beds • 190 m² • Yield 4.2%</div>
-            <button class="mini-detail-btn" onclick="alert('Minato Penthouse details loaded')">
-              <span>View Details</span>
-              <i data-lucide="chevron-right"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mini Card 5 -->
-        <div class="mini-property-card" data-country="Switzerland" data-price="5400000">
-          <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=200&q=80" alt="Zurich Estate" class="mini-thumb">
-          <div class="mini-info">
-            <span class="mini-tag">Zurich, Switzerland</span>
-            <h5 class="mini-title">Lake Zurich Contemporary Estate</h5>
-            <div class="mini-price">$5,400,000 USD</div>
-            <div class="mini-specs">5 Beds • 450 m² • Yield 3.8%</div>
-            <button class="mini-detail-btn" onclick="alert('Lake Zurich Estate details loaded')">
-              <span>View Details</span>
-              <i data-lucide="chevron-right"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mini Card 6 -->
-        <div class="mini-property-card" data-country="France" data-price="4900000">
-          <img src="https://images.unsplash.com/photo-1512915922686-57c11dde9b6b?auto=format&fit=crop&w=200&q=80" alt="Cannes Villa" class="mini-thumb">
-          <div class="mini-info">
-            <span class="mini-tag">Cannes, France</span>
-            <h5 class="mini-title">Villa de la Croisette Panoramic</h5>
-            <div class="mini-price">$4,900,000 USD</div>
-            <div class="mini-specs">5 Beds • 410 m² • Yield 6.0%</div>
-            <button class="mini-detail-btn" onclick="alert('Cannes Villa details loaded')">
-              <span>View Details</span>
-              <i data-lucide="chevron-right"></i>
-            </button>
-          </div>
-        </div>
+        <input 
+          type="range" 
+          min="500000" 
+          max="25000000" 
+          step="500000" 
+          value="25000000" 
+          class="ev-range-slider"
+          oninput="updateGlobePriceFilter(this.value)"
+        >
       </div>
     </div>
   </div>
 
-  <!-- GLOBE LEGEND BAR AT BOTTOM -->
-  <div class="globe-legend-bar glass-card">
-    <div class="legend-scale-group">
-      <span class="legend-title">Price Valuation Density:</span>
-      <div class="legend-gradient-scale"></div>
-      <div class="legend-ticks">
-        <span>&lt;$500k</span>
-        <span>$1M</span>
-        <span>$2.5M</span>
-        <span>$5M</span>
-        <span>$10M+</span>
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FLOATING RIGHT PROPERTIES LIST DRAWER
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="ev-globe-right-drawer ev-glass" id="globeListDrawer">
+    <div class="ev-drawer-header">
+      <div>
+        <div class="ev-eyebrow" style="margin-bottom:2px;">In Viewport</div>
+        <h3 class="ev-modal-title" style="font-size:16px;">Sovereign Assets</h3>
       </div>
+      <button type="button" class="ev-btn-icon" onclick="toggleListDrawer()" style="width:28px;height:28px;">
+        <i data-lucide="x"></i>
+      </button>
     </div>
-    
-    <div class="legend-meta-group">
-      <div class="meta-item">
-        <i data-lucide="layers"></i>
-        <span>Points: <strong>147,219</strong></span>
-      </div>
-      <div class="meta-item">
-        <i data-lucide="navigation"></i>
-        <span>Projection: <strong>Orthographic 3D</strong></span>
-      </div>
+
+    <div class="ev-drawer-body" id="globePropertiesList">
+      <!-- Mini Property Cards populated dynamically -->
     </div>
   </div>
+
 </div>
+
+<style>
+/* ─── Globe Fullscreen Layout ─── */
+.ev-globe-page-wrapper {
+  position: relative;
+  width: 100vw;
+  height: calc(100vh - var(--ev-topbar-height));
+  overflow: hidden;
+  background: #000;
+}
+
+/* Floating Top Controls */
+.ev-globe-top-bar {
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  right: 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-radius: var(--ev-radius-full);
+  box-shadow: var(--ev-shadow-lg);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ev-globe-title-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ev-globe-heading {
+  font-size: 15px;
+  font-weight: var(--ev-fw-semibold);
+  color: var(--ev-text-primary);
+  margin: 0;
+}
+
+.ev-globe-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: var(--ev-bg-elevated);
+  border-radius: var(--ev-radius-full);
+  font-size: 11px;
+  color: var(--ev-text-secondary);
+}
+.ev-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ev-success);
+  box-shadow: 0 0 6px var(--ev-success);
+}
+
+.ev-globe-geo-pills {
+  display: flex;
+  gap: 6px;
+}
+
+.ev-geo-pill {
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ev-border-hairline);
+  border-radius: var(--ev-radius-full);
+  color: var(--ev-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--ev-duration-fast);
+}
+.ev-geo-pill:hover {
+  background: var(--ev-gold-subtle);
+  border-color: var(--ev-gold-border);
+  color: var(--ev-gold);
+}
+
+.ev-globe-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Globe Stage */
+.ev-globe-stage {
+  width: 100%;
+  height: 100%;
+}
+
+/* Left Dock */
+.ev-globe-left-dock {
+  position: absolute;
+  top: 80px;
+  left: 24px;
+  width: 280px;
+  z-index: 10;
+  border-radius: var(--ev-radius-lg);
+  padding: var(--ev-sp-4);
+  box-shadow: var(--ev-shadow-xl);
+  transition: transform var(--ev-duration-default) var(--ev-ease-out);
+}
+.ev-globe-left-dock.collapsed {
+  transform: translateX(-320px);
+}
+.ev-dock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ev-sp-3);
+  padding-bottom: var(--ev-sp-2);
+  border-bottom: 1px solid var(--ev-border-hairline);
+}
+
+/* Right Drawer */
+.ev-globe-right-drawer {
+  position: absolute;
+  top: 80px;
+  right: 24px;
+  bottom: 24px;
+  width: 340px;
+  z-index: 10;
+  border-radius: var(--ev-radius-lg);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--ev-shadow-xl);
+  transform: translateX(380px);
+  transition: transform var(--ev-duration-default) var(--ev-ease-out);
+}
+.ev-globe-right-drawer.open {
+  transform: translateX(0);
+}
+
+/* Mini Cards */
+.ev-globe-mini-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--ev-radius-md);
+  background: var(--ev-bg-elevated);
+  border: 1px solid var(--ev-border-hairline);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all var(--ev-duration-fast);
+}
+.ev-globe-mini-card:hover {
+  border-color: var(--ev-gold-border);
+  transform: translateY(-2px);
+}
+.ev-mini-thumb {
+  width: 72px;
+  height: 60px;
+  border-radius: var(--ev-radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.ev-mini-info strong {
+  display: block;
+  font-size: 13px;
+  color: var(--ev-text-primary);
+  line-height: 1.25;
+}
+.ev-mini-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ev-gold);
+  margin-top: 2px;
+}
+.ev-mini-meta {
+  font-size: 11px;
+  color: var(--ev-text-muted);
+}
+
+@media (max-width: 1024px) {
+  .ev-globe-geo-pills { display: none; }
+  .ev-globe-left-dock { display: none; }
+  .ev-globe-right-drawer { width: 100%; right: 0; left: 0; bottom: 0; top: auto; height: 50vh; border-radius: 20px 20px 0 0; }
+}
+</style>
+
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/globe.js"></script>
-
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize Full-Screen Globe Explorer
-    if (window.GlobeViz && typeof GlobeViz.initExplorer === 'function') {
-      GlobeViz.initExplorer('globeExplorer');
-    } else if (window.GlobeViz && typeof GlobeViz.init === 'function') {
-      GlobeViz.init('globeExplorer');
-    }
+let globeInstance = null;
+let isRotating = true;
 
-    // 2. Price Range Slider Binding
-    const slider = document.getElementById('priceRangeSlider');
-    const display = document.getElementById('priceRangeDisplay');
-    if (slider && display) {
-      slider.addEventListener('input', () => {
-        const val = parseInt(slider.value);
-        if (val >= 15000000) {
-          display.innerText = '$15.0M+';
-        } else {
-          display.innerText = '$' + (val / 1000000).toFixed(1) + 'M';
-        }
-      });
-    }
+const SAMPLE_MARKERS = [
+  { lat: 40.7128, lng: -74.0060, city: 'New York', country: 'United States', price: 14850000, title: 'Billionaires Row Penthouse', type: 'Penthouse', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=300&q=80' },
+  { lat: 51.5074, lng: -0.1278, city: 'London', country: 'United Kingdom', price: 12900000, title: 'Mayfair Victorian Mansion', type: 'Mansion', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=80' },
+  { lat: 25.2048, lng: 55.2708, city: 'Dubai', country: 'United Arab Emirates', price: 18200000, title: 'Palm Jumeirah Signature Villa', type: 'Villa', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=300&q=80' },
+  { lat: 46.2044, lng: 6.1432, city: 'Geneva', country: 'Switzerland', price: 11500000, title: 'Lake Geneva Waterfront Estate', type: 'Villa', img: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=300&q=80' },
+  { lat: 35.6762, lng: 139.6503, city: 'Tokyo', country: 'Japan', price: 6200000, title: 'Minato Sky Penthouse', type: 'Penthouse', img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=300&q=80' },
+  { lat: 1.3521, lng: 103.8198, city: 'Singapore', country: 'Singapore', price: 9800000, title: 'Orchard Boulevard Residence', type: 'Apartment', img: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80' },
+  { lat: 43.7384, lng: 7.4246, city: 'Monaco', country: 'Monaco', price: 24500000, title: 'Carré d\'Or Belle Époque Penthouse', type: 'Penthouse', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=300&q=80' }
+];
 
-    // 3. Bedroom Pill Selection
-    const bedPills = document.querySelectorAll('#bedroomFilterPills .pill-btn');
-    bedPills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        bedPills.forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-      });
+document.addEventListener('DOMContentLoaded', () => {
+  init3DGlobe();
+  renderMiniPropertiesList(SAMPLE_MARKERS);
+});
+
+function init3DGlobe() {
+  const container = document.getElementById('globeExplorer');
+  if (!container || typeof Globe === 'undefined') return;
+
+  globeInstance = Globe()(container)
+    .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
+    .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+    .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
+    .pointsData(SAMPLE_MARKERS)
+    .pointLat('lat')
+    .pointLng('lng')
+    .pointColor(() => '#D4AF37')
+    .pointAltitude(0.06)
+    .pointRadius(0.8)
+    .pointResolution(24)
+    .pointLabel(d => `
+      <div style="background: rgba(10,10,15,0.92); border: 1px solid #D4AF37; padding: 10px 14px; border-radius: 12px; font-family: Inter, sans-serif; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+        <strong style="display:block; font-size:13px; color:#D4AF37;">${d.city}, ${d.country}</strong>
+        <span style="font-size:12px; color:#F5F5F7;">${d.title}</span>
+        <div style="font-size:13px; font-weight:600; margin-top:3px;">$${(d.price/1e6).toFixed(1)}M USD</div>
+      </div>
+    `)
+    .onPointClick(d => {
+      jumpToCoordinates(d.lat, d.lng, 0.4);
+      openDrawerWithItem(d);
     });
 
-    // 4. Panel Toggle Logic
-    const togglePanelBtn = document.getElementById('togglePropertiesPanel');
-    const propertiesPanel = document.getElementById('propertiesListPanel');
-    const closeListBtn = document.getElementById('closeListPanelBtn');
+  // Controls configuration
+  const controls = globeInstance.controls();
+  controls.autoRotate = isRotating;
+  controls.autoRotateSpeed = 0.6;
+  controls.enableDamping = true;
 
-    if (togglePanelBtn && propertiesPanel) {
-      togglePanelBtn.addEventListener('click', () => {
-        propertiesPanel.classList.toggle('collapsed');
-      });
-    }
-    if (closeListBtn && propertiesPanel) {
-      closeListBtn.addEventListener('click', () => {
-        propertiesPanel.classList.add('collapsed');
-      });
-    }
+  // Initial camera position
+  globeInstance.pointOfView({ lat: 25.0, lng: 20.0, altitude: 2.2 }, 1200);
 
-    // 5. Camera Toolbar Buttons
-    const camIn = document.getElementById('camZoomIn');
-    const camOut = document.getElementById('camZoomOut');
-    const camReset = document.getElementById('camReset');
-
-    if (camIn && window.GlobeViz) camIn.addEventListener('click', () => GlobeViz.zoomIn());
-    if (camOut && window.GlobeViz) camOut.addEventListener('click', () => GlobeViz.zoomOut());
-    if (camReset && window.GlobeViz) camReset.addEventListener('click', () => GlobeViz.resetView());
-
-    // 6. Geographic Quick Jump Buttons
-    const jumpButtons = document.querySelectorAll('.geo-jump-btn');
-    jumpButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const lat = parseFloat(btn.getAttribute('data-lat'));
-        const lng = parseFloat(btn.getAttribute('data-lng'));
-        const alt = parseFloat(btn.getAttribute('data-alt')) || 0.6;
-        if (window.GlobeViz && typeof GlobeViz.flyTo === 'function') {
-          GlobeViz.flyTo(lat, lng, alt);
-        }
-      });
-    });
-
-    // 7. Filter Apply Button
-    const applyBtn = document.getElementById('applyGlobeFilters');
-    if (applyBtn) {
-      applyBtn.addEventListener('click', () => {
-        const country = document.getElementById('globeCountrySelect').value;
-        const maxPrice = parseInt(slider.value);
-        if (window.GlobeViz && typeof GlobeViz.filterByCountry === 'function') {
-          GlobeViz.filterByCountry(country);
-        }
-        
-        // Filter right-side mini property cards
-        const cards = document.querySelectorAll('.mini-property-card');
-        let visibleCount = 0;
-        cards.forEach(card => {
-          const cardCountry = card.getAttribute('data-country');
-          const cardPrice = parseInt(card.getAttribute('data-price') || 0);
-          const matchCountry = country === 'All' || cardCountry === country;
-          const matchPrice = cardPrice <= maxPrice;
-          
-          if (matchCountry && matchPrice) {
-            card.style.display = 'flex';
-            visibleCount++;
-          } else {
-            card.style.display = 'none';
-          }
-        });
-        
-        const countBadge = document.getElementById('visibleCountBadge');
-        if (countBadge) countBadge.innerText = visibleCount + ' Assets';
-      });
-    }
-
-    // 8. Reset View Button
-    const resetBtn = document.getElementById('resetGlobeView');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        document.getElementById('globeCountrySelect').value = 'All';
-        slider.value = 15000000;
-        display.innerText = '$15.0M+';
-        bedPills.forEach(p => p.classList.remove('active'));
-        bedPills[0]?.classList.add('active');
-        if (window.GlobeViz && typeof GlobeViz.resetView === 'function') {
-          GlobeViz.resetView();
-        }
-        document.querySelectorAll('.mini-property-card').forEach(c => c.style.display = 'flex');
-        const countBadge = document.getElementById('visibleCountBadge');
-        if (countBadge) countBadge.innerText = '6 Assets';
-      });
+  window.addEventListener('resize', () => {
+    if (globeInstance) {
+      globeInstance.width(container.clientWidth);
+      globeInstance.height(container.clientHeight);
     }
   });
+}
+
+function jumpToCoordinates(lat, lng, altitude) {
+  if (globeInstance) {
+    globeInstance.pointOfView({ lat: lat, lng: lng, altitude: altitude || 0.5 }, 1200);
+  }
+}
+
+function toggleAutoRotate() {
+  isRotating = !isRotating;
+  if (globeInstance) {
+    globeInstance.controls().autoRotate = isRotating;
+  }
+  const btn = document.getElementById('evAutoRotateBtn');
+  btn.classList.toggle('active', isRotating);
+}
+
+function toggleFilterDock() {
+  document.getElementById('globeFilterDock').classList.toggle('collapsed');
+}
+
+function toggleListDrawer() {
+  document.getElementById('globeListDrawer').classList.toggle('open');
+}
+
+function openDrawerWithItem(item) {
+  const drawer = document.getElementById('globeListDrawer');
+  drawer.classList.add('open');
+}
+
+function renderMiniPropertiesList(items) {
+  const container = document.getElementById('globePropertiesList');
+  if (!container) return;
+
+  container.innerHTML = items.map(prop => `
+    <div class="ev-globe-mini-card" onclick="jumpToCoordinates(${prop.lat}, ${prop.lng}, 0.4)">
+      <img src="${prop.img}" alt="${prop.title}" class="ev-mini-thumb">
+      <div class="ev-mini-info">
+        <strong>${prop.title}</strong>
+        <div class="ev-mini-price">$${(prop.price/1e6).toFixed(1)}M USD</div>
+        <div class="ev-mini-meta">${prop.city}, ${prop.country} &bull; ${prop.type}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterGlobeByCountry(country) {
+  let filtered = SAMPLE_MARKERS;
+  if (country !== 'All') {
+    filtered = SAMPLE_MARKERS.filter(m => m.country === country);
+    if (filtered.length > 0) {
+      jumpToCoordinates(filtered[0].lat, filtered[0].lng, 0.6);
+    }
+  }
+  if (globeInstance) globeInstance.pointsData(filtered);
+  renderMiniPropertiesList(filtered);
+}
+
+function filterGlobeByType(type) {
+  let filtered = SAMPLE_MARKERS;
+  if (type !== 'All') {
+    filtered = SAMPLE_MARKERS.filter(m => m.type.toLowerCase() === type.toLowerCase());
+  }
+  if (globeInstance) globeInstance.pointsData(filtered);
+  renderMiniPropertiesList(filtered);
+}
+
+function updateGlobePriceFilter(maxPrice) {
+  const p = parseFloat(maxPrice);
+  document.getElementById('globePriceLabel').textContent = `$${(p / 1e6).toFixed(1)}M`;
+  const filtered = SAMPLE_MARKERS.filter(m => m.price <= p);
+  if (globeInstance) globeInstance.pointsData(filtered);
+  renderMiniPropertiesList(filtered);
+}
 </script>
 {% endblock %}

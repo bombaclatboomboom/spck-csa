@@ -1,402 +1,458 @@
 {% extends 'base.html' %}
 {% set active_page = 'compare' %}
 
-{% block title %}Cross-Market Real Estate Comparison{% endblock %}
+{% block title %}Cross-Market Comparison | EstateVision{% endblock %}
+{% block body_class %}ev-compare-page{% endblock %}
 
 {% block content %}
-<div class="compare-page-container">
-  <!-- PAGE HEADER -->
-  <div class="compare-header" data-aos="fade-down">
-    <div class="header-titles">
-      <span class="sub-greeting gold-text">Cross-Border Arbitrage Analysis</span>
-      <h1 class="page-title">
-        Compare Real Estate <span class="gold-text-shimmer">Markets</span>
-      </h1>
-      <p class="text-muted">
-        Benchmark sovereign yields, valuation multiples, capital velocity, and supply inventory side-by-side.
-      </p>
-    </div>
-  </div>
+<div class="ev-page-wrapper">
+  
+  <!-- ═══════════════════════════════════════════════════════════════════
+       HEADER
+       ═══════════════════════════════════════════════════════════════════ -->
+  <header class="ev-section-header" data-aos="fade-up" style="padding-top: var(--ev-sp-10);">
+    <div class="ev-eyebrow">Sovereign Macro Arbitrage</div>
+    <h1 class="ev-heading-1">Compare Real Estate Markets</h1>
+    <p class="ev-subheading">
+      Benchmark sovereign yields, valuation multiples, capital velocity, and cadastral tax regimes side-by-side.
+    </p>
+  </header>
 
-  <!-- SELECTOR TOOLBAR -->
-  <div class="compare-selector-card glass-card" data-aos="fade-up">
-    <form id="compareForm" class="compare-selectors-grid">
-      <!-- Market A Selector -->
-      <div class="market-selector-box">
-        <label for="marketA" class="market-select-label">
-          <span class="market-tag tag-a">Market A</span>
-          <span>Primary Benchmark</span>
-        </label>
-        <div class="input-wrapper">
-          <i data-lucide="map-pin" class="input-icon"></i>
-          <select id="marketA" class="form-select select-lg">
+  <!-- ═══════════════════════════════════════════════════════════════════
+       BENCHMARK SELECTOR DOCK
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="ev-container" data-aos="fade-up">
+    <div class="ev-card-module ev-glass" style="padding: var(--ev-sp-6);">
+      <div class="ev-compare-selector-grid">
+        <!-- Market A -->
+        <div class="ev-market-box">
+          <label class="ev-label">Primary Benchmark (Market A)</label>
+          <select id="selectMarketA" class="ev-select" onchange="runComparison()">
             <option value="United States" selected>🇺🇸 United States</option>
             <option value="United Kingdom">🇬🇧 United Kingdom</option>
             <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
-            <option value="Germany">🇩🇪 Germany</option>
-            <option value="France">🇫🇷 France</option>
-            <option value="Japan">🇯🇵 Japan</option>
             <option value="Switzerland">🇨🇭 Switzerland</option>
+            <option value="Germany">🇩🇪 Germany</option>
+            <option value="Japan">🇯🇵 Japan</option>
             <option value="Singapore">🇸🇬 Singapore</option>
-            {% if countries %}
-              {% for c in countries %}
-                {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Switzerland', 'Singapore'] %}
-                  <option value="{{ c }}">{{ c }}</option>
-                {% endif %}
-              {% endfor %}
-            {% endif %}
+            <option value="France">🇫🇷 France</option>
           </select>
         </div>
-      </div>
 
-      <!-- VS Badge -->
-      <div class="compare-vs-divider">
-        <div class="vs-circle">
+        <div class="ev-vs-badge">
           <span>VS</span>
         </div>
-      </div>
 
-      <!-- Market B Selector -->
-      <div class="market-selector-box">
-        <label for="marketB" class="market-select-label">
-          <span class="market-tag tag-b">Market B</span>
-          <span>Target Market</span>
-        </label>
-        <div class="input-wrapper">
-          <i data-lucide="map-pin" class="input-icon"></i>
-          <select id="marketB" class="form-select select-lg">
+        <!-- Market B -->
+        <div class="ev-market-box">
+          <label class="ev-label">Target Market (Market B)</label>
+          <select id="selectMarketB" class="ev-select" onchange="runComparison()">
             <option value="United Arab Emirates" selected>🇦🇪 United Arab Emirates</option>
             <option value="United States">🇺🇸 United States</option>
             <option value="United Kingdom">🇬🇧 United Kingdom</option>
-            <option value="Germany">🇩🇪 Germany</option>
-            <option value="France">🇫🇷 France</option>
-            <option value="Japan">🇯🇵 Japan</option>
             <option value="Switzerland">🇨🇭 Switzerland</option>
+            <option value="Germany">🇩🇪 Germany</option>
+            <option value="Japan">🇯🇵 Japan</option>
             <option value="Singapore">🇸🇬 Singapore</option>
-            {% if countries %}
-              {% for c in countries %}
-                {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Germany', 'France', 'Japan', 'Switzerland', 'Singapore'] %}
-                  <option value="{{ c }}">{{ c }}</option>
-                {% endif %}
-              {% endfor %}
-            {% endif %}
+            <option value="France">🇫🇷 France</option>
           </select>
         </div>
-      </div>
 
-      <!-- Action Button -->
-      <div class="compare-action-cell">
-        <button type="submit" class="btn-gold btn-glow btn-lg btn-full" id="runCompareBtn">
-          <i data-lucide="git-compare"></i>
-          <span>Run Comparison</span>
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- COMPARISON RESULTS CONTAINER -->
-  <div class="compare-results-area" id="compareResultsArea">
-    <!-- 1. SIDE-BY-SIDE STAT CARDS WITH "WINNER" BADGES -->
-    <div class="comparison-stats-grid" data-aos="fade-up">
-      <!-- Metric 1: Average Price -->
-      <div class="compare-stat-card glass-card">
-        <div class="stat-header-row">
-          <span class="metric-name">Average Property Price</span>
-          <span class="winner-badge" id="winnerBadge1">🇺🇸 Lower Entry</span>
+        <div class="ev-compare-btn-cell">
+          <button type="button" class="ev-btn-primary ev-btn-sm" onclick="runComparison()">
+            <i data-lucide="git-compare"></i>
+            <span>Compare</span>
+          </button>
         </div>
-        <div class="side-by-side-values">
-          <div class="side-col side-a">
-            <span class="side-market" id="sideAName1">United States</span>
-            <div class="side-price" id="sideAPrice">$485,200</div>
-            <small class="text-muted">National Median</small>
-          </div>
-          <div class="side-divider-line"></div>
-          <div class="side-col side-b">
-            <span class="side-market" id="sideBName1">UAE</span>
-            <div class="side-price" id="sideBPrice">$680,400</div>
-            <small class="text-muted">Prime Coastal Focus</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- Metric 2: Price per m² -->
-      <div class="compare-stat-card glass-card">
-        <div class="stat-header-row">
-          <span class="metric-name">Price Density (/ m²)</span>
-          <span class="winner-badge" id="winnerBadge2">🇺🇸 More Space/Dollar</span>
-        </div>
-        <div class="side-by-side-values">
-          <div class="side-col side-a">
-            <span class="side-market" id="sideAName2">United States</span>
-            <div class="side-price" id="sideASqm">$3,240 <small>/m²</small></div>
-            <small class="text-muted">Broad Metropolitan</small>
-          </div>
-          <div class="side-divider-line"></div>
-          <div class="side-col side-b">
-            <span class="side-market" id="sideBName2">UAE</span>
-            <div class="side-price" id="sideBSqm">$4,890 <small>/m²</small></div>
-            <small class="text-muted">Luxury High-rise</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- Metric 3: Rental Yield -->
-      <div class="compare-stat-card glass-card">
-        <div class="stat-header-row">
-          <span class="metric-name">Gross Rental Yield</span>
-          <span class="winner-badge winner-gold" id="winnerBadge3">🇦🇪 UAE +2.7% Higher</span>
-        </div>
-        <div class="side-by-side-values">
-          <div class="side-col side-a">
-            <span class="side-market" id="sideAName3">United States</span>
-            <div class="side-price green-text" id="sideAYield">4.9%</div>
-            <small class="text-muted">After Property Tax</small>
-          </div>
-          <div class="side-divider-line"></div>
-          <div class="side-col side-b">
-            <span class="side-market" id="sideBName3">UAE</span>
-            <div class="side-price green-text highlight" id="sideBYield">7.6%</div>
-            <small class="text-muted">0% Personal Income Tax</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- Metric 4: 5-Year Capital Growth -->
-      <div class="compare-stat-card glass-card">
-        <div class="stat-header-row">
-          <span class="metric-name">5Y Capital Appreciation</span>
-          <span class="winner-badge winner-gold" id="winnerBadge4">🇦🇪 UAE +12.8% Ahead</span>
-        </div>
-        <div class="side-by-side-values">
-          <div class="side-col side-a">
-            <span class="side-market" id="sideAName4">United States</span>
-            <div class="side-price" id="sideAGrowth">+28.4%</div>
-            <small class="text-muted">Stable Long-term</small>
-          </div>
-          <div class="side-divider-line"></div>
-          <div class="side-col side-b">
-            <span class="side-market" id="sideBName4">UAE</span>
-            <div class="side-price highlight" id="sideBGrowth">+41.2%</div>
-            <small class="text-muted">Sovereign Inflow</small>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. TWO IN-DEPTH CHARTS: RADAR MULTI-METRIC (50%) & PRICE TREND OVERLAY (50%) -->
-    <div class="compare-charts-row" data-aos="fade-up" data-aos-delay="150">
-      <!-- LEFT: Radar Chart -->
-      <div class="chart-card glass-card half-chart">
-        <div class="chart-card-header">
-          <div>
-            <h3 class="chart-heading">Multivariate Market Radar</h3>
-            <span class="chart-sub">Comparing 6 core institutional investment dimensions</span>
-          </div>
-          <span class="pill-badge gold-pill">Scored 0 - 100</span>
-        </div>
-        <div id="compareRadarChart" class="radar-chart-viewport"></div>
-      </div>
-
-      <!-- RIGHT: Dual-Line Price Trend Overlay Chart -->
-      <div class="chart-card glass-card half-chart">
-        <div class="chart-card-header">
-          <div>
-            <h3 class="chart-heading">Indexed Price Trajectory Overlay</h3>
-            <span class="chart-sub">Normalized indexed price appreciation (2019 - 2026)</span>
-          </div>
-          <span class="pill-badge">Base 100 = 2019</span>
-        </div>
-        <div id="compareTrendChart" class="trend-overlay-viewport"></div>
-      </div>
-    </div>
-
-    <!-- 3. AI INVESTMENT SYNTHESIS & RECOMMENDATION BOX -->
-    <div class="ai-synthesis-card glass-card" data-aos="fade-up" data-aos-delay="200">
-      <div class="synthesis-header">
-        <div class="icon-wrap gold-tint">
-          <i data-lucide="sparkles"></i>
-        </div>
-        <div>
-          <h3 class="synthesis-title">EstateVision AI Market Synthesis</h3>
-          <span class="text-muted">Automated algorithmic comparative summary</span>
-        </div>
-      </div>
-      <div class="synthesis-content" id="synthesisContent">
-        <p>
-          <strong>Allocation Verdict:</strong> While <strong>United States</strong> provides deep liquidity, lower volatility, and a vast diversified secondary inventory, <strong>United Arab Emirates</strong> demonstrates significantly superior capital returns due to zero foreign investor tax regimes, robust luxury demand, and higher gross rental yields (7.6% vs 4.9%).
-        </p>
-        <div class="synthesis-tags">
-          <span class="syn-tag">Recommendation: Dual-Market Allocation</span>
-          <span class="syn-tag gold-tag">Yield Winner: UAE</span>
-          <span class="syn-tag">Stability Winner: US</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. DETAILED BREAKDOWN COMPARISON TABLE -->
-    <div class="chart-card glass-card mt-4" data-aos="fade-up" data-aos-delay="250">
-      <div class="chart-card-header">
-        <h4 class="chart-heading">Full Factor Comparison Matrix</h4>
-        <span class="chart-sub">Direct parametric breakdown across regulatory, tax, and asset metrics</span>
-      </div>
-      <div class="table-responsive">
-        <table class="luxury-table">
-          <thead>
-            <tr>
-              <th>Evaluation Factor</th>
-              <th id="thMarketA">United States</th>
-              <th id="thMarketB">United Arab Emirates</th>
-              <th>Net Variance</th>
-              <th>Strategic Advantage</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Gross Rental Yield</strong></td>
-              <td>4.9%</td>
-              <td>7.6%</td>
-              <td class="green-text">+2.7% (UAE)</td>
-              <td><span class="status-pill winner-pill">Market B (UAE)</span></td>
-            </tr>
-            <tr>
-              <td><strong>Property Tax / Annual Levy</strong></td>
-              <td>1.2% - 2.5% / yr</td>
-              <td>0% Annual Tax</td>
-              <td class="green-text">-100% Tax Burden</td>
-              <td><span class="status-pill winner-pill">Market B (UAE)</span></td>
-            </tr>
-            <tr>
-              <td><strong>Inventory Breadth</strong></td>
-              <td>38,400+ Units</td>
-              <td>12,200+ Units</td>
-              <td class="blue-text">+26,200 Units (US)</td>
-              <td><span class="status-pill status-blue">Market A (US)</span></td>
-            </tr>
-            <tr>
-              <td><strong>Average Living Area</strong></td>
-              <td>145 m²</td>
-              <td>175 m²</td>
-              <td>+30 m² (UAE)</td>
-              <td><span class="status-pill winner-pill">Market B (UAE)</span></td>
-            </tr>
-            <tr>
-              <td><strong>Currency Volatility Peg</strong></td>
-              <td>Base USD</td>
-              <td>USD Pegged (3.67 AED)</td>
-              <td>0% FX Risk vs USD</td>
-              <td><span class="status-pill status-med">Neutral Neutrality</span></td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SIDE-BY-SIDE METRICS MATRIX
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="ev-section" style="padding-top: var(--ev-sp-8);">
+    <div class="ev-container">
+      <div class="ev-matrix-card ev-glass" data-aos="fade-up">
+        
+        <!-- Header columns -->
+        <div class="ev-matrix-header-row">
+          <div class="ev-matrix-col-label">Metric / Indicator</div>
+          <div class="ev-matrix-col-val" id="colHeaderA">🇺🇸 United States</div>
+          <div class="ev-matrix-col-val" id="colHeaderB">🇦🇪 United Arab Emirates</div>
+        </div>
+
+        <!-- Metric 1: Prime Net Rental Yield -->
+        <div class="ev-matrix-row">
+          <div class="ev-matrix-metric">
+            <strong>Average Prime Rental Yield</strong>
+            <small>Net cash distribution after local operating expenses</small>
+          </div>
+          <div class="ev-matrix-stat" id="statYieldA">
+            <span class="stat-num">4.2%</span>
+            <span class="stat-tag">Moderate</span>
+          </div>
+          <div class="ev-matrix-stat winner" id="statYieldB">
+            <span class="stat-num ev-gold-text">7.8%</span>
+            <span class="stat-tag ev-tag-winner">Higher Yield</span>
+          </div>
+        </div>
+
+        <!-- Metric 2: Price per Square Meter -->
+        <div class="ev-matrix-row">
+          <div class="ev-matrix-metric">
+            <strong>Average Luxury Price / m²</strong>
+            <small>Weighted across capital city prime districts</small>
+          </div>
+          <div class="ev-matrix-stat" id="statPriceA">
+            <span class="stat-num">$24,500</span>
+            <span class="stat-tag">Manhattan / SF Avg</span>
+          </div>
+          <div class="ev-matrix-stat" id="statPriceB">
+            <span class="stat-num">$12,800</span>
+            <span class="stat-tag">Palm / Downtown Avg</span>
+          </div>
+        </div>
+
+        <!-- Metric 3: Sovereign Real YoY Growth -->
+        <div class="ev-matrix-row">
+          <div class="ev-matrix-metric">
+            <strong>BIS Real YoY Index Change</strong>
+            <small>Inflation-adjusted central bank housing index</small>
+          </div>
+          <div class="ev-matrix-stat" id="statGrowthA">
+            <span class="stat-num">+4.8%</span>
+            <span class="stat-tag">Steady</span>
+          </div>
+          <div class="ev-matrix-stat winner" id="statGrowthB">
+            <span class="stat-num ev-gold-text">+14.2%</span>
+            <span class="stat-tag ev-tag-winner">High Capital Expansion</span>
+          </div>
+        </div>
+
+        <!-- Metric 4: Acquisition Tax Burden -->
+        <div class="ev-matrix-row">
+          <div class="ev-matrix-metric">
+            <strong>Transfer & Cadastral Taxes</strong>
+            <small>Total immediate sovereign tax at closing</small>
+          </div>
+          <div class="ev-matrix-stat" id="statTaxA">
+            <span class="stat-num">~2.5%</span>
+            <span class="stat-tag">Standard Escrow</span>
+          </div>
+          <div class="ev-matrix-stat winner" id="statTaxB">
+            <span class="stat-num ev-gold-text">4.0%</span>
+            <span class="stat-tag ev-tag-winner">0% Annual Property Tax</span>
+          </div>
+        </div>
+
+        <!-- Metric 5: Average Days in Escrow -->
+        <div class="ev-matrix-row">
+          <div class="ev-matrix-metric">
+            <strong>Average Settlement Duration</strong>
+            <small>From earnest deposit lock to deed transfer</small>
+          </div>
+          <div class="ev-matrix-stat" id="statDaysA">
+            <span class="stat-num">32 Days</span>
+            <span class="stat-tag">Title Insurance</span>
+          </div>
+          <div class="ev-matrix-stat winner" id="statDaysB">
+            <span class="stat-num ev-gold-text">14 Days</span>
+            <span class="stat-tag ev-tag-winner">Fast Digital Conveyance</span>
+          </div>
+        </div>
+
+        <!-- Metric 6: Escrow Security Protocol -->
+        <div class="ev-matrix-row">
+          <div class="ev-matrix-metric">
+            <strong>Custody & Settlement Protocol</strong>
+            <small>Sovereign vault guarantee</small>
+          </div>
+          <div class="ev-matrix-stat">
+            <span class="stat-num">Fedwire Multisig</span>
+            <span class="stat-tag">JPMorgan Chase</span>
+          </div>
+          <div class="ev-matrix-stat">
+            <span class="stat-num">Digital Escrow</span>
+            <span class="stat-tag">DLD Smart Trust</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       HISTORICAL BENCHMARK CHART (APEXCHARTS)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="ev-section" style="padding-top: 0;">
+    <div class="ev-container">
+      <div class="ev-card-module ev-glass" data-aos="fade-up">
+        <div class="ev-module-header">
+          <div>
+            <div class="ev-eyebrow">Macro Comparative Trajectory</div>
+            <h3 class="ev-heading-3">50-Year Sovereign Price Comparison</h3>
+            <p class="ev-subheading-left">BIS Real Residential Property Indices indexed to 2010 = 100.</p>
+          </div>
+        </div>
+
+        <div id="compareDualChart" style="min-height: 360px;"></div>
+      </div>
+    </div>
+  </section>
+
 </div>
+
+<style>
+/* ─── Compare Page Styles ─── */
+.ev-compare-selector-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto;
+  align-items: flex-end;
+  gap: var(--ev-sp-4);
+}
+
+.ev-vs-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+}
+.ev-vs-badge span {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ev-bg-elevated);
+  border: 1px solid var(--ev-border-medium);
+  color: var(--ev-gold);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ev-compare-btn-cell {
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+/* ─── Matrix Card ─── */
+.ev-matrix-card {
+  border-radius: var(--ev-radius-xl);
+  overflow: hidden;
+}
+
+.ev-matrix-header-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  padding: var(--ev-sp-5) var(--ev-sp-6);
+  background: var(--ev-bg-elevated);
+  border-bottom: 1px solid var(--ev-border-hairline);
+  font-size: 14px;
+  font-weight: 600;
+}
+.ev-matrix-col-val {
+  text-align: right;
+  font-size: 16px;
+  color: var(--ev-gold);
+}
+
+.ev-matrix-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  padding: var(--ev-sp-5) var(--ev-sp-6);
+  border-bottom: 1px solid var(--ev-border-hairline);
+  align-items: center;
+  transition: background var(--ev-duration-fast);
+}
+.ev-matrix-row:hover {
+  background: var(--ev-bg-hover);
+}
+
+.ev-matrix-metric strong {
+  display: block;
+  font-size: 15px;
+  color: var(--ev-text-primary);
+  margin-bottom: 2px;
+}
+.ev-matrix-metric small {
+  font-size: 12px;
+  color: var(--ev-text-muted);
+}
+
+.ev-matrix-stat {
+  text-align: right;
+}
+.stat-num {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ev-text-primary);
+}
+.stat-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--ev-text-muted);
+  margin-top: 2px;
+}
+.ev-tag-winner {
+  color: var(--ev-gold);
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .ev-compare-selector-grid { grid-template-columns: 1fr; }
+  .ev-vs-badge { display: none; }
+  .ev-matrix-header-row,
+  .ev-matrix-row { grid-template-columns: 1fr 1fr; }
+  .ev-matrix-col-label { grid-column: span 2; margin-bottom: 8px; }
+  .ev-matrix-metric { grid-column: span 2; margin-bottom: 8px; }
+}
+</style>
+
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/charts.js"></script>
-
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    if (!window.ApexCharts) return;
+let compareApexChart = null;
 
-    // 1. Radar Chart Setup
-    const radarOptions = {
-      series: [
-        { name: 'Market A (US)', data: [85, 68, 92, 60, 95, 88] },
-        { name: 'Market B (UAE)', data: [72, 94, 78, 95, 65, 82] }
-      ],
-      chart: {
-        type: 'radar',
-        height: 350,
-        background: 'transparent',
-        toolbar: { show: false }
-      },
-      colors: ['#3b82f6', '#D4AF37'],
-      stroke: { width: 2 },
-      fill: { opacity: 0.2 },
-      markers: { size: 4 },
-      xaxis: {
-        categories: ['Affordability', 'Capital Growth', 'Liquidity', 'Rental Yield', 'Inventory Depth', 'Stability & Rule of Law'],
-        labels: {
-          style: { colors: ['#9ca3af', '#9ca3af', '#9ca3af', '#9ca3af', '#9ca3af', '#9ca3af'], fontFamily: 'Inter', fontSize: '11px' }
-        }
-      },
-      yaxis: { show: false },
-      legend: { position: 'bottom', labels: { colors: '#d1d5db' }, fontFamily: 'Inter' }
-    };
-    const radarChart = new ApexCharts(document.getElementById('compareRadarChart'), radarOptions);
-    radarChart.render();
+const SOVEREIGN_BENCHMARKS = {
+  'United States': {
+    flag: '🇺🇸', yield: '4.2%', yieldNote: 'Moderate', priceSqm: '$24,500', growth: '+4.8%', tax: '2.5% Transfer + 1.8% Ann.', days: '32 Days',
+    series: [18.2, 22.4, 30.1, 44.8, 62.3, 85.0, 100.0, 128.4, 162.7]
+  },
+  'United Arab Emirates': {
+    flag: '🇦🇪', yield: '7.8%', yieldNote: 'Higher Yield', priceSqm: '$12,800', growth: '+14.2%', tax: '4.0% Transfer + 0% Ann.', days: '14 Days',
+    series: [10.5, 14.2, 22.0, 38.0, 75.0, 92.0, 100.0, 132.0, 178.5]
+  },
+  'United Kingdom': {
+    flag: '🇬🇧', yield: '4.1%', yieldNote: 'Prime London', priceSqm: '$28,200', growth: '+3.2%', tax: '12% Stamp Duty', days: '45 Days',
+    series: [12.5, 16.0, 24.3, 39.5, 58.0, 89.2, 100.0, 134.1, 155.8]
+  },
+  'Switzerland': {
+    flag: '🇨🇭', yield: '3.1%', yieldNote: 'Ultra Safe', priceSqm: '$31,500', growth: '+4.0%', tax: '3.5% Cantonal', days: '28 Days',
+    series: [42.0, 51.2, 68.4, 74.0, 85.2, 94.0, 100.0, 114.5, 132.0]
+  },
+  'Germany': {
+    flag: '🇩🇪', yield: '3.8%', yieldNote: 'European Hub', priceSqm: '$11,400', growth: '+2.8%', tax: '6.5% Grunderwerb', days: '38 Days',
+    series: [35.0, 42.1, 52.4, 66.0, 80.2, 92.4, 100.0, 138.5, 146.2]
+  },
+  'Singapore': {
+    flag: '🇸🇬', yield: '3.4%', yieldNote: 'Asian Gateway', priceSqm: '$26,000', growth: '+5.1%', tax: '20% Buyer Stamp', days: '21 Days',
+    series: [14.0, 20.2, 35.0, 52.0, 78.0, 95.0, 100.0, 126.0, 158.0]
+  },
+  'Japan': {
+    flag: '🇯🇵', yield: '4.6%', yieldNote: 'Tokyo Core', priceSqm: '$14,200', growth: '+3.9%', tax: '4.5% Registration', days: '30 Days',
+    series: [28.0, 38.5, 62.1, 95.0, 125.0, 102.0, 100.0, 109.2, 118.5]
+  },
+  'France': {
+    flag: '🇫🇷', yield: '3.9%', yieldNote: 'Parisian Prime', priceSqm: '$16,500', growth: '+2.4%', tax: '8.0% Notary', days: '40 Days',
+    series: [22.0, 28.5, 39.0, 54.0, 76.0, 91.0, 100.0, 122.0, 139.0]
+  }
+};
 
-    // 2. Trend Overlay Chart Setup
-    const trendOverlayOptions = {
-      series: [
-        { name: 'United States', data: [100, 105, 114, 122, 128, 134, 139, 145] },
-        { name: 'United Arab Emirates', data: [100, 98, 106, 120, 138, 152, 168, 182] }
-      ],
-      chart: {
-        type: 'line',
-        height: 350,
-        background: 'transparent',
-        toolbar: { show: false }
-      },
-      colors: ['#3b82f6', '#D4AF37'],
-      stroke: { curve: 'smooth', width: 3 },
-      xaxis: {
-        categories: ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
-        labels: { style: { colors: '#9ca3af' } },
-        axisBorder: { show: false }
-      },
-      yaxis: {
-        labels: {
-          style: { colors: '#9ca3af' },
-          formatter: (v) => v + ' pts'
-        }
-      },
-      grid: { borderColor: 'rgba(255, 255, 255, 0.05)', strokeDashArray: 4 },
-      legend: { position: 'bottom', labels: { colors: '#d1d5db' } },
-      tooltip: {
-        theme: 'dark',
-        y: { formatter: (v) => v + ' Index Points' }
+document.addEventListener('DOMContentLoaded', () => {
+  runComparison();
+});
+
+function runComparison() {
+  const a = document.getElementById('selectMarketA').value;
+  const b = document.getElementById('selectMarketB').value;
+
+  const dataA = SOVEREIGN_BENCHMARKS[a] || SOVEREIGN_BENCHMARKS['United States'];
+  const dataB = SOVEREIGN_BENCHMARKS[b] || SOVEREIGN_BENCHMARKS['United Arab Emirates'];
+
+  // Update table headers
+  document.getElementById('colHeaderA').textContent = `${dataA.flag} ${a}`;
+  document.getElementById('colHeaderB').textContent = `${dataB.flag} ${b}`;
+
+  // Update stats
+  document.getElementById('statYieldA').innerHTML = `<span class="stat-num">${dataA.yield}</span><span class="stat-tag">${dataA.yieldNote}</span>`;
+  document.getElementById('statYieldB').innerHTML = `<span class="stat-num ev-gold-text">${dataB.yield}</span><span class="stat-tag ev-tag-winner">${dataB.yieldNote}</span>`;
+
+  document.getElementById('statPriceA').innerHTML = `<span class="stat-num">${dataA.priceSqm}</span><span class="stat-tag">Per m²</span>`;
+  document.getElementById('statPriceB').innerHTML = `<span class="stat-num">${dataB.priceSqm}</span><span class="stat-tag">Per m²</span>`;
+
+  document.getElementById('statGrowthA').innerHTML = `<span class="stat-num">${dataA.growth}</span><span class="stat-tag">Real YoY</span>`;
+  document.getElementById('statGrowthB').innerHTML = `<span class="stat-num ev-gold-text">${dataB.growth}</span><span class="stat-tag ev-tag-winner">Real YoY</span>`;
+
+  document.getElementById('statTaxA').innerHTML = `<span class="stat-num">${dataA.tax}</span>`;
+  document.getElementById('statTaxB').innerHTML = `<span class="stat-num ev-gold-text">${dataB.tax}</span>`;
+
+  document.getElementById('statDaysA').innerHTML = `<span class="stat-num">${dataA.days}</span>`;
+  document.getElementById('statDaysB').innerHTML = `<span class="stat-num ev-gold-text">${dataB.days}</span>`;
+
+  renderDualChart(a, dataA.series, b, dataB.series);
+}
+
+function renderDualChart(nameA, seriesA, nameB, seriesB) {
+  const chartEl = document.getElementById('compareDualChart');
+  if (!chartEl || !window.ApexCharts) return;
+
+  const categories = ['1970', '1980', '1990', '2000', '2005', '2010', '2015', '2020', '2026'];
+
+  if (compareApexChart) {
+    compareApexChart.updateSeries([
+      { name: nameA, data: seriesA },
+      { name: nameB, data: seriesB }
+    ]);
+    return;
+  }
+
+  const options = {
+    series: [
+      { name: nameA, data: seriesA },
+      { name: nameB, data: seriesB }
+    ],
+    chart: {
+      type: 'area',
+      height: 360,
+      background: 'transparent',
+      toolbar: { show: false }
+    },
+    colors: ['#64D2FF', '#D4AF37'],
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.25,
+        opacityTo: 0.02,
+        stops: [0, 95, 100]
       }
-    };
-    const trendOverlayChart = new ApexCharts(document.getElementById('compareTrendChart'), trendOverlayOptions);
-    trendOverlayChart.render();
+    },
+    stroke: { curve: 'smooth', width: 2.5 },
+    dataLabels: { enabled: false },
+    xaxis: {
+      categories: categories,
+      labels: { style: { colors: 'rgba(245,245,247,0.5)', fontSize: '12px', fontFamily: 'Inter' } },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: {
+      labels: {
+        style: { colors: 'rgba(245,245,247,0.5)', fontSize: '12px', fontFamily: 'Inter' },
+        formatter: (val) => val.toFixed(0)
+      }
+    },
+    grid: {
+      borderColor: 'rgba(255, 255, 255, 0.06)',
+      strokeDashArray: 4
+    },
+    tooltip: {
+      theme: 'dark',
+      y: { formatter: (val) => 'Real Index: ' + val.toFixed(1) + ' (2010=100)' }
+    },
+    legend: {
+      position: 'top',
+      horizontalAlign: 'right',
+      labels: { colors: '#fff' }
+    }
+  };
 
-    // 3. Form Submission to Re-calculate comparison
-    const form = document.getElementById('compareForm');
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const a = document.getElementById('marketA').value;
-      const b = document.getElementById('marketB').value;
-
-      // Update Table Headers & Labels
-      document.getElementById('thMarketA').innerText = a;
-      document.getElementById('thMarketB').innerText = b;
-
-      ['sideAName1', 'sideAName2', 'sideAName3', 'sideAName4'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = a;
-      });
-      ['sideBName1', 'sideBName2', 'sideBName3', 'sideBName4'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = b;
-      });
-
-      // Update Charts series names
-      radarChart.updateSeries([
-        { name: a, data: [80, 70, 90, 65, 88, 85] },
-        { name: b, data: [75, 88, 80, 85, 72, 80] }
-      ]);
-
-      trendOverlayChart.updateSeries([
-        { name: a, data: [100, 106, 115, 124, 130, 136, 142, 148] },
-        { name: b, data: [100, 102, 110, 126, 142, 158, 172, 186] }
-      ]);
-
-      if (window.lucide) lucide.createIcons();
-    });
-  });
+  compareApexChart = new ApexCharts(chartEl, options);
+  compareApexChart.render();
+}
 </script>
 {% endblock %}

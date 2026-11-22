@@ -1,11 +1,79 @@
 /**
  * ====================================================================
- * AURA LUXURY REAL ESTATE — APEXCHARTS VISUALIZATION ENGINE
+ * ESTATEVISION — APEXCHARTS VISUALIZATION ENGINE & EVChartTheme
  * File: static/js/charts.js
  * ====================================================================
  */
 
 'use strict';
+
+/**
+ * Shared Apple-Grade Chart Theme Configuration
+ * Restricted palette: Gold, White, Ice Blue, Slate, Rose Gold
+ */
+const EVChartTheme = {
+  palette: ['#D4AF37', '#E8E8ED', '#7CC4FF', '#8E8E93', '#E0A899'],
+  donutPalette: ['#D4AF37', '#E8E8ED', '#7CC4FF', '#8E8E93'],
+
+  getBaseOptions(type = 'area') {
+    return {
+      chart: {
+        type: type,
+        fontFamily: "'Inter', -apple-system, sans-serif",
+        foreColor: 'rgba(245, 245, 247, 0.50)',
+        background: 'transparent',
+        toolbar: { show: false },
+        animations: {
+          enabled: true,
+          easing: 'easeout',
+          speed: 600
+        }
+      },
+      colors: this.palette,
+      stroke: {
+        curve: 'smooth',
+        width: 2
+      },
+      markers: {
+        size: 0,
+        hover: { size: 5 }
+      },
+      grid: {
+        borderColor: 'rgba(255, 255, 255, 0.06)',
+        strokeDashArray: 4
+      },
+      xaxis: {
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+        labels: {
+          style: {
+            colors: 'rgba(245, 245, 247, 0.50)',
+            fontSize: '12px',
+            fontFamily: "'Inter', sans-serif"
+          }
+        }
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: 'rgba(245, 245, 247, 0.50)',
+            fontSize: '12px',
+            fontFamily: "'Inter', sans-serif"
+          }
+        }
+      },
+      tooltip: {
+        theme: 'dark',
+        style: {
+          fontSize: '13px',
+          fontFamily: "'Inter', sans-serif"
+        }
+      }
+    };
+  }
+};
+
+window.EVChartTheme = EVChartTheme;
 
 const Charts = {
   instances: {},
@@ -16,50 +84,20 @@ const Charts = {
   getThemeConfig() {
     return {
       chart: {
-        fontFamily: "'Inter', sans-serif",
-        foreColor: '#94A3B8',
+        fontFamily: "'Inter', -apple-system, sans-serif",
+        foreColor: 'rgba(245, 245, 247, 0.50)',
         background: 'transparent',
-        toolbar: {
-          show: false,
-          tools: {
-            download: false,
-            selection: false,
-            zoom: false,
-            zoomin: false,
-            zoomout: false,
-            pan: false,
-            reset: false
-          }
-        },
+        toolbar: { show: false },
         animations: {
           enabled: true,
-          easing: 'easeinout',
-          speed: 1000,
-          animateGradually: {
-            enabled: true,
-            delay: 120
-          },
-          dynamicAnimation: {
-            enabled: true,
-            speed: 450
-          }
-        },
-        dropShadow: {
-          enabled: false
+          easing: 'easeout',
+          speed: 600
         }
       },
       theme: {
         mode: 'dark'
       },
-      colors: [
-        '#D4AF37', // Gold
-        '#38BDF8', // Azure Sky
-        '#10B981', // Emerald
-        '#F59E0B', // Amber
-        '#8B5CF6', // Purple
-        '#EC4899', // Rose
-        '#06B6D4'  // Cyan
-      ],
+      colors: EVChartTheme.palette,
       grid: {
         borderColor: 'rgba(255, 255, 255, 0.06)',
         strokeDashArray: 4,

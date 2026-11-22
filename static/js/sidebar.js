@@ -1,201 +1,148 @@
 /**
  * ====================================================================
- * ESTATEVISION — SIDEBAR CONTROLLER & HOVER-EXPAND SYSTEM
+ * ESTATEVISION — SIDEBAR CONTROLLER (Apple-Style Rail)
  * File: static/js/sidebar.js
+ * Default: collapsed 72px rail, icons only
+ * Hover: expands to 240px with labels (desktop)
+ * Pin: toggle button locks it open
+ * Mobile: slide-over drawer with backdrop
  * ====================================================================
  */
 
 'use strict';
 
 const Sidebar = {
-  isOpen: true,
+  isPinned: false,
   isMobile: false,
   breakpoint: 1024,
-  elements: {},
   _lastToggle: 0,
 
-  /**
-   * Initialize Sidebar Subsystem
-   */
+  el: {
+    sidebar: null,
+    toggleBtns: null,
+    backdrop: null,
+    main: null
+  },
+
   init() {
-    this.cacheElements();
+    this.el.sidebar    = document.getElementById('evSidebar');
+    this.el.backdrop   = document.getElementById('evSidebarBackdrop');
+    this.el.main       = document.getElementById('evMain');
+    this.el.toggleBtns = document.querySelectorAll('#evSidebarToggle, .ev-sidebar-toggle');
+
+    if (!this.el.sidebar) return;
+
     this.checkViewport();
     this.restoreState();
     this.bindEvents();
     this.setActiveNavItem();
   },
 
-  /**
-   * Cache DOM Element References
-   */
-  cacheElements() {
-    this.elements = {
-      sidebar: document.getElementById('sidebar'),
-      toggleBtns: document.querySelectorAll('#sidebarToggle, #sidebar-toggle, .sidebar-toggle, .sidebar-close-btn, #sidebarCloseBtn'),
-      overlay: document.getElementById('sidebar-overlay'),
-      mainContent: document.getElementById('mainContent') || document.querySelector('.main-content'),
-      navLinks: document.querySelectorAll('.sidebar-nav .nav-item, .sidebar-nav a')
-    };
-
-    // Ensure overlay exists for mobile viewport
-    if (!this.elements.overlay) {
-      const overlay = document.createElement('div');
-      overlay.id = 'sidebar-overlay';
-      overlay.className = 'sidebar-backdrop';
-      overlay.style.cssText = `
-        position: fixed;
-        inset: 0;
-        background: rgba(10, 10, 15, 0.7);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        z-index: 990;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.25s ease;
-      `;
-      document.body.appendChild(overlay);
-      this.elements.overlay = overlay;
-    }
-  },
-
-  /**
-   * Detect Viewport Size
-   */
+  /* ─── Viewport ─── */
   checkViewport() {
     this.isMobile = window.innerWidth < this.breakpoint;
   },
 
-  /**
-   * Restore Sidebar Open/Closed State
-   */
+  /* ─── Restore from localStorage ─── */
   restoreState() {
-    this.checkViewport();
-
     if (this.isMobile) {
-      this.close(false); // Mobile defaults to closed
+      this.unpin(false);
     } else {
       const saved = localStorage.getItem('ev_sidebar_pinned');
-      // Default open on desktop unless explicitly closed
-      const shouldOpen = saved === null ? true : saved === 'true';
-      if (shouldOpen) {
-        this.open(false);
+      if (saved === 'true') {
+        this.pin(false);
       } else {
-        this.close(false);
+        this.unpin(false);
       }
     }
   },
 
-  /**
-   * Toggle Sidebar Open / Closed with Debounce Protection
-   */
+  /* ─── Toggle (debounced) ─── */
   toggle() {
     const now = Date.now();
     if (now - this._lastToggle < 220) return;
     this._lastToggle = now;
 
-    if (this.isOpen) {
-      this.close(true);
+    if (this.isPinned) {
+      this.unpin(true);
     } else {
-      this.open(true);
+      this.pin(true);
     }
   },
 
-  /**
-   * Open / Expand Sidebar
-   */
-  open(persist = true) {
-    this.isOpen = true;
-    const { sidebar, overlay } = this.elements;
+  /* ─── Pin Open ─── */
+  pin(persist) {
+    this.isPinned = true;
+    const { sidebar, backdrop } = this.el;
 
     if (sidebar) {
-      sidebar.classList.remove('collapsed', 'sidebar-closed', 'sidebar-collapsed');
-      sidebar.classList.add('sidebar-open');
+      sidebar.classList.add('ev-sidebar--pinned');
+      sidebar.classList.remove('ev-sidebar--hover');
     }
+    document.body.classList.add('ev-sidebar-pinned');
 
-    document.body.classList.remove('sidebar-collapsed', 'sidebar-is-collapsed');
-    document.body.classList.add('sidebar-expanded');
-
-    if (this.isMobile && overlay) {
-      overlay.style.pointerEvents = 'auto';
-      overlay.style.opacity = '1';
+    if (this.isMobile && backdrop) {
+      backdrop.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
 
     if (persist && !this.isMobile) {
       localStorage.setItem('ev_sidebar_pinned', 'true');
     }
-
-    this.dispatchResize();
   },
 
-  /**
-   * Close / Collapse Sidebar
-   */
-  close(persist = true) {
-    this.isOpen = false;
-    const { sidebar, overlay } = this.elements;
+  /* ─── Unpin / Collapse ─── */
+  unpin(persist) {
+    this.isPinned = false;
+    const { sidebar, backdrop } = this.el;
 
     if (sidebar) {
-      sidebar.classList.remove('sidebar-open', 'sidebar-hover-expanded');
-      sidebar.classList.add('collapsed', 'sidebar-closed', 'sidebar-collapsed');
+      sidebar.classList.remove('ev-sidebar--pinned', 'ev-sidebar--hover');
     }
+    document.body.classList.remove('ev-sidebar-pinned');
 
-    document.body.classList.remove('sidebar-expanded', 'sidebar-hover-active');
-    document.body.classList.add('sidebar-collapsed', 'sidebar-is-collapsed');
-
-    if (overlay) {
-      overlay.style.pointerEvents = 'none';
-      overlay.style.opacity = '0';
+    if (backdrop) {
+      backdrop.classList.remove('active');
       document.body.style.overflow = '';
     }
 
     if (persist && !this.isMobile) {
       localStorage.setItem('ev_sidebar_pinned', 'false');
     }
-
-    this.dispatchResize();
   },
 
-  /**
-   * Dispatch smooth layout reflow notification
-   */
-  dispatchResize() {
-    setTimeout(() => {
-      window.dispatchEvent(new Event('resize'));
-    }, 250);
+  /* ─── Hover expand/collapse (desktop, unpinned only) ─── */
+  onMouseEnter() {
+    if (!this.isPinned && !this.isMobile) {
+      this.el.sidebar.classList.add('ev-sidebar--hover');
+    }
   },
 
-  /**
-   * Highlight Active Navigation Route
-   */
+  onMouseLeave() {
+    if (!this.isPinned && !this.isMobile) {
+      this.el.sidebar.classList.remove('ev-sidebar--hover');
+    }
+  },
+
+  /* ─── Active nav highlight ─── */
   setActiveNavItem() {
-    const currentPath = window.location.pathname.toLowerCase();
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-item');
+    const path = window.location.pathname.toLowerCase();
+    const links = document.querySelectorAll('.ev-nav-item');
 
-    navLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      if (!href) return;
-
-      const linkPath = href.toLowerCase();
-      const isMatch = (currentPath === '/' && linkPath === '/') ||
-                      (linkPath !== '/' && currentPath.startsWith(linkPath));
-
-      if (isMatch) {
-        link.classList.add('active');
-        link.setAttribute('aria-current', 'page');
-      } else {
-        link.classList.remove('active');
-        link.removeAttribute('aria-current');
-      }
+    links.forEach(link => {
+      const href = (link.getAttribute('href') || '').toLowerCase();
+      const match = (path === '/' && href === '/') ||
+                    (href !== '/' && path.startsWith(href));
+      link.classList.toggle('active', match);
+      if (match) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
     });
   },
 
-  /**
-   * Bind Event Listeners
-   */
+  /* ─── Event Bindings ─── */
   bindEvents() {
-    // 1. Toggle Button Click Handlers
-    this.elements.toggleBtns.forEach(btn => {
+    // Toggle buttons
+    this.el.toggleBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -203,41 +150,27 @@ const Sidebar = {
       });
     });
 
-    // 2. HOVER TO TURN ON / OFF:
-    // When sidebar is collapsed in dock mode, hovering over it expands it to 240px with full text.
-    // Moving the mouse away turns it off and collapses back to 68px.
-    const sidebar = this.elements.sidebar;
-    if (sidebar) {
-      sidebar.addEventListener('mouseenter', () => {
-        if (!this.isOpen && !this.isMobile) {
-          sidebar.classList.add('sidebar-hover-expanded');
-          document.body.classList.add('sidebar-hover-active');
-        }
-      });
+    // Hover expand (desktop)
+    if (this.el.sidebar) {
+      this.el.sidebar.addEventListener('mouseenter', () => this.onMouseEnter());
+      this.el.sidebar.addEventListener('mouseleave', () => this.onMouseLeave());
+    }
 
-      sidebar.addEventListener('mouseleave', () => {
-        if (!this.isOpen && !this.isMobile) {
-          sidebar.classList.remove('sidebar-hover-expanded');
-          document.body.classList.remove('sidebar-hover-active');
-        }
+    // Backdrop click (mobile)
+    if (this.el.backdrop) {
+      this.el.backdrop.addEventListener('click', () => {
+        if (this.isMobile) this.unpin(false);
       });
     }
 
-    // 3. Mobile Backdrop Click
-    if (this.elements.overlay) {
-      this.elements.overlay.addEventListener('click', () => {
-        if (this.isMobile) this.close();
-      });
-    }
-
-    // 4. Keyboard ESC to Close Mobile Sidebar
+    // ESC key (mobile)
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isMobile && this.isOpen) {
-        this.close();
+      if (e.key === 'Escape' && this.isMobile && this.isPinned) {
+        this.unpin(false);
       }
     });
 
-    // 5. Viewport Resize Listener with Debounce
+    // Resize
     let resizeTimer = null;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
@@ -247,10 +180,11 @@ const Sidebar = {
 
         if (wasMobile !== this.isMobile) {
           if (this.isMobile) {
-            this.close(false);
+            this.unpin(false);
           } else {
             const saved = localStorage.getItem('ev_sidebar_pinned');
-            if (saved !== 'false') this.open(false);
+            if (saved === 'true') this.pin(false);
+            else this.unpin(false);
           }
         }
       }, 150);
@@ -258,7 +192,6 @@ const Sidebar = {
   }
 };
 
-// Global Exposure & Auto-initialization
 window.Sidebar = Sidebar;
 
 if (document.readyState === 'loading') {

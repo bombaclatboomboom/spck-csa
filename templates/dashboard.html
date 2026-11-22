@@ -1,449 +1,796 @@
 {% extends 'base.html' %}
 {% set active_page = 'dashboard' %}
 
-{% block title %}Executive Dashboard | EstateVision{% endblock %}
-{% block body_class %}apple-minimal-page{% endblock %}
+{% block title %}Executive Portfolio Dashboard | EstateVision{% endblock %}
+{% block body_class %}ev-dashboard-page{% endblock %}
 
 {% block content %}
-<div class="apple-page-container">
-  <!-- DASHBOARD HEADER -->
-  <header class="apple-page-header" data-aos="fade-up">
-    <div class="header-split">
-      <div>
-        <span class="apple-eyebrow">Portfolio Intelligence</span>
-        <h1 class="apple-page-title">Executive Overview</h1>
-        <p class="apple-page-subhead" id="currentDateDisplay">
-          Real-time macroeconomic indices and active escrow acquisitions.
-        </p>
-      </div>
+<div class="ev-page-wrapper">
+  
+  <!-- ═══════════════════════════════════════════════════════════════════
+       DASHBOARD HEADER & SEGMENTED SWITCH
+       ═══════════════════════════════════════════════════════════════════ -->
+  <header class="ev-section-header" data-aos="fade-up" style="padding-top: var(--ev-sp-8); text-align: left;">
+    <div class="ev-container-wide">
+      <div class="ev-dash-header-row">
+        <div>
+          <div class="ev-eyebrow">Portfolio Intelligence</div>
+          <h1 class="ev-heading-1" style="font-size: 38px;">
+            {% if user and user.role == 'agent' %}
+              Brokerage Command Center
+            {% else %}
+              Institutional Portfolio Overview
+            {% endif %}
+          </h1>
+          <p class="ev-subheading-left">
+            Client Account: <strong class="ev-gold-text" id="userDisplayNameHeader">{{ user.full_name if user else 'Elena Rostova' }}</strong> &bull; <span id="userDisplayCompanyHeader">{{ user.company if user and user.company else 'Vanguard Global Holdings' }}</span>
+          </p>
+        </div>
 
-      <!-- APPLE-STYLE MINIMALIST TAB SWITCH -->
-      <div class="apple-segmented-control" role="tablist">
-        <button class="segment-btn active" id="tabInvestorBtn" onclick="switchDashboardView('investor')" role="tab">
-          <i data-lucide="line-chart"></i>
-          <span>Investor View</span>
-        </button>
-        <button class="segment-btn" id="tabBuyerBtn" onclick="switchDashboardView('buyer')" role="tab">
-          <i data-lucide="shield-check"></i>
-          <span>Buyer View</span>
-        </button>
+        <!-- Segmented Control (Investor View vs Buyer View) -->
+        <div style="display: flex; gap: var(--ev-sp-3); align-items: center; flex-wrap: wrap;">
+          <!-- Quick Capital Actions -->
+          <div class="ev-wallet-actions">
+            <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="openProfileModal()">
+              <i data-lucide="user"></i>
+              <span>Profile</span>
+            </button>
+            <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="openDepositModal()">
+              <i data-lucide="plus-circle"></i>
+              <span>Deposit</span>
+            </button>
+            <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="openWireModal()">
+              <i data-lucide="send"></i>
+              <span>Wire</span>
+            </button>
+            <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="exportPortfolioStatement()">
+              <i data-lucide="file-text"></i>
+              <span>Statement</span>
+            </button>
+          </div>
+
+          <div class="ev-segmented-dock ev-glass">
+            <button 
+              type="button" 
+              class="ev-segment-btn active" 
+              id="tabInvestorBtn" 
+              onclick="switchDashboardView('investor')"
+            >
+              <i data-lucide="line-chart"></i>
+              <span>Investor View</span>
+            </button>
+            <button 
+              type="button" 
+              class="ev-segment-btn" 
+              id="tabBuyerBtn" 
+              onclick="switchDashboardView('buyer')"
+            >
+              <i data-lucide="shield-check"></i>
+              <span>Buyer & Escrows</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- VIEW 1: INSTITUTIONAL INVESTOR VIEW -->
-  <div id="viewInvestor" class="dashboard-tab-view active" data-aos="fade-up">
-    <!-- 4 Clean Metric Cards -->
-    <div class="apple-metrics-grid">
-      <div class="apple-metric-card">
-        <span class="metric-title">Portfolio Exposure</span>
-        <div class="metric-val">$147.2M</div>
-        <div class="metric-note note-positive">+8.4% YoY appreciation</div>
-      </div>
-      <div class="apple-metric-card">
-        <span class="metric-title">Sovereign Coverage</span>
-        <div class="metric-val">61 Nations</div>
-        <div class="metric-note">1927–2026 BIS indexed</div>
-      </div>
-      <div class="apple-metric-card">
-        <span class="metric-title">Benchmark Yield</span>
-        <div class="metric-val">5.8%</div>
-        <div class="metric-note note-positive">+40 bps vs 10Y Treasury</div>
-      </div>
-      <div class="apple-metric-card">
-        <span class="metric-title">Macro Momentum</span>
-        <div class="metric-val">142.6</div>
-        <div class="metric-note">Base 2010 = 100</div>
-      </div>
-    </div>
+  <!-- ═══════════════════════════════════════════════════════════════════
+       VIEW 1: INVESTOR VIEW
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div id="viewInvestor" class="ev-dashboard-view active">
+    <div class="ev-container-wide">
+      
+      <!-- 4 Key Balance Cards -->
+      <div class="ev-grid ev-grid-4" data-aos="fade-up" style="margin-bottom: var(--ev-sp-8);">
+        <div class="ev-stat-card ev-glass">
+          <div class="ev-stat-label">Available Cash Liquidity</div>
+          <div class="ev-stat-value" id="userCashBalanceDisplay" style="font-size: 34px;">${{ "{:,.0f}".format(user.cash_balance) if user and user.cash_balance else "45,000,000" }}</div>
+          <div class="ev-stat-sub">JPMorgan Multisig Custody</div>
+        </div>
 
-    <!-- Charts Two-Column Grid -->
-    <div class="apple-charts-grid">
-      <!-- Chart Left: Historical Price Appreciation -->
-      <div class="apple-card chart-card-large">
-        <div class="card-head-row">
+        <div class="ev-stat-card ev-glass">
+          <div class="ev-stat-label">Invested Real Estate Capital</div>
+          <div class="ev-stat-value" id="userInvestedBalanceDisplay" style="font-size: 34px;">${{ "{:,.0f}".format(user.invested_balance) if user and user.invested_balance else "19,400,000" }}</div>
+          <div class="ev-stat-sub" style="color: var(--ev-success);">+9.4% YoY Macro Growth</div>
+        </div>
+
+        <div class="ev-stat-card ev-glass">
+          <div class="ev-stat-label">Annualized Yield Income</div>
+          <div class="ev-stat-value" style="font-size: 34px;">$1,125,000</div>
+          <div class="ev-stat-sub">5.8% Net Benchmark Yield</div>
+        </div>
+
+        <div class="ev-stat-card ev-glass">
+          <div class="ev-stat-label">Sovereign Jurisdictions</div>
+          <div class="ev-stat-value" style="font-size: 34px;">4 Nations</div>
+          <div class="ev-stat-sub">US, UK, UAE, Switzerland</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="ev-grid ev-grid-2" data-aos="fade-up" style="margin-bottom: var(--ev-sp-8);">
+        <!-- Chart 1: Capital Growth -->
+        <div class="ev-card-module ev-glass">
+          <div class="ev-module-header">
+            <div>
+              <div class="ev-eyebrow">Capital Preservation</div>
+              <h3 class="ev-heading-3">Portfolio Compounding Trajectory</h3>
+            </div>
+            <span class="ev-confidence-badge">+42.8% Since Inception</span>
+          </div>
+          <div id="dashGrowthChart" style="min-height: 280px;"></div>
+        </div>
+
+        <!-- Chart 2: Regional Asset Allocation -->
+        <div class="ev-card-module ev-glass">
+          <div class="ev-module-header">
+            <div>
+              <div class="ev-eyebrow">Geographic Allocation</div>
+              <h3 class="ev-heading-3">Asset Distribution</h3>
+            </div>
+            <a href="/global" class="ev-btn-text">Macro Data &rarr;</a>
+          </div>
+          <div id="dashAllocationChart" style="min-height: 280px;"></div>
+        </div>
+      </div>
+
+      <!-- Live Holdings Table -->
+      <div class="ev-card-module ev-glass" data-aos="fade-up" style="margin-bottom: var(--ev-sp-12);">
+        <div class="ev-module-header">
           <div>
-            <h3 class="card-head-title">Capital Appreciation Cycles</h3>
-            <p class="card-head-sub">Indexed quarterly real estate appreciation</p>
+            <div class="ev-eyebrow">Active Holdings</div>
+            <h3 class="ev-heading-3">Sovereign Asset Portfolio</h3>
           </div>
-          <div class="card-head-action">
-            <select id="trendCountrySelect" class="apple-select-sm">
-              <option value="United States">United States</option>
-              <option value="United Kingdom">United Kingdom</option>
-              <option value="United Arab Emirates">United Arab Emirates</option>
-              <option value="Germany">Germany</option>
-              <option value="France">France</option>
-              <option value="Japan">Japan</option>
-              <option value="Singapore">Singapore</option>
-            </select>
-          </div>
+          <a href="/buy" class="ev-btn-primary ev-btn-sm">
+            <i data-lucide="plus"></i>
+            <span>Add Asset</span>
+          </a>
         </div>
-        <div id="dashboardTrendChart" style="min-height: 320px;"></div>
+
+        <div class="ev-table-wrapper">
+          <table class="ev-table">
+            <thead>
+              <tr>
+                <th>Residence</th>
+                <th>Location</th>
+                <th>Acquired Value</th>
+                <th>Current Fair Value</th>
+                <th>Net Yield</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>Billionaires Row Penthouse</strong>
+                  <small style="display:block;color:var(--ev-text-muted);">Trophy Asset #EV-8821</small>
+                </td>
+                <td>New York, USA</td>
+                <td>$12,500,000</td>
+                <td class="ev-gold-text">$14,850,000</td>
+                <td>4.8%</td>
+                <td><span class="ev-badge-verified">Title Cleared</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Palm Jumeirah Signature Villa</strong>
+                  <small style="display:block;color:var(--ev-text-muted);">Waterfront #EV-3904</small>
+                </td>
+                <td>Dubai, UAE</td>
+                <td>$6,900,000</td>
+                <td class="ev-gold-text">$7,800,000</td>
+                <td>7.4%</td>
+                <td><span class="ev-badge-verified">Title Cleared</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- Chart Right: Metropolitan Yields per m² -->
-      <div class="apple-card chart-card-small">
-        <div class="card-head-row">
-          <div>
-            <h3 class="card-head-title">Metropolitan Valuation</h3>
-            <p class="card-head-sub">Benchmark USD / m² density</p>
-          </div>
-        </div>
-        <div id="topCitiesChart" style="min-height: 320px;"></div>
-      </div>
-    </div>
-
-    <!-- Regional Allocation Treemap -->
-    <div class="apple-card" style="margin-top: 24px;">
-      <div class="card-head-row">
-        <div>
-          <h3 class="card-head-title">Global Capital Allocation</h3>
-          <p class="card-head-sub">Cross-border institutional volume weighting</p>
-        </div>
-        <a href="/global" class="apple-link-subtle">
-          BIS 61 Nations Data <i data-lucide="arrow-right"></i>
-        </a>
-      </div>
-      <div id="treemapChart" style="min-height: 240px;"></div>
     </div>
   </div>
 
-  <!-- VIEW 2: PRIVATE BUYER VIEW -->
-  <div id="viewBuyer" class="dashboard-tab-view" style="display: none;">
-    <!-- 3 Clean Buyer Stat Cards -->
-    <div class="apple-metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
-      <div class="apple-metric-card">
-        <span class="metric-title">Active Escrow Settlement</span>
-        <div class="metric-val" id="buyerActiveTxCount">1 Record</div>
-        <div class="metric-note note-positive">Funds protected by sovereign escrow</div>
+  <!-- ═══════════════════════════════════════════════════════════════════
+       VIEW 2: BUYER & ESCROW TRANSACTIONS VIEW
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div id="viewBuyer" class="ev-dashboard-view" style="display: none;">
+    <div class="ev-container-wide">
+      
+      <!-- Buyer Stats -->
+      <div class="ev-grid ev-grid-3" data-aos="fade-up" style="margin-bottom: var(--ev-sp-8);">
+        <div class="ev-stat-card ev-glass">
+          <div class="ev-stat-label">Active Escrows</div>
+          <div class="ev-stat-value" id="buyerActiveEscrowsCount">1 Record</div>
+          <div class="ev-stat-sub" style="color: var(--ev-success);">JPMorgan Multisig Locked</div>
+        </div>
+
+        <div class="ev-stat-card ev-glass">
+          <div class="ev-stat-label">Saved Watchlist</div>
+          <div class="ev-stat-value">3 Residences</div>
+          <div class="ev-stat-sub">Real-time valuation alerts</div>
+        </div>
+
+        <div class="ev-stat-card ev-glass">
+          <div class="ev-stat-label">Legal Cadastral Clearance</div>
+          <div class="ev-stat-value" style="color: var(--ev-success);">100% Passed</div>
+          <div class="ev-stat-sub">Zero liens on record</div>
+        </div>
       </div>
-      <div class="apple-metric-card">
-        <span class="metric-title">Curated Watchlist</span>
-        <div class="metric-val">3 Residences</div>
-        <div class="metric-note">Real-time valuation alerts enabled</div>
+
+      <!-- Active Escrow Transactions Table -->
+      <div class="ev-card-module ev-glass" data-aos="fade-up" style="margin-bottom: var(--ev-sp-12);">
+        <div class="ev-module-header">
+          <div>
+            <div class="ev-eyebrow">Settlement Milestones</div>
+            <h3 class="ev-heading-3">Active Escrow Contracts</h3>
+            <p class="ev-subheading-left">Multisig records authenticated on blockchain & national cadastral registries.</p>
+          </div>
+          <a href="/buy" class="ev-btn-secondary ev-btn-sm">+ New Acquisition</a>
+        </div>
+
+        <div class="ev-table-wrapper">
+          <table class="ev-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Buyer / Entity</th>
+                <th>Offer Amount</th>
+                <th>Channel</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="userEscrowTableBody">
+              <tr>
+                <td><strong class="ev-gold-text">EV-TX-99214</strong></td>
+                <td>Elena Rostova</td>
+                <td>$4,850,000 USD</td>
+                <td>JPMorgan SWIFT Wire</td>
+                <td><span class="ev-badge-verified">Deposit Locked (Stage 1)</span></td>
+                <td>Today, 2026</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="apple-metric-card">
-        <span class="metric-title">Title & Legal Status</span>
-        <div class="metric-val" style="color: #10B981;">100% Cleared</div>
-        <div class="metric-note">Institutional MLS ledger confirmed</div>
+
+      <!-- Saved Watchlist Grid -->
+      <div class="ev-card-module ev-glass" data-aos="fade-up" style="margin-bottom: var(--ev-sp-12);">
+        <div class="ev-module-header">
+          <div>
+            <div class="ev-eyebrow">Monitored Assets</div>
+            <h3 class="ev-heading-3">Private Watchlist</h3>
+          </div>
+          <a href="/buy" class="ev-btn-text">Browse Catalog &rarr;</a>
+        </div>
+
+        <div class="ev-grid ev-grid-3">
+          <div class="ev-property-card" onclick="window.location.href='/buy'">
+            <div class="ev-card-image">
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" alt="Mayfair">
+              <div class="ev-card-location"><i data-lucide="map-pin"></i> London, UK</div>
+            </div>
+            <div class="ev-card-body">
+              <div class="ev-card-price">$12,900,000</div>
+              <h3 class="ev-card-title">Mayfair Grade II Victorian Mansion</h3>
+              <div class="ev-card-stats">
+                <div class="ev-card-stat"><i data-lucide="bed"></i> 4 Beds</div>
+                <div class="ev-card-stat"><i data-lucide="maximize"></i> 460 m²</div>
+              </div>
+            </div>
+            <div class="ev-card-footer">
+              <span class="ev-badge-verified">Verified</span>
+              <button class="ev-btn-primary ev-btn-sm">Acquire</button>
+            </div>
+          </div>
+
+          <div class="ev-property-card" onclick="window.location.href='/buy'">
+            <div class="ev-card-image">
+              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80" alt="Dubai">
+              <div class="ev-card-location"><i data-lucide="map-pin"></i> Dubai, UAE</div>
+            </div>
+            <div class="ev-card-body">
+              <div class="ev-card-price">$18,200,000</div>
+              <h3 class="ev-card-title">Palm Jumeirah Signature Beachfront</h3>
+              <div class="ev-card-stats">
+                <div class="ev-card-stat"><i data-lucide="bed"></i> 6 Beds</div>
+                <div class="ev-card-stat"><i data-lucide="maximize"></i> 780 m²</div>
+              </div>
+            </div>
+            <div class="ev-card-footer">
+              <span class="ev-badge-verified">Verified</span>
+              <button class="ev-btn-primary ev-btn-sm">Acquire</button>
+            </div>
+          </div>
+
+          <div class="ev-property-card" onclick="window.location.href='/buy'">
+            <div class="ev-card-image">
+              <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80" alt="Geneva">
+              <div class="ev-card-location"><i data-lucide="map-pin"></i> Geneva, Switzerland</div>
+            </div>
+            <div class="ev-card-body">
+              <div class="ev-card-price">$11,500,000</div>
+              <h3 class="ev-card-title">Lake Geneva Waterfront Estate</h3>
+              <div class="ev-card-stats">
+                <div class="ev-card-stat"><i data-lucide="bed"></i> 5 Beds</div>
+                <div class="ev-card-stat"><i data-lucide="maximize"></i> 590 m²</div>
+              </div>
+            </div>
+            <div class="ev-card-footer">
+              <span class="ev-badge-verified">Verified</span>
+              <button class="ev-btn-primary ev-btn-sm">Acquire</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- DEPOSIT CAPITAL MODAL -->
+<div class="ev-modal-overlay" id="depositCapitalModal">
+  <div class="ev-modal">
+    <div class="ev-modal-header">
+      <div>
+        <div class="ev-eyebrow">Multisig Treasury</div>
+        <h3 class="ev-modal-title">Deposit Liquid Capital</h3>
+      </div>
+      <button class="ev-btn-icon" onclick="closeDepositModal()"><i data-lucide="x"></i></button>
+    </div>
+    <form onsubmit="handleDepositSubmit(event)">
+      <div class="ev-modal-body">
+        <p style="margin-bottom:16px;">Funds will be settled to JPMorgan Chase Multisig Custody account #EV-TREASURY-019.</p>
+        <div class="ev-input-group">
+          <label class="ev-label">Deposit Amount (USD)</label>
+          <input type="number" id="depositAmountInput" class="ev-input" value="5000000" min="100000" step="100000" required>
+        </div>
+        <div class="ev-input-group">
+          <label class="ev-label">Source Treasury / Bank</label>
+          <select class="ev-select" id="depositSourceSelect">
+            <option value="JPMorgan Chase Private Bank" selected>JPMorgan Chase Private Bank (USD)</option>
+            <option value="UBS Wealth Management Zurich">UBS Wealth Management Zurich (CHF)</option>
+            <option value="HSBC Premier London">HSBC Premier London (GBP)</option>
+            <option value="USDC Multi-Sig Smart Contract">USDC Multi-Sig Smart Contract (ERC-20)</option>
+          </select>
+        </div>
+      </div>
+      <div class="ev-modal-footer">
+        <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="closeDepositModal()">Cancel</button>
+        <button type="submit" class="ev-btn-primary ev-btn-sm">Confirm Deposit Order</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- WIRE TRANSFER MODAL -->
+<div class="ev-modal-overlay" id="wireTransferModal">
+  <div class="ev-modal">
+    <div class="ev-modal-header">
+      <div>
+        <div class="ev-eyebrow">Institutional Wire</div>
+        <h3 class="ev-modal-title">Wire Transfer Outlay</h3>
+      </div>
+      <button class="ev-btn-icon" onclick="closeWireModal()"><i data-lucide="x"></i></button>
+    </div>
+    <form onsubmit="handleWireSubmit(event)">
+      <div class="ev-modal-body">
+        <div class="ev-input-group">
+          <label class="ev-label">Wire Amount (USD)</label>
+          <input type="number" id="wireAmountInput" class="ev-input" value="1000000" min="50000" step="50000" required>
+        </div>
+        <div class="ev-input-group">
+          <label class="ev-label">Recipient Legal Entity / Institution</label>
+          <input type="text" id="wireRecipientInput" class="ev-input" value="Escrow Clearing Custody Ltd" required>
+        </div>
+        <div class="ev-input-group">
+          <label class="ev-label">Purpose of Remittance</label>
+          <input type="text" id="wirePurposeInput" class="ev-input" value="Escrow Milestone Earnest Deposit" required>
+        </div>
+      </div>
+      <div class="ev-modal-footer">
+        <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="closeWireModal()">Cancel</button>
+        <button type="submit" class="ev-btn-primary ev-btn-sm" id="wireSubmitBtn">Authorize Wire</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="ev-modal-overlay" id="userProfileModal">
+  <div class="ev-modal">
+    <div class="ev-modal-header">
+      <div>
+        <div class="ev-eyebrow">Institutional Profile</div>
+        <h3 class="ev-modal-title">Edit Account Credentials</h3>
+      </div>
+      <button class="ev-btn-icon" onclick="closeProfileModal()"><i data-lucide="x"></i></button>
+    </div>
+    <form onsubmit="handleProfileSubmit(event)">
+      <div class="ev-modal-body">
+        <div class="ev-input-group">
+          <label class="ev-label">Full Legal Name</label>
+          <input type="text" id="profileFullNameInput" class="ev-input" value="{{ user.full_name if user else 'Elena Rostova' }}" required>
+        </div>
+        <div class="ev-input-group">
+          <label class="ev-label">Institutional Entity / Firm</label>
+          <input type="text" id="profileCompanyInput" class="ev-input" value="{{ user.company if user and user.company else 'Vanguard Global Holdings' }}" required>
+        </div>
+        <div class="ev-input-group">
+          <label class="ev-label">Encrypted Telephony / Phone</label>
+          <input type="text" id="profilePhoneInput" class="ev-input" value="{{ user.phone if user and user.phone else '+44 20 7946 0912' }}">
+        </div>
+      </div>
+      <div class="ev-modal-footer">
+        <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="closeProfileModal()">Cancel</button>
+        <button type="submit" class="ev-btn-primary ev-btn-sm" id="profileSubmitBtn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ESCROW MILESTONES MODAL -->
+<div class="ev-modal-overlay" id="escrowMilestoneModal">
+  <div class="ev-modal" style="max-width: 620px;">
+    <div class="ev-modal-header">
+      <div>
+        <div class="ev-eyebrow">Escrow Contract Inspection</div>
+        <h3 class="ev-modal-title" id="escrowModalCodeTitle">EV-TX-99214</h3>
+      </div>
+      <button class="ev-btn-icon" onclick="closeMilestoneModal()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="ev-modal-body">
+      <div class="ev-timeline-track" style="grid-template-columns: 1fr; gap: 12px;">
+        <div class="ev-timeline-step completed">
+          <div class="ev-timeline-content">
+            <strong>Stage 1: Earnest Deposit Secured</strong>
+            <p>10% locked in institutional multisig vault with JPMorgan Sovereign Custody.</p>
+          </div>
+        </div>
+        <div class="ev-timeline-step completed">
+          <div class="ev-timeline-content">
+            <strong>Stage 2: Cadastral Title Clearance</strong>
+            <p>Zero liens verified against national registry. Sovereign deed authenticated.</p>
+          </div>
+        </div>
+        <div class="ev-timeline-step current">
+          <div class="ev-timeline-content">
+            <strong>Stage 3: Architectural Due Diligence (Active)</strong>
+            <p>Engineering survey & environmental climate resilience audit passed.</p>
+          </div>
+        </div>
+        <div class="ev-timeline-step">
+          <div class="ev-timeline-content">
+            <strong>Stage 4: Sovereign Wire Release</strong>
+            <p>Final balance wire cleared through automated smart escrow.</p>
+          </div>
+        </div>
+        <div class="ev-timeline-step">
+          <div class="ev-timeline-content">
+            <strong>Stage 5: Biometric Handover</strong>
+            <p>Physical biometric keys delivered by diplomatic private courier.</p>
+          </div>
+        </div>
       </div>
     </div>
-
-    <!-- ACTIVE ESCROW TRANSACTIONS TABLE -->
-    <div class="apple-card" style="margin-top: 24px;">
-      <div class="card-head-row">
-        <div>
-          <h3 class="card-head-title">Active Escrow Acquisitions</h3>
-          <p class="card-head-sub">Direct title escrow tracking and closing milestones</p>
-        </div>
-        <a href="/buy" class="apple-btn-secondary" style="font-size: 0.82rem; padding: 6px 14px;">
-          + Browse Marketplace
-        </a>
-      </div>
-
-      <div class="apple-table-wrap">
-        <table class="apple-clean-table" id="dashboardTransactionsTable">
-          <thead>
-            <tr>
-              <th>Tracking Code</th>
-              <th>Property Designation</th>
-              <th>Location</th>
-              <th>Offer Amount</th>
-              <th>Channel</th>
-              <th>Escrow Status</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody id="userTransactionsBody">
-            <tr>
-              <td colspan="7" class="text-center" style="padding: 32px; color: #6B7280;">
-                Loading escrow records...
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- SAVED RESIDENCES SHOWCASE -->
-    <div class="apple-card" style="margin-top: 24px;">
-      <div class="card-head-row">
-        <div>
-          <h3 class="card-head-title">Saved Residences</h3>
-          <p class="card-head-sub">Properties currently under consideration</p>
-        </div>
-        <a href="/buy" class="apple-link-subtle">
-          Explore All Residences <i data-lucide="arrow-right"></i>
-        </a>
-      </div>
-
-      <div class="apple-clean-grid" style="margin-top: 16px;">
-        <!-- Saved 1 -->
-        <article class="apple-residence-card">
-          <a href="/property/1" class="card-media-anchor">
-            <div class="card-media-wrap">
-              <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80" alt="Manhattan Penthouse" class="card-img">
-            </div>
-          </a>
-          <div class="card-info">
-            <div class="card-price-row">
-              <span class="card-price">$4,850,000</span>
-              <span class="card-location">New York, US</span>
-            </div>
-            <h4 class="card-title"><a href="/property/1">Manhattan Sky Penthouse</a></h4>
-            <div class="card-specs">
-              <span>4 Beds</span> · <span>4.5 Baths</span> · <span>380 m²</span>
-            </div>
-            <div class="card-actions">
-              <a href="/property/1" class="apple-link-subtle">Details <i data-lucide="arrow-right"></i></a>
-              <a href="/buy" class="apple-btn-offer">Make Offer</a>
-            </div>
-          </div>
-        </article>
-
-        <!-- Saved 2 -->
-        <article class="apple-residence-card">
-          <a href="/property/2" class="card-media-anchor">
-            <div class="card-media-wrap">
-              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" alt="Kensington" class="card-img">
-            </div>
-          </a>
-          <div class="card-info">
-            <div class="card-price-row">
-              <span class="card-price">$12,500,000</span>
-              <span class="card-location">London, UK</span>
-            </div>
-            <h4 class="card-title"><a href="/property/2">Kensington Victorian Residence</a></h4>
-            <div class="card-specs">
-              <span>6 Beds</span> · <span>7 Baths</span> · <span>720 m²</span>
-            </div>
-            <div class="card-actions">
-              <a href="/property/2" class="apple-link-subtle">Details <i data-lucide="arrow-right"></i></a>
-              <a href="/buy" class="apple-btn-offer">Make Offer</a>
-            </div>
-          </div>
-        </article>
-
-        <!-- Saved 3 -->
-        <article class="apple-residence-card">
-          <a href="/property/3" class="card-media-anchor">
-            <div class="card-media-wrap">
-              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80" alt="Como Villa" class="card-img">
-            </div>
-          </a>
-          <div class="card-info">
-            <div class="card-price-row">
-              <span class="card-price">$6,900,000</span>
-              <span class="card-location">Lake Como, IT</span>
-            </div>
-            <h4 class="card-title"><a href="/property/3">Villa Bellagio Waterfront</a></h4>
-            <div class="card-specs">
-              <span>5 Beds</span> · <span>5 Baths</span> · <span>550 m²</span>
-            </div>
-            <div class="card-actions">
-              <a href="/property/3" class="apple-link-subtle">Details <i data-lucide="arrow-right"></i></a>
-              <a href="/buy" class="apple-btn-offer">Make Offer</a>
-            </div>
-          </div>
-        </article>
-      </div>
+    <div class="ev-modal-footer">
+      <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="downloadSovereignCertificate()">
+        <i data-lucide="download"></i>
+        <span>Download Deed Certificate</span>
+      </button>
+      <button type="button" class="ev-btn-primary ev-btn-sm" onclick="closeMilestoneModal()">Close</button>
     </div>
   </div>
 </div>
+
+<style>
+/* ─── Dashboard Styles ─── */
+.ev-dash-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ev-sp-4);
+  margin-bottom: var(--ev-sp-6);
+}
+
+.ev-wallet-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.ev-segmented-dock {
+  display: flex;
+  padding: 4px;
+  border-radius: var(--ev-radius-full);
+}
+
+.ev-segment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: transparent;
+  border: none;
+  border-radius: var(--ev-radius-full);
+  color: var(--ev-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--ev-duration-fast);
+}
+.ev-segment-btn.active {
+  background: var(--ev-gold);
+  color: #000;
+  font-weight: 600;
+}
+.ev-segment-btn svg { width: 15px; height: 15px; }
+
+/* Table styling */
+.ev-table-wrapper {
+  overflow-x: auto;
+}
+.ev-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.ev-table th {
+  padding: 12px 16px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--ev-ls-wide);
+  color: var(--ev-text-muted);
+  border-bottom: 1px solid var(--ev-border-hairline);
+}
+.ev-table td {
+  padding: 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--ev-border-hairline);
+  color: var(--ev-text-secondary);
+}
+.ev-table td strong {
+  color: var(--ev-text-primary);
+}
+.ev-table tr:hover td {
+  background: var(--ev-bg-hover);
+}
+</style>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Switch between Investor and Buyer views
+let growthChart = null;
+let allocChart = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  initDashboardCharts();
+  loadLiveTransactions();
+});
+
 function switchDashboardView(view) {
   const investorView = document.getElementById('viewInvestor');
   const buyerView = document.getElementById('viewBuyer');
-  const investorBtn = document.getElementById('tabInvestorBtn');
-  const buyerBtn = document.getElementById('tabBuyerBtn');
+  const tabInvestorBtn = document.getElementById('tabInvestorBtn');
+  const tabBuyerBtn = document.getElementById('tabBuyerBtn');
 
   if (view === 'investor') {
     investorView.style.display = 'block';
     buyerView.style.display = 'none';
-    investorBtn.classList.add('active');
-    buyerBtn.classList.remove('active');
+    tabInvestorBtn.classList.add('active');
+    tabBuyerBtn.classList.remove('active');
   } else {
     investorView.style.display = 'none';
     buyerView.style.display = 'block';
-    buyerBtn.classList.add('active');
-    investorBtn.classList.remove('active');
-    loadBuyerTransactions();
+    tabInvestorBtn.classList.remove('active');
+    tabBuyerBtn.classList.add('active');
   }
-  if (window.lucide) lucide.createIcons();
 }
 
-// Load Escrow Transactions via backend API
-async function loadBuyerTransactions() {
-  const tbody = document.getElementById('userTransactionsBody');
-  const countEl = document.getElementById('buyerActiveTxCount');
+function openProfileModal() {
+  document.getElementById('userProfileModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeProfileModal() {
+  document.getElementById('userProfileModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+async function handleProfileSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('profileSubmitBtn');
+  const full_name = document.getElementById('profileFullNameInput').value.trim();
+  const company = document.getElementById('profileCompanyInput').value.trim();
+  const phone = document.getElementById('profilePhoneInput').value.trim();
+
+  btn.disabled = true;
+  btn.innerText = 'Saving...';
+
+  try {
+    const res = await fetch('/api/user/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ full_name, company, phone })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      document.getElementById('userDisplayNameHeader').innerText = full_name;
+      document.getElementById('userDisplayCompanyHeader').innerText = company;
+      const navUser = document.querySelector('.ev-sidebar-user-name');
+      if (navUser) navUser.innerText = full_name;
+      closeProfileModal();
+      if (window.Toast) Toast.success('Institutional profile credentials updated.');
+    } else {
+      if (window.Toast) Toast.error(data.error || 'Failed to update profile.');
+    }
+  } catch (err) {
+    if (window.Toast) Toast.error('Communication error with sovereign directory.');
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Save Changes';
+  }
+}
+
+function openDepositModal() {
+  document.getElementById('depositCapitalModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeDepositModal() {
+  document.getElementById('depositCapitalModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+async function handleDepositSubmit(e) {
+  e.preventDefault();
+  const amt = parseFloat(document.getElementById('depositAmountInput').value);
+  const source = document.getElementById('depositSourceSelect').value;
+  closeDepositModal();
+
+  try {
+    const res = await fetch('/api/user/deposit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: amt, source })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      const balanceEl = document.getElementById('userCashBalanceDisplay');
+      if (balanceEl) balanceEl.innerText = `$${Math.round(data.cash_balance).toLocaleString('en-US')}`;
+      if (window.Toast) Toast.success(`Liquidity order credited: $${amt.toLocaleString('en-US')} USD via ${source}.`);
+    } else {
+      if (window.Toast) Toast.error(data.error || 'Failed to settle deposit.');
+    }
+  } catch (err) {
+    if (window.Toast) Toast.error('Treasury processing timeout.');
+  }
+}
+
+function openWireModal() {
+  document.getElementById('wireTransferModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeWireModal() {
+  document.getElementById('wireTransferModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+async function handleWireSubmit(e) {
+  e.preventDefault();
+  const amt = parseFloat(document.getElementById('wireAmountInput').value);
+  const recipient = document.getElementById('wireRecipientInput').value;
+  closeWireModal();
+
+  try {
+    const res = await fetch('/api/user/wire', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: amt, recipient })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      const balanceEl = document.getElementById('userCashBalanceDisplay');
+      if (balanceEl) balanceEl.innerText = `$${Math.round(data.cash_balance).toLocaleString('en-US')}`;
+      if (window.Toast) Toast.success(`Fedwire outbound remittance of $${amt.toLocaleString('en-US')} USD executed.`);
+    } else {
+      if (window.Toast) Toast.error(data.error || 'Failed to process wire transfer.');
+    }
+  } catch (err) {
+    if (window.Toast) Toast.error('Fedwire communication timeout.');
+  }
+}
+
+function exportPortfolioStatement() {
+  if (window.Toast) {
+    Toast.show('Generating cryptographic sovereign portfolio statement (PDF)...', 'info', 2500);
+    setTimeout(() => {
+      Toast.success('EstateVision_Portfolio_Statement_Q1_2026.pdf ready for download.');
+    }, 1500);
+  }
+}
+
+function openMilestonesModal(code) {
+  document.getElementById('escrowModalCodeTitle').textContent = code || 'EV-TX-99214';
+  document.getElementById('escrowMilestoneModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeMilestoneModal() {
+  document.getElementById('escrowMilestoneModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function downloadSovereignCertificate() {
+  if (window.Toast) Toast.success('Sovereign title deed clearance certificate downloaded.');
+}
+
+function initDashboardCharts() {
+  if (!window.ApexCharts) return;
+
+  // Chart 1: Growth
+  const growthEl = document.getElementById('dashGrowthChart');
+  if (growthEl) {
+    growthChart = new ApexCharts(growthEl, {
+      series: [{
+        name: 'Portfolio Asset Value',
+        data: [14.2, 14.8, 15.5, 16.2, 17.0, 18.1, 19.4]
+      }],
+      chart: { type: 'area', height: 280, background: 'transparent', toolbar: { show: false } },
+      colors: ['#D4AF37'],
+      stroke: { curve: 'smooth', width: 2.5 },
+      fill: {
+        type: 'gradient',
+        gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.02, stops: [0, 95, 100] }
+      },
+      dataLabels: { enabled: false },
+      xaxis: {
+        categories: ['2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+        labels: { style: { colors: 'rgba(245,245,247,0.5)', fontSize: '11px', fontFamily: 'Inter' } }
+      },
+      yaxis: {
+        labels: {
+          style: { colors: 'rgba(245,245,247,0.5)', fontSize: '11px', fontFamily: 'Inter' },
+          formatter: (v) => `$${v.toFixed(1)}M`
+        }
+      },
+      grid: { borderColor: 'rgba(255,255,255,0.06)', strokeDashArray: 4 }
+    });
+    growthChart.render();
+  }
+
+  // Chart 2: Allocation
+  const allocEl = document.getElementById('dashAllocationChart');
+  if (allocEl) {
+    allocChart = new ApexCharts(allocEl, {
+      series: [42, 28, 18, 12],
+      chart: { type: 'donut', height: 280, background: 'transparent' },
+      labels: ['United States', 'United Arab Emirates', 'United Kingdom', 'Switzerland'],
+      colors: ['#D4AF37', '#64D2FF', '#30D158', '#FF9F0A'],
+      legend: { position: 'bottom', labels: { colors: '#fff' } },
+      stroke: { width: 0 }
+    });
+    allocChart.render();
+  }
+}
+
+async function loadLiveTransactions() {
   try {
     const res = await fetch('/api/user/transactions');
-    if (!res.ok) throw new Error('Failed to fetch transactions');
+    if (!res.ok) return;
     const data = await res.json();
-    const txs = data.transactions || [];
-
-    if (countEl) {
-      countEl.textContent = `${txs.length} ${txs.length === 1 ? 'Record' : 'Records'}`;
-    }
-
-    if (txs.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7" class="text-center" style="padding: 32px; color: #6B7280;">
-            No active escrow transactions found. Explore the <a href="/buy" style="color: #D4AF37; text-decoration: underline;">Marketplace</a> to acquire assets.
-          </td>
+    if (data.success && data.transactions && data.transactions.length > 0) {
+      const tbody = document.getElementById('userEscrowTableBody');
+      tbody.innerHTML = data.transactions.map(tx => `
+        <tr style="cursor:pointer;" onclick="openMilestonesModal('${tx.transaction_code || 'EV-TX-77491'}')">
+          <td><strong class="ev-gold-text">${tx.transaction_code || 'EV-TX-77491'}</strong></td>
+          <td>${tx.buyer_name || 'Elena Rostova'}</td>
+          <td>$${(tx.offer_amount || 0).toLocaleString('en-US')} USD</td>
+          <td>${tx.payment_method || 'SWIFT Wire'}</td>
+          <td><span class="ev-badge-verified">${tx.status || 'Pending Escrow'}</span></td>
+          <td>${tx.created_at ? tx.created_at.split(' ')[0] : '2026'}</td>
         </tr>
-      `;
-      return;
+      `).join('');
+      document.getElementById('buyerActiveEscrowsCount').textContent = `${data.transactions.length} Records`;
     }
-
-    tbody.innerHTML = txs.map(tx => `
-      <tr>
-        <td><strong style="color: #D4AF37; font-family: monospace;">${tx.transaction_code}</strong></td>
-        <td><a href="/property/${tx.property_id || 1}" style="color: inherit; text-decoration: underline;">${tx.property_title || 'Trophy Residence'}</a></td>
-        <td>${tx.city || ''}${tx.city && tx.country ? ', ' : ''}${tx.country || 'Global'}</td>
-        <td><strong>$${Number(tx.amount || 0).toLocaleString()} USD</strong></td>
-        <td><span style="font-size: 0.82rem; color: #9CA3AF;">${tx.payment_method || 'Escrow Wire'}</span></td>
-        <td><span class="status-pill status-offer">${tx.status || 'Escrow Review'}</span></td>
-        <td><span style="font-size: 0.8rem; color: #6B7280;">${(tx.created_at || '').substring(0, 10)}</span></td>
-      </tr>
-    `).join('');
-  } catch (err) {
-    console.warn('Could not load transactions:', err);
-    tbody.innerHTML = `
-      <tr>
-        <td><strong style="color: #D4AF37; font-family: monospace;">EV-TX-984210</strong></td>
-        <td><a href="/property/1" style="color: inherit; text-decoration: underline;">Manhattan Sky Penthouse</a></td>
-        <td>New York, United States</td>
-        <td><strong>$4,850,000 USD</strong></td>
-        <td><span style="font-size: 0.82rem; color: #9CA3AF;">Escrow Wire Transfer</span></td>
-        <td><span class="status-pill status-offer">Pending Escrow Review</span></td>
-        <td><span style="font-size: 0.8rem; color: #6B7280;">2026-03-24</span></td>
-      </tr>
-    `;
+  } catch (e) {
+    // Keep simulated record
   }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Current date
-  const dateEl = document.getElementById('currentDateDisplay');
-  if (dateEl) {
-    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    dateEl.textContent = new Date().toLocaleDateString('en-US', opts) + ' · Sovereign Intelligence Live';
-  }
-
-  // Preload buyer transactions
-  loadBuyerTransactions();
-
-  // ApexCharts Render
-  if (window.ApexCharts) {
-    // 1. Trend Chart
-    const trendEl = document.getElementById('dashboardTrendChart');
-    if (trendEl) {
-      const trendOptions = {
-        series: [
-          { name: 'Prime Luxury Index', data: [310, 335, 360, 395, 440, 485, 520, 560] },
-          { name: 'Metropolitan Median', data: [220, 230, 245, 260, 285, 310, 330, 355] }
-        ],
-        chart: { type: 'area', height: 320, background: 'transparent', toolbar: { show: false } },
-        colors: ['#D4AF37', '#3B82F6'],
-        fill: {
-          type: 'gradient',
-          gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.02, stops: [0, 95, 100] }
-        },
-        dataLabels: { enabled: false },
-        stroke: { curve: 'smooth', width: 2.5 },
-        xaxis: {
-          categories: ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
-          labels: { style: { colors: '#6B7280', fontFamily: 'Inter' } },
-          axisBorder: { show: false },
-          axisTicks: { show: false }
-        },
-        yaxis: {
-          labels: {
-            style: { colors: '#6B7280', fontFamily: 'Inter' },
-            formatter: (val) => '$' + val + 'k'
-          }
-        },
-        grid: { borderColor: 'rgba(255, 255, 255, 0.05)', strokeDashArray: 3 },
-        tooltip: {
-          theme: 'dark',
-          y: { formatter: (val) => '$' + (val * 1000).toLocaleString() + ' USD' }
-        },
-        legend: { position: 'top', horizontalAlign: 'right', labels: { colors: '#9CA3AF' } }
-      };
-      const trendChart = new ApexCharts(trendEl, trendOptions);
-      trendChart.render();
-
-      const countrySelect = document.getElementById('trendCountrySelect');
-      if (countrySelect) {
-        countrySelect.addEventListener('change', (e) => {
-          const mult = e.target.value === 'United Arab Emirates' ? 1.3 : (e.target.value === 'Germany' ? 0.9 : 1.05);
-          trendChart.updateSeries([
-            { name: 'Prime Luxury Index', data: [310, 335, 360, 395, 440, 485, 520, 560].map(v => Math.round(v * mult)) },
-            { name: 'Metropolitan Median', data: [220, 230, 245, 260, 285, 310, 330, 355].map(v => Math.round(v * mult)) }
-          ]);
-        });
-      }
-    }
-
-    // 2. Top Cities Chart
-    const citiesEl = document.getElementById('topCitiesChart');
-    if (citiesEl) {
-      const citiesOptions = {
-        series: [{ name: 'Price / m²', data: [19400, 16800, 15200, 13900, 12500, 11200] }],
-        chart: { type: 'bar', height: 320, background: 'transparent', toolbar: { show: false } },
-        plotOptions: {
-          bar: { horizontal: true, borderRadius: 4, barHeight: '50%', distributed: true }
-        },
-        colors: ['#D4AF37', '#e2be4b', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
-        dataLabels: {
-          enabled: true,
-          formatter: (val) => '$' + (val/1000).toFixed(1) + 'k',
-          style: { colors: ['#fff'], fontFamily: 'Inter', fontSize: '11px' },
-          offsetX: 6
-        },
-        xaxis: {
-          categories: ['Monaco', 'Geneva', 'Hong Kong', 'New York', 'London', 'Tokyo'],
-          labels: { style: { colors: '#6B7280' }, formatter: (v) => '$' + (v/1000).toFixed(0) + 'k' },
-          axisBorder: { show: false }
-        },
-        yaxis: { labels: { style: { colors: '#D1D5DB', fontFamily: 'Inter' } } },
-        grid: { borderColor: 'rgba(255, 255, 255, 0.05)', xaxis: { lines: { show: true } } },
-        legend: { show: false },
-        tooltip: { theme: 'dark', y: { formatter: (v) => '$' + v.toLocaleString() + ' / m²' } }
-      };
-      const citiesChart = new ApexCharts(citiesEl, citiesOptions);
-      citiesChart.render();
-    }
-
-    // 3. Treemap Chart
-    const treemapEl = document.getElementById('treemapChart');
-    if (treemapEl) {
-      const treemapOptions = {
-        series: [{
-          data: [
-            { x: 'North America (US & CA)', y: 450 },
-            { x: 'Western Europe (UK, DE, FR)', y: 380 },
-            { x: 'Middle East (UAE, SA)', y: 280 },
-            { x: 'Asia Pacific (JP, SG, AU)', y: 220 },
-            { x: 'Nordics (SE, CH, NO)', y: 150 },
-            { x: 'Southern Europe (ES, IT, PT)', y: 120 }
-          ]
-        }],
-        chart: { type: 'treemap', height: 240, background: 'transparent', toolbar: { show: false } },
-        colors: ['#D4AF37', '#b89628', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
-        plotOptions: { treemap: { distributed: true, enableShades: false } },
-        tooltip: { theme: 'dark', y: { formatter: (val) => val + 'k Verified Assets' } }
-      };
-      const treemapChart = new ApexCharts(treemapEl, treemapOptions);
-      treemapChart.render();
-    }
-  }
-});
 </script>
 {% endblock %}

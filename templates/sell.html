@@ -1,42 +1,29 @@
 {% extends 'base.html' %}
 {% set active_page = 'sell' %}
 
-{% block title %}List & Sell Your Property | EstateVision{% endblock %}
+{% block title %}List Sovereign Residence | EstateVision{% endblock %}
+{% block body_class %}ev-sell-page{% endblock %}
 
 {% block content %}
-<div class="sell-page-container">
-  <!-- PAGE HEADER WITH SECTION OUTLINE -->
-  <div class="page-header-card glass-card section-card-outline" data-aos="fade-down">
-    <div class="header-titles">
-      <div class="section-badge-pill">
-        <span class="badge-dot"></span>
-        <span>Global Property Listing & Acquisition Portal</span>
-      </div>
-      <h1 class="page-title">
-        List Your Property on the <span class="gold-text-shimmer">Global Stage</span>
-      </h1>
-      <p class="text-muted">
-        Connect directly with sovereign wealth capital, institutional family offices, and verified private buyers across 61 countries. Full Escrow settlement protection and instant AI valuation calibration.
-      </p>
-    </div>
-    <div class="header-action-group">
-      <a href="/buy" class="btn-ghost">
-        <i data-lucide="shopping-bag"></i>
-        <span>Explore Marketplace</span>
-      </a>
-      <a href="/dashboard" class="btn-ghost">
-        <i data-lucide="layout-dashboard"></i>
-        <span>My Listings</span>
-      </a>
-    </div>
-  </div>
+<div class="ev-page-wrapper">
+  
+  <!-- ═══════════════════════════════════════════════════════════════════
+       HEADER
+       ═══════════════════════════════════════════════════════════════════ -->
+  <header class="ev-section-header" data-aos="fade-up" style="padding-top: var(--ev-sp-10);">
+    <div class="ev-eyebrow">Institutional Listing Portal</div>
+    <h1 class="ev-heading-1">List on the Global Stage</h1>
+    <p class="ev-subheading">
+      Connect directly with verified family offices and sovereign capital across 61 countries. Multisig escrow settlement.
+    </p>
+  </header>
 
-  <!-- FLASH MESSAGES -->
+  <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <div class="alerts-container" style="margin-bottom: 24px;">
+      <div class="ev-container" style="margin-bottom: var(--ev-sp-6);">
         {% for category, message in messages %}
-          <div class="alert alert-{{ 'danger' if category == 'error' else category }}" style="padding: 14px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; background: rgba(212,175,55,0.1); border: 1px solid #D4AF37; color: #F8FAFC;">
+          <div class="ev-auth-alert ev-auth-alert-{{ category }}">
             <i data-lucide="info"></i>
             <span>{{ message }}</span>
           </div>
@@ -45,537 +32,536 @@
     {% endif %}
   {% endwith %}
 
-  <!-- PROPERTY SUBMISSION FORM -->
-  <form method="POST" action="/sell" enctype="multipart/form-data" id="propertyListingForm" class="sell-form-wrapper">
-    <!-- BOX 1: PRIMARY ASSET METRICS -->
-    <div class="form-section-box glass-card section-card-outline" data-aos="fade-up" data-aos-delay="100">
-      <div class="box-card-header">
-        <div class="header-left">
-          <span class="box-number-badge">1</span>
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SELL WIZARD FORM
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="ev-container" style="max-width: 900px;">
+    <form method="POST" action="/sell" enctype="multipart/form-data" id="evSellForm" class="ev-sell-wizard">
+      
+      <!-- STEP 1: ASSET IDENTITY -->
+      <div class="ev-card-module ev-glass" data-aos="fade-up" style="margin-bottom: var(--ev-sp-8);">
+        <div class="ev-module-header">
           <div>
-            <h3 class="box-heading">Primary Asset Details</h3>
-            <span class="box-sub">Core geographic and architectural designation</span>
+            <div class="ev-eyebrow">Step 01 &bull; Identity</div>
+            <h2 class="ev-heading-3">Primary Asset Details</h2>
+            <p class="ev-subheading-left">Core geographic and architectural designation.</p>
           </div>
         </div>
-      </div>
 
-      <div class="form-grid-3">
-        <div class="form-group span-2">
-          <label for="propTitle" class="form-label">Property Title <span class="required">*</span></label>
+        <div class="ev-input-group">
+          <label class="ev-label" for="sellTitle">Residence Title</label>
           <input 
             type="text" 
-            id="propTitle" 
+            id="sellTitle" 
             name="title" 
-            class="form-input" 
+            class="ev-input" 
             placeholder="e.g. Waterfront Contemporary Villa at Lake Como" 
             required
           >
         </div>
 
-        <div class="form-group">
-          <label for="propType" class="form-label">Property Classification <span class="required">*</span></label>
-          <select id="propType" name="property_type" class="form-select" required>
-            <option value="Penthouse">🏛️ Sky Penthouse</option>
-            <option value="Villa" selected>🏡 Waterfront / Contemporary Villa</option>
-            <option value="Luxury Apartment">🏢 Luxury Apartment</option>
-            <option value="Mansion">🏰 Trophy Estate / Mansion</option>
-            <option value="Modern Villa">🌲 Modern Architectural Residence</option>
-            <option value="Chalet">🏔️ Alpine Chalet</option>
-            <option value="Duplex">🏙️ Grand Duplex</option>
-          </select>
+        <div class="ev-grid ev-grid-2">
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellType">Typology</label>
+            <select id="sellType" name="property_type" class="ev-select" required>
+              <option value="Penthouse">Sky Penthouse</option>
+              <option value="Villa" selected>Waterfront & Luxury Villa</option>
+              <option value="Apartment">Prime Apartment</option>
+              <option value="Mansion">Historic Estate / Mansion</option>
+              <option value="Chalet">Alpine Chalet</option>
+              <option value="Duplex">Grand Duplex</option>
+            </select>
+          </div>
+
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellCountry">Sovereign Country</label>
+            <select id="sellCountry" name="country" class="ev-select" required>
+              <option value="United States">United States</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="United Arab Emirates">United Arab Emirates</option>
+              <option value="Switzerland">Switzerland</option>
+              <option value="Italy" selected>Italy</option>
+              <option value="France">France</option>
+              <option value="Germany">Germany</option>
+              <option value="Japan">Japan</option>
+              <option value="Singapore">Singapore</option>
+              <option value="Monaco">Monaco</option>
+              {% for c in available_countries %}
+                {% if c not in ['United States', 'United Kingdom', 'United Arab Emirates', 'Switzerland', 'Italy', 'France', 'Germany', 'Japan', 'Singapore', 'Monaco'] %}
+                  <option value="{{ c }}">{{ c }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="propCountry" class="form-label">Sovereign Country <span class="required">*</span></label>
-          <select id="propCountry" name="country" class="form-select" required>
-            <option value="United States">🇺🇸 United States</option>
-            <option value="United Kingdom">🇬🇧 United Kingdom</option>
-            <option value="Italy" selected>🇮🇹 Italy</option>
-            <option value="Japan">🇯🇵 Japan</option>
-            <option value="New Zealand">🇳🇿 New Zealand</option>
-            <option value="South Africa">🇿🇦 South Africa</option>
-            <option value="Germany">🇩🇪 Germany</option>
-            <option value="France">🇫🇷 France</option>
-            <option value="Switzerland">🇨🇭 Switzerland</option>
-            <option value="Australia">🇦🇺 Australia</option>
-            <option value="Canada">🇨🇦 Canada</option>
-            <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
-            <option value="Spain">🇪🇸 Spain</option>
-            <option value="Netherlands">🇳🇱 Netherlands</option>
-            <option value="Sweden">🇸🇪 Sweden</option>
-            <option value="Norway">🇳🇴 Norway</option>
-            <option value="Singapore">🇸🇬 Singapore</option>
-            {% for c in available_countries %}
-              {% if c not in ['United States', 'United Kingdom', 'Italy', 'Japan', 'New Zealand', 'South Africa', 'Germany', 'France', 'Switzerland', 'Australia', 'Canada', 'United Arab Emirates', 'Spain', 'Netherlands', 'Sweden', 'Norway', 'Singapore'] %}
-                <option value="{{ c }}">{{ c }}</option>
-              {% endif %}
-            {% endfor %}
-          </select>
-        </div>
+        <div class="ev-grid ev-grid-2">
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellCity">City / Region</label>
+            <input 
+              type="text" 
+              id="sellCity" 
+              name="city" 
+              class="ev-input" 
+              placeholder="e.g. Lake Como, Manhattan, Mayfair..." 
+              required
+            >
+          </div>
 
-        <div class="form-group">
-          <label for="propCity" class="form-label">Metropolitan City / Region <span class="required">*</span></label>
-          <input 
-            type="text" 
-            id="propCity" 
-            name="city" 
-            class="form-input" 
-            placeholder="e.g. Lake Como, Manhattan, Tokyo Shibuya..." 
-            required
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="propAddress" class="form-label">Full Street Address</label>
-          <input 
-            type="text" 
-            id="propAddress" 
-            name="address" 
-            class="form-input" 
-            placeholder="e.g. 14 Via Bellagio, Como CO 22021"
-          >
-        </div>
-      </div>
-    </div>
-
-    <!-- BOX 2: VALUATION & SPECIFICATIONS -->
-    <div class="form-section-box glass-card section-card-outline" data-aos="fade-up" data-aos-delay="150">
-      <div class="box-card-header">
-        <div class="header-left">
-          <span class="box-number-badge">2</span>
-          <div>
-            <h3 class="box-heading">Pricing & Spatial Dimensions</h3>
-            <span class="box-sub">Valuation targets and architectural area breakdown</span>
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellAddress">Street Address (Confidential or Cadastral)</label>
+            <input 
+              type="text" 
+              id="sellAddress" 
+              name="address" 
+              class="ev-input" 
+              placeholder="e.g. 14 Via Bellagio"
+            >
           </div>
         </div>
       </div>
 
-      <div class="form-grid-4">
-        <div class="form-group">
-          <label for="propPrice" class="form-label">Target Asking Price (USD) <span class="required">*</span></label>
-          <div class="input-wrapper">
-            <span class="input-prefix" style="position: absolute; left: 1rem; color: #D4AF37; font-weight: 700;">$</span>
+      <!-- STEP 2: PRICING & GEOMETRY -->
+      <div class="ev-card-module ev-glass" data-aos="fade-up" style="margin-bottom: var(--ev-sp-8);">
+        <div class="ev-module-header">
+          <div>
+            <div class="ev-eyebrow">Step 02 &bull; Geometry & Valuation</div>
+            <h2 class="ev-heading-3">Spatial Specifications</h2>
+            <p class="ev-subheading-left">Target asking price, area, and architectural metrics.</p>
+          </div>
+          <div class="ev-price-m2-badge" id="sellPricePerM2Badge">$0 / m²</div>
+        </div>
+
+        <div class="ev-grid ev-grid-2">
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellPrice">Asking Price (USD)</label>
             <input 
               type="number" 
-              id="propPrice" 
+              id="sellPrice" 
               name="price" 
-              class="form-input" 
-              style="padding-left: 2rem;" 
-              placeholder="3,500,000" 
-              required
+              class="ev-input" 
+              placeholder="4,850,000" 
+              required 
+              oninput="calcSellPricePerM2()"
+            >
+          </div>
+
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellArea">Living Area (m²)</label>
+            <input 
+              type="number" 
+              id="sellArea" 
+              name="area" 
+              class="ev-input" 
+              placeholder="380" 
+              required 
+              oninput="calcSellPricePerM2()"
             >
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="propArea" class="form-label">Living Area (m²) <span class="required">*</span></label>
-          <input 
-            type="number" 
-            id="propArea" 
-            name="area" 
-            class="form-input" 
-            placeholder="380" 
-            required
-          >
-        </div>
+        <div class="ev-grid ev-grid-4">
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellBeds">Bedrooms</label>
+            <input type="number" id="sellBeds" name="bedrooms" class="ev-input" value="4" min="1" max="25">
+          </div>
 
-        <div class="form-group">
-          <label for="propBedrooms" class="form-label">Bedrooms</label>
-          <input 
-            type="number" 
-            id="propBedrooms" 
-            name="bedrooms" 
-            class="form-input" 
-            value="4" 
-            min="1" 
-            max="30"
-          >
-        </div>
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellBaths">Bathrooms</label>
+            <input type="number" step="0.5" id="sellBaths" name="bathrooms" class="ev-input" value="4.5" min="1" max="25">
+          </div>
 
-        <div class="form-group">
-          <label for="propBathrooms" class="form-label">Bathrooms</label>
-          <input 
-            type="number" 
-            step="0.5" 
-            id="propBathrooms" 
-            name="bathrooms" 
-            class="form-input" 
-            value="4" 
-            min="1" 
-            max="30"
-          >
-        </div>
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellYear">Built Year</label>
+            <input type="number" id="sellYear" name="building_year" class="ev-input" value="2023">
+          </div>
 
-        <div class="form-group">
-          <label for="propYear" class="form-label">Year of Construction</label>
-          <input 
-            type="number" 
-            id="propYear" 
-            name="building_year" 
-            class="form-input" 
-            value="2023"
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="propFloors" class="form-label">Building Total Floors</label>
-          <input 
-            type="number" 
-            id="propFloors" 
-            name="total_floors" 
-            class="form-input" 
-            value="3"
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="propFloor" class="form-label">Property Floor Level</label>
-          <input 
-            type="number" 
-            id="propFloor" 
-            name="floor" 
-            class="form-input" 
-            value="1"
-          >
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Calculated Price/m²</label>
-          <div id="pricePerM2Badge" class="stat-pill-readonly" style="padding: 10px 14px; background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.25); border-radius: 8px; color: #D4AF37; font-weight: 700;">
-            $0 / m²
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellFloors">Floor Level</label>
+            <input type="number" id="sellFloors" name="floor" class="ev-input" value="1">
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- BOX 3: JPG PHOTO IMPORT & BLANKS SECTION -->
-    <div class="form-section-box glass-card section-card-outline" data-aos="fade-up" data-aos-delay="200">
-      <div class="box-card-header">
-        <div class="header-left">
-          <span class="box-number-badge">3</span>
+      <!-- STEP 3: HIGH-RES JPG PHOTO BLANKS -->
+      <div class="ev-card-module ev-glass" data-aos="fade-up" style="margin-bottom: var(--ev-sp-8);">
+        <div class="ev-module-header">
           <div>
-            <h3 class="box-heading">JPG Photography & Image Import Blanks</h3>
-            <span class="box-sub">Upload or drag & drop high-resolution .jpg files into designated slots</span>
+            <div class="ev-eyebrow">Step 03 &bull; Visual Imagery</div>
+            <h2 class="ev-heading-3">High-Resolution JPG Photo Blanks</h2>
+            <p class="ev-subheading-left">Import JPG files into designated media slots. Supports 16:10 high-resolution architectural photography.</p>
           </div>
         </div>
-      </div>
 
-      <div class="jpg-upload-container">
-        <!-- Main Drag & Drop Zone -->
-        <div class="jpg-dropzone" id="jpgDropzone" onclick="document.getElementById('fileInput').click()">
+        <!-- Master Drag & Drop Zone -->
+        <div class="ev-dropzone" onclick="document.getElementById('sellFileInput').click()">
           <input 
             type="file" 
-            id="fileInput" 
+            id="sellFileInput" 
             name="images" 
             accept=".jpg, .jpeg, .png, .webp" 
             multiple 
-            style="display: none;"
-            onchange="handleFileSelect(this.files)"
+            style="display:none;" 
+            onchange="previewUploadedFiles(this.files)"
           >
-          <div class="dropzone-content">
-            <div class="dropzone-icon">
-              <i data-lucide="upload-cloud"></i>
-            </div>
-            <h4 class="dropzone-title">Click to Select or Drag & Drop JPG Files Here</h4>
-            <p class="dropzone-sub">
-              Upload exterior, interior, floor plans, and aerial drone captures in <code>.jpg</code> or <code>.jpeg</code> format (Up to 16MB)
-            </p>
+          <i data-lucide="upload-cloud" class="ev-dropzone-icon"></i>
+          <h4>Click to browse or drag & drop .JPG files</h4>
+          <p>Master exterior, grand saloon, master suite, terrace, and aerial shots (Up to 16MB)</p>
+        </div>
+
+        <!-- 4 Designated JPG Blank Slots -->
+        <div class="ev-jpg-blanks-grid" style="margin-top: var(--ev-sp-4);">
+          <div class="ev-blank-slot" id="slot0" onclick="document.getElementById('sellFileInput').click()">
+            <i data-lucide="image-plus"></i>
+            <span id="slotTitle0">Slot #1 (Cover JPG)</span>
+            <small id="slotStatus0">Empty blank</small>
+          </div>
+
+          <div class="ev-blank-slot" id="slot1" onclick="document.getElementById('sellFileInput').click()">
+            <i data-lucide="image-plus"></i>
+            <span id="slotTitle1">Slot #2 (Interior JPG)</span>
+            <small id="slotStatus1">Empty blank</small>
+          </div>
+
+          <div class="ev-blank-slot" id="slot2" onclick="document.getElementById('sellFileInput').click()">
+            <i data-lucide="image-plus"></i>
+            <span id="slotTitle2">Slot #3 (Suite JPG)</span>
+            <small id="slotStatus2">Empty blank</small>
+          </div>
+
+          <div class="ev-blank-slot" id="slot3" onclick="document.getElementById('sellFileInput').click()">
+            <i data-lucide="image-plus"></i>
+            <span id="slotTitle3">Slot #4 (Elevation JPG)</span>
+            <small id="slotStatus3">Empty blank</small>
           </div>
         </div>
 
-        <!-- Designated Blank Import Slots -->
-        <div class="jpg-blanks-grid" id="jpgBlanksGrid">
-          <!-- Blank Slot 1 -->
-          <div class="jpg-blank-slot active-drop" onclick="triggerSlotUpload(0)">
-            <div class="blank-slot-inner" id="slotPreview0">
-              <i data-lucide="image-plus" class="blank-icon"></i>
-              <span class="slot-title">Photo Slot #1 (Cover JPG)</span>
-              <small class="slot-hint">Click to import .jpg</small>
-            </div>
-          </div>
-
-          <!-- Blank Slot 2 -->
-          <div class="jpg-blank-slot" onclick="triggerSlotUpload(1)">
-            <div class="blank-slot-inner" id="slotPreview1">
-              <i data-lucide="image-plus" class="blank-icon"></i>
-              <span class="slot-title">Photo Slot #2 (Interior JPG)</span>
-              <small class="slot-hint">Click to import .jpg</small>
-            </div>
-          </div>
-
-          <!-- Blank Slot 3 -->
-          <div class="jpg-blank-slot" onclick="triggerSlotUpload(2)">
-            <div class="blank-slot-inner" id="slotPreview2">
-              <i data-lucide="image-plus" class="blank-icon"></i>
-              <span class="slot-title">Photo Slot #3 (Living Area JPG)</span>
-              <small class="slot-hint">Click to import .jpg</small>
-            </div>
-          </div>
-
-          <!-- Blank Slot 4 -->
-          <div class="jpg-blank-slot" onclick="triggerSlotUpload(3)">
-            <div class="blank-slot-inner" id="slotPreview3">
-              <i data-lucide="image-plus" class="blank-icon"></i>
-              <span class="slot-title">Photo Slot #4 (View / Terrace JPG)</span>
-              <small class="slot-hint">Click to import .jpg</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sample Luxury Preset Image Selectors -->
-        <div class="preset-sample-section" style="margin-top: 18px;">
-          <label class="form-label" style="font-size: 0.8rem; color: #94A3B8;">Or Choose A Luxury Architectural Preset (If importing photos later):</label>
-          <input type="hidden" name="sample_preset_image" id="selectedPresetImage" value="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80">
-          <div class="preset-thumbnails-row">
-            <div class="preset-thumb active" onclick="selectPreset(this, 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80')">
-              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80" alt="Preset 1">
+        <!-- Fallback Architectural Presets -->
+        <div style="margin-top: var(--ev-sp-6);">
+          <label class="ev-label">Or choose an architectural preset if photography will be imported later</label>
+          <input type="hidden" name="sample_preset_image" id="selectedPresetUrl" value="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80">
+          <div class="ev-preset-grid">
+            <div class="ev-preset-card active" onclick="choosePreset(this, 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80')">
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80" alt="Villa">
               <span>Modern Villa</span>
             </div>
-            <div class="preset-thumb" onclick="selectPreset(this, 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80')">
-              <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=200&q=80" alt="Preset 2">
+            <div class="ev-preset-card" onclick="choosePreset(this, 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80')">
+              <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=200&q=80" alt="Penthouse">
               <span>Sky Penthouse</span>
             </div>
-            <div class="preset-thumb" onclick="selectPreset(this, 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80')">
-              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=200&q=80" alt="Preset 3">
-              <span>Waterfront Palace</span>
+            <div class="ev-preset-card" onclick="choosePreset(this, 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80')">
+              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=200&q=80" alt="Waterfront">
+              <span>Waterfront Villa</span>
             </div>
-            <div class="preset-thumb" onclick="selectPreset(this, 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80')">
-              <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&q=80" alt="Preset 4">
-              <span>Glass Residence</span>
+            <div class="ev-preset-card" onclick="choosePreset(this, 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80')">
+              <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&q=80" alt="Loft">
+              <span>Tribeca Loft</span>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- BOX 4: AMENITIES & FEATURES -->
-    <div class="form-section-box glass-card section-card-outline" data-aos="fade-up" data-aos-delay="250">
-      <div class="box-card-header">
-        <div class="header-left">
-          <span class="box-number-badge">4</span>
+      <!-- STEP 4: AMENITIES (LUCIDE ICONS, NO EMOJI) -->
+      <div class="ev-card-module ev-glass" data-aos="fade-up" style="margin-bottom: var(--ev-sp-8);">
+        <div class="ev-module-header">
           <div>
-            <h3 class="box-heading">Exclusive Amenities & Architectural Attributes</h3>
-            <span class="box-sub">Select verified luxury features that distinguish the property</span>
+            <div class="ev-eyebrow">Step 04 &bull; Specifications</div>
+            <h2 class="ev-heading-3">Exclusive Amenities</h2>
+            <p class="ev-subheading-left">Select verified luxury features for institutional buyers.</p>
+          </div>
+        </div>
+
+        <div class="ev-amenities-grid">
+          <label class="ev-amenity-card">
+            <input type="checkbox" name="features" value="Private Infinity Pool" checked>
+            <i data-lucide="waves"></i>
+            <span>Private Infinity Pool</span>
+          </label>
+          <label class="ev-amenity-card">
+            <input type="checkbox" name="features" value="Panoramic Water View" checked>
+            <i data-lucide="sun"></i>
+            <span>Panoramic Water View</span>
+          </label>
+          <label class="ev-amenity-card">
+            <input type="checkbox" name="features" value="Smart Home Automation" checked>
+            <i data-lucide="cpu"></i>
+            <span>Smart Automation</span>
+          </label>
+          <label class="ev-amenity-card">
+            <input type="checkbox" name="features" value="Climate Wine Vault" checked>
+            <i data-lucide="wine"></i>
+            <span>Climate Wine Vault</span>
+          </label>
+          <label class="ev-amenity-card">
+            <input type="checkbox" name="features" value="Keyed Private Elevator">
+            <i data-lucide="arrow-up-down"></i>
+            <span>Private Elevator</span>
+          </label>
+          <label class="ev-amenity-card">
+            <input type="checkbox" name="features" value="Subterranean Spa & Wellness">
+            <i data-lucide="sparkles"></i>
+            <span>Subterranean Spa</span>
+          </label>
+          <label class="ev-amenity-card">
+            <input type="checkbox" name="features" value="Diplomatic Security Detail">
+            <i data-lucide="shield"></i>
+            <span>Diplomatic Security</span>
+          </label>
+          <label class="ev-amenity-card">
+            <input type="checkbox" name="features" value="Helipad Access">
+            <i data-lucide="plane"></i>
+            <span>Helipad Access</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- STEP 5: DESCRIPTION & BROKER DETAILS -->
+      <div class="ev-card-module ev-glass" data-aos="fade-up" style="margin-bottom: var(--ev-sp-8);">
+        <div class="ev-module-header">
+          <div>
+            <div class="ev-eyebrow">Step 05 &bull; Architectural Narrative</div>
+            <h2 class="ev-heading-3">Description & Seller Contact</h2>
+            <p class="ev-subheading-left">Executive summary for prospective investors.</p>
+          </div>
+        </div>
+
+        <div class="ev-input-group">
+          <label class="ev-label" for="sellDesc">Architectural Narrative</label>
+          <textarea 
+            id="sellDesc" 
+            name="description" 
+            class="ev-textarea" 
+            placeholder="Describe the architectural provenance, materials, views, and lifestyle of the estate..."
+          ></textarea>
+        </div>
+
+        <div class="ev-grid ev-grid-3">
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellerName">Listing Contact</label>
+            <input 
+              type="text" 
+              id="sellerName" 
+              name="seller_name" 
+              class="ev-input" 
+              value="{{ user.full_name if user else 'Alexander Vance' }}"
+              required
+            >
+          </div>
+
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellerEmail">Email Address</label>
+            <input 
+              type="email" 
+              id="sellerEmail" 
+              name="seller_email" 
+              class="ev-input" 
+              value="{{ user.email if user else 'alexander@estatevision.io' }}"
+              required
+            >
+          </div>
+
+          <div class="ev-input-group">
+            <label class="ev-label" for="sellerPhone">Direct Phone</label>
+            <input 
+              type="text" 
+              id="sellerPhone" 
+              name="seller_phone" 
+              class="ev-input" 
+              value="{{ user.phone if user and user.phone else '+1 (555) 019-2834' }}"
+            >
           </div>
         </div>
       </div>
 
-      <div class="amenities-checkboxes-grid">
-        <label class="custom-checkbox-card">
-          <input type="checkbox" name="features" value="Private Infinity Pool" checked>
-          <span class="card-indicator"></span>
-          <span class="card-label">🏊 Private Infinity Pool</span>
-        </label>
-        <label class="custom-checkbox-card">
-          <input type="checkbox" name="features" value="Panoramic Ocean / Lake View" checked>
-          <span class="card-indicator"></span>
-          <span class="card-label">🌊 Panoramic Ocean / Lake View</span>
-        </label>
-        <label class="custom-checkbox-card">
-          <input type="checkbox" name="features" value="Smart Home Automation" checked>
-          <span class="card-indicator"></span>
-          <span class="card-label">📱 Smart Home Automation</span>
-        </label>
-        <label class="custom-checkbox-card">
-          <input type="checkbox" name="features" value="Temperature-Controlled Wine Cellar" checked>
-          <span class="card-indicator"></span>
-          <span class="card-label">🍷 Temperature Wine Cellar</span>
-        </label>
-        <label class="custom-checkbox-card">
-          <input type="checkbox" name="features" value="Private Elevator">
-          <span class="card-indicator"></span>
-          <span class="card-label">🛗 Private Keyed Elevator</span>
-        </label>
-        <label class="custom-checkbox-card">
-          <input type="checkbox" name="features" value="Subterranean Spa & Sauna">
-          <span class="card-indicator"></span>
-          <span class="card-label">🧖 Subterranean Spa & Sauna</span>
-        </label>
-        <label class="custom-checkbox-card">
-          <input type="checkbox" name="features" value="24/7 Diplomatic Security">
-          <span class="card-indicator"></span>
-          <span class="card-label">🛡️ 24/7 Diplomatic Security</span>
-        </label>
-        <label class="custom-checkbox-card">
-          <input type="checkbox" name="features" value="Climate-Controlled Auto Showroom">
-          <span class="card-indicator"></span>
-          <span class="card-label">🏎️ Multi-Car Auto Showroom</span>
-        </label>
-      </div>
-
-      <div class="form-group" style="margin-top: 16px;">
-        <label for="customFeatures" class="form-label">Additional Custom Features (comma-separated)</label>
-        <input 
-          type="text" 
-          id="customFeatures" 
-          name="custom_features" 
-          class="form-input" 
-          placeholder="e.g. Helipad Access, Off-Grid Solar Microgrid, Private Boat Jetty..."
-        >
-      </div>
-    </div>
-
-    <!-- BOX 5: NARRATIVE & CONTACT DETAILS -->
-    <div class="form-section-box glass-card section-card-outline" data-aos="fade-up" data-aos-delay="300">
-      <div class="box-card-header">
-        <div class="header-left">
-          <span class="box-number-badge">5</span>
-          <div>
-            <h3 class="box-heading">Narrative & Representation Details</h3>
-            <span class="box-sub">Craft the institutional presentation and broker contact points</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="propDescription" class="form-label">Architectural Description & Narrative <span class="required">*</span></label>
-        <textarea 
-          id="propDescription" 
-          name="description" 
-          class="form-textarea" 
-          rows="4" 
-          placeholder="Detail the architectural pedigree, materials, ceiling heights, orientation, and sovereign capital appreciation potential..."
-          required
-        ></textarea>
-      </div>
-
-      <div class="form-grid-3" style="margin-top: 16px;">
-        <div class="form-group">
-          <label for="sellerName" class="form-label">Listing Agent / Owner Name</label>
-          <input 
-            type="text" 
-            id="sellerName" 
-            name="seller_name" 
-            class="form-input" 
-            value="{{ user.full_name if user else 'Alexander Vance' }}"
-          >
-        </div>
-        <div class="form-group">
-          <label for="sellerEmail" class="form-label">Contact Email Address</label>
-          <input 
-            type="email" 
-            id="sellerEmail" 
-            name="seller_email" 
-            class="form-input" 
-            value="{{ user.email if user else 'alexander@estatevision.io' }}"
-          >
-        </div>
-        <div class="form-group">
-          <label for="sellerPhone" class="form-label">Contact Telephone / WhatsApp</label>
-          <input 
-            type="text" 
-            id="sellerPhone" 
-            name="seller_phone" 
-            class="form-input" 
-            value="{{ user.phone if user and user.phone else '+1 (555) 019-2834' }}"
-          >
-        </div>
-      </div>
-    </div>
-
-    <!-- SUBMIT ACTIONS BAR -->
-    <div class="form-submit-deck glass-card section-card-outline" data-aos="fade-up">
-      <div class="submit-deck-info">
-        <div style="display: flex; gap: 8px; align-items: center; color: #D4AF37; font-weight: 600;">
-          <i data-lucide="shield-check"></i>
-          <span>Verified Instant Distribution</span>
-        </div>
-        <p style="font-size: 0.8rem; color: #94A3B8; margin-top: 2px;">
-          Listing will immediately be searchable across the Marketplace, 3D Globe, and AI Valuation index.
-        </p>
-      </div>
-
-      <div class="submit-deck-buttons">
-        <a href="/buy" class="btn-ghost">Cancel</a>
-        <button type="submit" class="btn-gold btn-glow" id="publishBtn">
-          <i data-lucide="check-circle-2"></i>
-          <span>Publish Listing to Marketplace</span>
+      <!-- SUBMIT CTA -->
+      <div style="display: flex; justify-content: flex-end; gap: var(--ev-sp-4); margin-bottom: var(--ev-sp-16);">
+        <a href="/buy" class="ev-btn-secondary" style="height: 52px; padding: 0 28px;">Cancel</a>
+        <button type="submit" id="sellSubmitBtn" class="ev-btn-primary" style="height: 52px; padding: 0 36px; font-size: 16px;">
+          <span>Publish to Global Marketplace</span>
+          <i data-lucide="check"></i>
         </button>
       </div>
-    </div>
-  </form>
+
+    </form>
+  </div>
+
 </div>
+
+<style>
+/* ─── Sell Wizard Styles ─── */
+.ev-price-m2-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: var(--ev-gold-subtle);
+  color: var(--ev-gold);
+  border: 1px solid var(--ev-gold-border);
+  border-radius: var(--ev-radius-full);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Dropzone */
+.ev-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ev-sp-10) var(--ev-sp-6);
+  border: 2px dashed var(--ev-border-medium);
+  border-radius: var(--ev-radius-lg);
+  cursor: pointer;
+  text-align: center;
+  background: var(--ev-bg-elevated);
+  transition: all var(--ev-duration-fast);
+}
+.ev-dropzone:hover {
+  border-color: var(--ev-gold);
+  background: var(--ev-gold-subtle);
+}
+.ev-dropzone-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--ev-gold);
+  margin-bottom: var(--ev-sp-2);
+}
+.ev-dropzone h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.ev-dropzone p {
+  font-size: 12px;
+  color: var(--ev-text-muted);
+}
+
+/* Preset Cards */
+.ev-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ev-sp-3);
+  margin-top: var(--ev-sp-2);
+}
+.ev-preset-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: var(--ev-bg-elevated);
+  border: 1px solid var(--ev-border-hairline);
+  border-radius: var(--ev-radius-md);
+  cursor: pointer;
+  transition: all var(--ev-duration-fast);
+}
+.ev-preset-card:hover {
+  border-color: var(--ev-gold-border);
+  background: var(--ev-bg-hover);
+}
+.ev-preset-card.active {
+  border-color: var(--ev-gold);
+  background: var(--ev-gold-subtle);
+}
+.ev-preset-card img {
+  width: 44px;
+  height: 36px;
+  border-radius: var(--ev-radius-sm);
+  object-fit: cover;
+}
+.ev-preset-card span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Amenities Grid */
+.ev-amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ev-sp-3);
+}
+.ev-amenity-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--ev-bg-elevated);
+  border: 1px solid var(--ev-border-hairline);
+  border-radius: var(--ev-radius-md);
+  cursor: pointer;
+  transition: all var(--ev-duration-fast);
+}
+.ev-amenity-card:hover {
+  background: var(--ev-bg-hover);
+  border-color: var(--ev-border-medium);
+}
+.ev-amenity-card input[type="checkbox"] {
+  accent-color: var(--ev-gold);
+  width: 16px;
+  height: 16px;
+}
+.ev-amenity-card svg {
+  width: 16px;
+  height: 16px;
+  color: var(--ev-gold);
+}
+.ev-amenity-card span {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .ev-amenities-grid { grid-template-columns: repeat(2, 1fr); }
+  .ev-preset-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .ev-amenities-grid { grid-template-columns: 1fr; }
+  .ev-preset-grid { grid-template-columns: 1fr; }
+}
+</style>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Price per m2 dynamic calculator
-const priceInput = document.getElementById('propPrice');
-const areaInput = document.getElementById('propArea');
-const m2Badge = document.getElementById('pricePerM2Badge');
+function calcSellPricePerM2() {
+  const price = parseFloat(document.getElementById('sellPrice').value) || 0;
+  const area = parseFloat(document.getElementById('sellArea').value) || 0;
+  const badge = document.getElementById('sellPricePerM2Badge');
 
-function updatePricePerM2() {
-  const p = parseFloat(priceInput.value) || 0;
-  const a = parseFloat(areaInput.value) || 0;
-  if (p > 0 && a > 0) {
-    const val = Math.round(p / a);
-    m2Badge.textContent = `$${val.toLocaleString()} / m²`;
+  if (price > 0 && area > 0) {
+    const psm = Math.round(price / area);
+    badge.textContent = `$${psm.toLocaleString('en-US')} / m²`;
   } else {
-    m2Badge.textContent = '$0 / m²';
+    badge.textContent = '$0 / m²';
   }
 }
 
-if (priceInput && areaInput) {
-  priceInput.addEventListener('input', updatePricePerM2);
-  areaInput.addEventListener('input', updatePricePerM2);
-}
-
-// Preset selection
-function selectPreset(el, url) {
-  document.querySelectorAll('.preset-thumb').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('selectedPresetImage').value = url;
-}
-
-// Slot upload triggers
-function triggerSlotUpload(slotIdx) {
-  const input = document.getElementById('fileInput');
-  if (input) input.click();
-}
-
-function handleFileSelect(files) {
+function previewUploadedFiles(files) {
   if (!files || !files.length) return;
+
   for (let i = 0; i < Math.min(files.length, 4); i++) {
     const file = files[i];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const slot = document.getElementById(`slotPreview${i}`);
-      if (slot) {
-        slot.innerHTML = `
-          <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-          <span style="position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.7); color: #10B981; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px;">JPG Ready</span>
-        `;
-      }
-    };
-    reader.readAsDataURL(file);
+    const slot = document.getElementById(`slot${i}`);
+    const title = document.getElementById(`slotTitle${i}`);
+    const status = document.getElementById(`slotStatus${i}`);
+
+    if (slot && title && status) {
+      title.textContent = file.name;
+      status.textContent = `${(file.size / 1024).toFixed(0)} KB &bull; Attached`;
+      slot.style.borderColor = 'var(--ev-gold)';
+      slot.style.background = 'var(--ev-gold-subtle)';
+    }
+  }
+
+  if (window.Toast) {
+    Toast.success(`${files.length} JPG files attached to listing blanks.`);
   }
 }
 
-// Drag & drop handlers
-const dropzone = document.getElementById('jpgDropzone');
-if (dropzone) {
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropzone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.classList.add('drag-over');
-    }, false);
-  });
-
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropzone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.classList.remove('drag-over');
-    }, false);
-  });
-
-  dropzone.addEventListener('drop', (e) => {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    document.getElementById('fileInput').files = files;
-    handleFileSelect(files);
-  });
+function choosePreset(card, url) {
+  document.querySelectorAll('.ev-preset-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  document.getElementById('selectedPresetUrl').value = url;
 }
 </script>
 {% endblock %}

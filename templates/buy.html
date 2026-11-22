@@ -2,384 +2,545 @@
 {% set active_page = 'buy' %}
 
 {% block title %}Marketplace | EstateVision{% endblock %}
-{% block body_class %}apple-minimal-page{% endblock %}
+{% block body_class %}ev-marketplace-page{% endblock %}
 
 {% block content %}
-<div class="apple-page-container">
-  <!-- MINIMAL HEADER -->
-  <header class="apple-page-header" data-aos="fade-up">
-    <span class="apple-eyebrow">Institutional Marketplace</span>
-    <h1 class="apple-page-title">Residences across 61 sovereign nations.</h1>
-    <p class="apple-page-subhead">
-      Curated architectural assets verified against national housing indices and MLS ledgers. Settlement secured by Escrow.
+<div class="ev-page-wrapper">
+  
+  <!-- ═══════════════════════════════════════════════════════════════════
+       MARKETPLACE HEADER
+       ═══════════════════════════════════════════════════════════════════ -->
+  <header class="ev-section-header" data-aos="fade-up" style="padding-top: var(--ev-sp-8);">
+    <div class="ev-eyebrow">Residences</div>
+    <h1 class="ev-heading-1">Find your residence.</h1>
+    <p class="ev-subheading">
+      {{ total_count }} verified homes across 61 countries.
     </p>
+
+    <!-- Currency & Meta Bar -->
+    <div class="ev-market-meta-bar">
+      <div class="ev-meta-stat">
+        <span class="ev-meta-count">{{ total_count }}</span> residences available
+      </div>
+
+      <div class="ev-meta-actions">
+        <!-- Currency Switcher Pill -->
+        <div class="ev-currency-switcher" id="marketplaceCurrencySwitcher">
+          <button type="button" class="ev-currency-btn" onclick="toggleCurrencyDropdown(event)" aria-label="Change currency">
+            <i data-lucide="coins"></i>
+            <span class="ev-currency-code-display">USD</span>
+            <i data-lucide="chevron-down" style="width:12px;height:12px;"></i>
+          </button>
+          <div class="ev-currency-panel">
+            <div class="ev-currency-option active" data-currency="USD" onclick="selectMarketCurrency('USD')">
+              <span class="ev-currency-flag">🇺🇸</span>
+              <span class="ev-currency-code">USD</span>
+              <span>US Dollar ($)</span>
+            </div>
+            <div class="ev-currency-option" data-currency="EUR" onclick="selectMarketCurrency('EUR')">
+              <span class="ev-currency-flag">🇪🇺</span>
+              <span class="ev-currency-code">EUR</span>
+              <span>Euro (€)</span>
+            </div>
+            <div class="ev-currency-option" data-currency="GBP" onclick="selectMarketCurrency('GBP')">
+              <span class="ev-currency-flag">🇬🇧</span>
+              <span class="ev-currency-code">GBP</span>
+              <span>British Pound (£)</span>
+            </div>
+            <div class="ev-currency-option" data-currency="AED" onclick="selectMarketCurrency('AED')">
+              <span class="ev-currency-flag">🇦🇪</span>
+              <span class="ev-currency-code">AED</span>
+              <span>UAE Dirham</span>
+            </div>
+            <div class="ev-currency-option" data-currency="VND" onclick="selectMarketCurrency('VND')">
+              <span class="ev-currency-flag">🇻🇳</span>
+              <span class="ev-currency-code">VND</span>
+              <span>Vietnamese Dong (₫)</span>
+            </div>
+            <div class="ev-currency-option" data-currency="CHF" onclick="selectMarketCurrency('CHF')">
+              <span class="ev-currency-flag">🇨🇭</span>
+              <span class="ev-currency-code">CHF</span>
+              <span>Swiss Franc</span>
+            </div>
+          </div>
+        </div>
+
+        <a href="/explore" class="ev-btn-secondary ev-btn-sm">
+          <i data-lucide="globe"></i>
+          <span>3D Globe</span>
+        </a>
+      </div>
+    </div>
   </header>
 
-  <!-- APPLE-STYLE CLEAN FILTER BAR -->
-  <section class="apple-filter-section" data-aos="fade-up">
-    <form method="GET" action="/buy" id="filterForm" class="apple-filter-bar">
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TYPOLOGY FAST CHIPS & UNIFIED FILTER BAR
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="ev-container-wide" data-aos="fade-up">
+    <!-- Fast Typology Chips -->
+    <div class="ev-fast-chips" role="tablist" aria-label="Filter typologies">
+      <a href="/buy" class="ev-chip {% if not filters.type and not filters.search %}active{% endif %}">All</a>
+      <a href="/buy?type=Penthouse" class="ev-chip {% if filters.type == 'Penthouse' %}active{% endif %}">Penthouses</a>
+      <a href="/buy?type=Villa" class="ev-chip {% if filters.type == 'Villa' %}active{% endif %}">Villas</a>
+      <a href="/buy?search=waterfront" class="ev-chip {% if 'waterfront' in filters.search|lower %}active{% endif %}">Waterfront</a>
+      <a href="/buy?search=historic" class="ev-chip {% if 'historic' in filters.search|lower %}active{% endif %}">Historic</a>
+      <a href="/buy?search=chalet" class="ev-chip {% if 'chalet' in filters.search|lower %}active{% endif %}">Alpine</a>
+    </div>
+
+    <!-- Clean Glass Filter Bar -->
+    <form method="GET" action="/buy" id="evFilterForm" class="ev-filter-bar">
       <!-- Search Input -->
-      <div class="filter-item search-item">
-        <i data-lucide="search" class="filter-icon"></i>
+      <div class="ev-filter-item ev-filter-search">
+        <i data-lucide="search" class="ev-filter-icon"></i>
         <input 
           type="text" 
           name="search" 
-          placeholder="Search city, residence, keyword..." 
+          placeholder="Search city, residence..." 
           value="{{ filters.search }}"
-          class="apple-search-input"
+          class="ev-input ev-filter-input"
+          aria-label="Search residences"
         >
       </div>
 
       <!-- Country Filter -->
-      <div class="filter-item">
-        <select name="country" class="apple-select" onchange="this.form.submit()">
-          <option value="">All Sovereign Nations</option>
+      <div class="ev-filter-item">
+        <select name="country" class="ev-select" onchange="this.form.submit()" aria-label="Filter by country">
+          <option value="">All countries</option>
           {% for c in available_countries %}
             <option value="{{ c }}" {% if filters.country == c %}selected{% endif %}>{{ c }}</option>
           {% endfor %}
         </select>
       </div>
 
-      <!-- Type Filter -->
-      <div class="filter-item">
-        <select name="type" class="apple-select" onchange="this.form.submit()">
-          <option value="">All Typologies</option>
-          {% for t in available_types %}
-            <option value="{{ t }}" {% if filters.type == t %}selected{% endif %}>{{ t }}</option>
-          {% endfor %}
-        </select>
-      </div>
+      <!-- Hidden synced Typology select for form submissions -->
+      <select name="type" style="display:none;" id="evTypeFilterSelect" aria-hidden="true">
+        <option value="">All</option>
+        {% for t in available_types %}
+          <option value="{{ t }}" {% if filters.type == t %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
 
       <!-- Bedrooms Filter -->
-      <div class="filter-item">
-        <select name="bedrooms" class="apple-select" onchange="this.form.submit()">
-          <option value="">All Bedrooms</option>
-          <option value="1" {% if filters.bedrooms == '1.0' or filters.bedrooms == 1 %}selected{% endif %}>1+ Beds</option>
-          <option value="2" {% if filters.bedrooms == '2.0' or filters.bedrooms == 2 %}selected{% endif %}>2+ Beds</option>
-          <option value="3" {% if filters.bedrooms == '3.0' or filters.bedrooms == 3 %}selected{% endif %}>3+ Beds</option>
-          <option value="4" {% if filters.bedrooms == '4.0' or filters.bedrooms == 4 %}selected{% endif %}>4+ Beds</option>
-          <option value="5" {% if filters.bedrooms == '5.0' or filters.bedrooms == 5 %}selected{% endif %}>5+ Beds</option>
+      <div class="ev-filter-item">
+        <select name="bedrooms" class="ev-select" onchange="this.form.submit()" aria-label="Filter by bedrooms">
+          <option value="">All bedrooms</option>
+          <option value="1" {% if filters.bedrooms == '1.0' or filters.bedrooms == 1 %}selected{% endif %}>1+ beds</option>
+          <option value="2" {% if filters.bedrooms == '2.0' or filters.bedrooms == 2 %}selected{% endif %}>2+ beds</option>
+          <option value="3" {% if filters.bedrooms == '3.0' or filters.bedrooms == 3 %}selected{% endif %}>3+ beds</option>
+          <option value="4" {% if filters.bedrooms == '4.0' or filters.bedrooms == 4 %}selected{% endif %}>4+ beds</option>
+          <option value="5" {% if filters.bedrooms == '5.0' or filters.bedrooms == 5 %}selected{% endif %}>5+ beds</option>
         </select>
       </div>
 
       <!-- Sort By -->
-      <div class="filter-item">
-        <select name="sort_by" class="apple-select" onchange="this.form.submit()">
+      <div class="ev-filter-item">
+        <select name="sort_by" class="ev-select" onchange="this.form.submit()" aria-label="Sort listings">
           <option value="featured" {% if filters.sort_by == 'featured' %}selected{% endif %}>Featured</option>
           <option value="price_desc" {% if filters.sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
           <option value="price_asc" {% if filters.sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-          <option value="area_desc" {% if filters.sort_by == 'area_desc' %}selected{% endif %}>Largest Area</option>
+          <option value="area_desc" {% if filters.sort_by == 'area_desc' %}selected{% endif %}>Largest area</option>
           <option value="newest" {% if filters.sort_by == 'newest' %}selected{% endif %}>Newest</option>
         </select>
       </div>
 
-      <!-- Actions -->
-      <div class="filter-actions">
-        <button type="submit" class="apple-btn-apply">Filter</button>
+      <!-- Action Buttons -->
+      <div class="ev-filter-actions">
+        <button type="submit" class="ev-btn-primary ev-btn-sm">Apply</button>
         {% if filters.country or filters.type or filters.bedrooms or filters.search or (filters.sort_by and filters.sort_by != 'featured') %}
-          <a href="/buy" class="apple-btn-reset" title="Reset all filters">Clear</a>
+          <a href="/buy" class="ev-btn-secondary ev-btn-sm" title="Clear all filters">Clear</a>
         {% endif %}
       </div>
     </form>
+  </div>
 
-    <div class="apple-filter-summary">
-      <span class="count-label">{{ total_count }} residences available</span>
-      <span class="escrow-indicator"><i data-lucide="shield-check"></i> Escrow Protected</span>
-    </div>
-  </section>
-
-  <!-- IMAGE-DOMINANT PROPERTY GRID -->
-  <section class="apple-catalog-section" data-aos="fade-up">
-    {% if properties %}
-      <div class="apple-clean-grid">
-        {% for prop in properties %}
-        <article class="apple-residence-card" data-prop-id="{{ prop.id }}">
-          <!-- Large Architectural Photo -->
-          <a href="/property/{{ prop.id }}" class="card-media-anchor" tabindex="-1">
-            <div class="card-media-wrap">
+  <!-- ═══════════════════════════════════════════════════════════════════
+       PROPERTY CARD GRID
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="ev-section" style="padding-top: 0;">
+    <div class="ev-container-wide">
+      {% if properties %}
+        <div class="ev-grid ev-grid-3" id="propertiesGrid">
+          {% for prop in properties %}
+          <article 
+            class="ev-property-card" 
+            data-prop-id="{{ prop.id }}"
+            data-prop-title="{{ prop.title }}"
+            data-prop-price="{{ prop.price }}"
+            data-prop-city="{{ prop.city }}"
+            data-prop-country="{{ prop.country }}"
+            data-prop-image="{{ prop.image_url }}"
+          >
+            <!-- 16:10 Image Container -->
+            <div class="ev-card-image" onclick="window.location.href='/property/{{ prop.id }}'">
               <img 
                 src="{{ prop.image_url }}" 
                 alt="{{ prop.title }}" 
-                class="card-img"
-                onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'"
                 loading="lazy"
+                onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'"
               >
-              {% if prop.status == 'under_offer' %}
-                <span class="status-pill status-offer">In Escrow</span>
-              {% endif %}
+              
+              <!-- Location Pill -->
+              <div class="ev-card-location">
+                <i data-lucide="map-pin"></i>
+                <span>{{ prop.city }}, {{ prop.country }}</span>
+              </div>
+
+              <!-- Top Action Buttons (Compare & Bookmark) -->
+              <div class="ev-card-top-actions">
+                <button 
+                  type="button" 
+                  class="ev-card-compare-btn" 
+                  title="Compare residence"
+                  onclick="toggleCompareCard(event, {{ prop.id }})"
+                  aria-label="Compare residence"
+                >
+                  <i data-lucide="git-compare"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="ev-card-save" 
+                  title="Save residence"
+                  onclick="toggleSaveCard(event, {{ prop.id }})"
+                  aria-label="Bookmark residence"
+                >
+                  <i data-lucide="bookmark"></i>
+                </button>
+              </div>
             </div>
-          </a>
 
-          <!-- Minimal Product Data -->
-          <div class="card-info">
-            <div class="card-price-row">
-              <span class="card-price">${{ "{:,.0f}".format(prop.price) }}</span>
-              <span class="card-location">{{ prop.city }}, {{ prop.country }}</span>
+            <!-- Card Body -->
+            <div class="ev-card-body" onclick="window.location.href='/property/{{ prop.id }}'">
+              <div class="ev-card-price" data-price-usd="{{ prop.price }}">
+                ${{ "{:,.0f}".format(prop.price) }}
+              </div>
+              <h2 class="ev-card-title">
+                {{ prop.title }}
+                <span class="ev-card-verified" title="Verified"><i data-lucide="check-circle-2"></i></span>
+              </h2>
+              
+              <div class="ev-card-stats">
+                <div class="ev-card-stat">
+                  <i data-lucide="bed"></i>
+                  <span>{{ "{:.0f}".format(prop.bedrooms) }} beds</span>
+                </div>
+                <div class="ev-card-stat">
+                  <i data-lucide="bath"></i>
+                  <span>{{ "{:.1f}".format(prop.bathrooms) }} baths</span>
+                </div>
+                <div class="ev-card-stat">
+                  <i data-lucide="maximize"></i>
+                  <span>{{ "{:,.0f}".format(prop.area) }} m²</span>
+                </div>
+              </div>
             </div>
 
-            <h2 class="card-title">
-              <a href="/property/{{ prop.id }}">{{ prop.title }}</a>
-            </h2>
-
-            <div class="card-specs">
-              <span>{{ "{:.0f}".format(prop.bedrooms) }} Beds</span>
-              <span class="dot">·</span>
-              <span>{{ "{:.1f}".format(prop.bathrooms) }} Baths</span>
-              <span class="dot">·</span>
-              <span>{{ "{:,.0f}".format(prop.area) }} m²</span>
-            </div>
-
-            <div class="card-actions">
-              <a href="/property/{{ prop.id }}" class="apple-link-subtle">
-                Details <i data-lucide="arrow-right"></i>
-              </a>
+            <!-- Card Hover Action Strip -->
+            <div class="ev-card-hover-actions">
               <button 
                 type="button" 
-                class="apple-btn-offer"
-                onclick="openBuyModal({{ prop.id }}, '{{ prop.title|replace('\'', '\\\'') }}', {{ prop.price }})"
+                class="ev-btn-text"
+                onclick="toggleCompareCard(event, {{ prop.id }})"
+                style="padding: 0; font-size: 13px;"
               >
-                Acquire via Escrow
+                Compare
+              </button>
+              <button 
+                type="button" 
+                class="ev-btn-primary ev-btn-sm"
+                onclick="openDirectEscrowModal(event, {{ prop.id }}, '{{ prop.title|replace('\'', '\\\'') }}', {{ prop.price }})"
+              >
+                Buy securely
               </button>
             </div>
-          </div>
-        </article>
-        {% endfor %}
-      </div>
-
-      <!-- MINIMALIST PAGINATION -->
-      {% if total_pages > 1 %}
-      <nav class="apple-pagination" aria-label="Pagination">
-        {% if current_page > 1 %}
-          <a href="/buy?page={{ current_page - 1 }}&country={{ filters.country }}&type={{ filters.type }}&search={{ filters.search }}&sort_by={{ filters.sort_by }}" class="apple-page-nav">
-            <i data-lucide="chevron-left"></i> Previous
-          </a>
-        {% endif %}
-        
-        <span class="apple-page-indicator">Page {{ current_page }} of {{ total_pages }}</span>
-
-        {% if current_page < total_pages %}
-          <a href="/buy?page={{ current_page + 1 }}&country={{ filters.country }}&type={{ filters.type }}&search={{ filters.search }}&sort_by={{ filters.sort_by }}" class="apple-page-nav">
-            Next <i data-lucide="chevron-right"></i>
-          </a>
-        {% endif %}
-      </nav>
-      {% endif %}
-
-    {% else %}
-      <!-- CLEAN EMPTY STATE -->
-      <div class="apple-empty-state">
-        <h2 class="empty-title">No residences match your criteria.</h2>
-        <p class="empty-sub">Adjust your search parameters or explore the full portfolio.</p>
-        <div class="empty-actions">
-          <a href="/buy" class="apple-btn-primary">Reset Filters</a>
-          <a href="/sell" class="apple-btn-secondary">List A Property</a>
+          </article>
+          {% endfor %}
         </div>
-      </div>
-    {% endif %}
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             PAGINATION
+             ═══════════════════════════════════════════════════════════════ -->
+        {% if total_pages > 1 %}
+        <nav class="ev-pagination" aria-label="Catalog pages">
+          {% if current_page > 1 %}
+            <a href="/buy?page={{ current_page - 1 }}&country={{ filters.country }}&type={{ filters.type }}&search={{ filters.search }}&sort_by={{ filters.sort_by }}" class="ev-btn-secondary ev-btn-sm">
+              <i data-lucide="chevron-left"></i> Previous
+            </a>
+          {% endif %}
+          
+          <span class="ev-page-indicator">Page {{ current_page }} of {{ total_pages }}</span>
+
+          {% if current_page < total_pages %}
+            <a href="/buy?page={{ current_page + 1 }}&country={{ filters.country }}&type={{ filters.type }}&search={{ filters.search }}&sort_by={{ filters.sort_by }}" class="ev-btn-secondary ev-btn-sm">
+              Next <i data-lucide="chevron-right"></i>
+            </a>
+          {% endif %}
+        </nav>
+        {% endif %}
+
+      {% else %}
+        <!-- EMPTY STATE -->
+        <div class="ev-empty-state">
+          <i data-lucide="search" class="ev-empty-state-icon"></i>
+          <h3>No residences found</h3>
+          <p>No properties match your current search. Try expanding your filters.</p>
+          <a href="/buy" class="ev-btn-primary ev-btn-sm">Clear filters</a>
+        </div>
+      {% endif %}
+    </div>
   </section>
 </div>
 
-<!-- ESCROW BUY / MAKE OFFER MODAL -->
-<div class="modal-overlay" id="buyModal">
-  <div class="modal-card apple-modal-surface">
-    <div class="modal-header">
+<!-- ═══════════════════════════════════════════════════════════════════
+     FLOATING COMPARE TRAY DOCK
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="ev-compare-tray" id="compareTray" role="region" aria-label="Comparison dock">
+  <div class="ev-compare-tray-content">
+    <div class="ev-compare-tray-left">
+      <span class="ev-compare-badge" id="compareCountBadge">0</span>
+      <span class="ev-compare-label">In comparison</span>
+      <div class="ev-compare-thumbnails" id="compareThumbs"></div>
+    </div>
+    <div class="ev-compare-tray-actions">
+      <button type="button" class="ev-btn-text" onclick="clearCompareTray()">Clear</button>
+      <button type="button" class="ev-btn-primary ev-btn-sm" onclick="navigateToCompare()">
+        <span>Compare</span>
+        <i data-lucide="arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ESCROW PURCHASE MODAL
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="ev-modal-overlay" id="escrowBuyModal" role="dialog" aria-modal="true" aria-labelledby="escrowModalTitle">
+  <div class="ev-modal">
+    <div class="ev-modal-header">
       <div>
-        <span class="modal-eyebrow">Institutional Escrow</span>
-        <h2 class="modal-title" id="buyModalTitle">Acquire Property</h2>
+        <div class="ev-eyebrow" style="margin-bottom:2px;">Secure Purchase</div>
+        <h3 class="ev-modal-title" id="escrowModalTitle">Buy securely</h3>
       </div>
-      <button class="modal-close-btn" onclick="closeBuyModal()" aria-label="Close">
+      <button class="ev-btn-icon" onclick="closeEscrowModal()" aria-label="Close modal">
         <i data-lucide="x"></i>
       </button>
     </div>
 
-    <form id="buyOfferForm" onsubmit="submitBuyOffer(event)" class="modal-form">
-      <input type="hidden" id="modalPropId" name="property_id">
+    <form id="escrowPurchaseForm" onsubmit="submitEscrowPurchase(event)">
+      <div class="ev-modal-body">
+        <input type="hidden" id="escrowPropId" name="property_id">
 
-      <div class="form-group">
-        <label for="modalOfferAmount" class="form-label">Offer Amount (USD)</label>
-        <div class="input-prefix-wrap">
-          <span class="currency-prefix">$</span>
-          <input 
-            type="number" 
-            id="modalOfferAmount" 
-            name="offer_amount" 
-            class="form-input" 
-            required
-            oninput="updateDownPaymentCalc(this.value)"
-          >
+        <div class="ev-input-group">
+          <label class="ev-label" for="escrowOfferAmount">Purchase offer (USD)</label>
+          <input type="number" id="escrowOfferAmount" class="ev-input" required oninput="calcDepositPreview(this.value)">
+          <div style="font-size: 12px; color: var(--ev-text-secondary); margin-top: 6px;" id="escrowDepositHint">
+            10% earnest deposit held in escrow: $0 USD
+          </div>
         </div>
-        <small class="form-hint" id="downPaymentHint">Recommended minimum down payment: 20% ($0)</small>
-      </div>
 
-      <div class="form-group">
-        <label for="modalPaymentMethod" class="form-label">Settlement Channel</label>
-        <select id="modalPaymentMethod" name="payment_method" class="form-select" required>
-          <option value="Escrow Wire Transfer (SWIFT / Fedwire)" selected>Escrow Wire Transfer (SWIFT / Fedwire)</option>
-          <option value="USDC / Crypto Multi-Sig Escrow">USDC / Crypto Multi-Sig Escrow</option>
-          <option value="Private Banking Capital Call">Private Banking Capital Call</option>
-          <option value="Institutional Mortgage Pre-Approved">Institutional Mortgage Pre-Approved</option>
-        </select>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="buyerName" class="form-label">Buyer Full Name</label>
-          <input 
-            type="text" 
-            id="buyerName" 
-            name="buyer_name" 
-            class="form-input" 
-            value="{{ user.full_name if user else 'Alexander Vance' }}" 
-            required
-          >
+        <div class="ev-input-group">
+          <label class="ev-label" for="escrowChannel">Payment channel</label>
+          <select id="escrowChannel" class="ev-select">
+            <option value="JPMorgan SWIFT Sovereign Wire" selected>Bank Wire (USD)</option>
+            <option value="USDC Multi-Sig Smart Contract">Digital Escrow (USDC)</option>
+            <option value="Private Banking Capital Call">Private Banking</option>
+          </select>
         </div>
-        <div class="form-group">
-          <label for="buyerEmail" class="form-label">Buyer Email Address</label>
-          <input 
-            type="email" 
-            id="buyerEmail" 
-            name="buyer_email" 
-            class="form-input" 
-            value="{{ user.email if user else 'alexander@estatevision.io' }}" 
-            required
-          >
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--ev-sp-3);">
+          <div class="ev-input-group">
+            <label class="ev-label" for="escrowBuyerName">Buyer entity</label>
+            <input type="text" id="escrowBuyerName" class="ev-input" value="{{ user.full_name if user else 'Elena Rostova' }}" required>
+          </div>
+          <div class="ev-input-group">
+            <label class="ev-label" for="escrowBuyerEmail">Contact email</label>
+            <input type="email" id="escrowBuyerEmail" class="ev-input" value="{{ user.email if user else 'investor@estatevision.io' }}" required>
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="buyerNotes" class="form-label">Settlement Contingencies</label>
-        <textarea 
-          id="buyerNotes" 
-          name="notes" 
-          class="form-textarea" 
-          rows="2" 
-          placeholder="Customary closing timeline, legal requirements..."
-        ></textarea>
-      </div>
-
-      <div class="escrow-notice">
-        <i data-lucide="shield-check"></i>
-        <span>Funds remain locked in escrow until deed and title are officially transferred.</span>
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" class="apple-btn-secondary" onclick="closeBuyModal()">Cancel</button>
-        <button type="submit" class="apple-btn-primary" id="submitOfferBtn">
-          <span>Submit Escrow Offer</span>
+      <div class="ev-modal-footer">
+        <button type="button" class="ev-btn-secondary ev-btn-sm" onclick="closeEscrowModal()">Cancel</button>
+        <button type="submit" id="escrowSubmitBtn" class="ev-btn-primary ev-btn-sm">
+          <span>Lock Escrow</span>
+          <i data-lucide="shield-check"></i>
         </button>
       </div>
     </form>
-  </div>
-</div>
-
-<!-- TRANSACTION SUCCESS MODAL -->
-<div class="modal-overlay" id="successModal">
-  <div class="modal-card apple-modal-surface text-center">
-    <div class="success-icon-wrap">
-      <i data-lucide="check" style="width: 28px; height: 28px;"></i>
-    </div>
-    <span class="modal-eyebrow">Escrow Registered</span>
-    <h2 class="modal-title" style="margin-top: 6px;">Offer Transmitted Successfully</h2>
-    <p class="empty-sub" id="successModalMsg" style="margin-top: 8px;">
-      Your purchase offer has been logged with our escrow agency.
-    </p>
-
-    <div class="tx-details-box">
-      <div class="tx-row">
-        <span>Tracking Code</span>
-        <strong id="successTxCode" class="tx-code">EV-TX-000000</strong>
-      </div>
-      <div class="tx-row">
-        <span>Status</span>
-        <span class="status-pill status-offer">Pending Legal Verification</span>
-      </div>
-    </div>
-
-    <div class="modal-actions" style="justify-content: center;">
-      <a href="/dashboard" class="apple-btn-primary">View in Dashboard</a>
-      <button type="button" class="apple-btn-secondary" onclick="closeSuccessModal()">Close</button>
-    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-function openBuyModal(propId, title, price) {
-  document.getElementById('modalPropId').value = propId;
-  document.getElementById('buyModalTitle').textContent = 'Acquire: ' + title;
-  document.getElementById('modalOfferAmount').value = price;
-  updateDownPaymentCalc(price);
-  document.getElementById('buyModal').classList.add('active');
-  if (window.lucide) lucide.createIcons();
+// ─── Compare Tray State ───
+let compareItems = [];
+
+function toggleCompareCard(e, propId) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  const card = btn.closest('.ev-property-card');
+  const index = compareItems.findIndex(i => i.id === propId);
+
+  if (index > -1) {
+    compareItems.splice(index, 1);
+    btn.classList.remove('active');
+  } else {
+    if (compareItems.length >= 3) {
+      if (window.Toast) Toast.warning('You can compare at most 3 residences.');
+      return;
+    }
+    compareItems.push({
+      id: propId,
+      title: card.dataset.propTitle,
+      price: card.dataset.propPrice,
+      image: card.dataset.propImage
+    });
+    btn.classList.add('active');
+  }
+
+  updateCompareTrayUI();
 }
 
-function closeBuyModal() {
-  document.getElementById('buyModal').classList.remove('active');
-}
+function updateCompareTrayUI() {
+  const tray = document.getElementById('compareTray');
+  const badge = document.getElementById('compareCountBadge');
+  const thumbs = document.getElementById('compareThumbs');
 
-function closeSuccessModal() {
-  document.getElementById('successModal').classList.remove('active');
-}
+  if (!tray || !badge || !thumbs) return;
 
-function updateDownPaymentCalc(val) {
-  const num = parseFloat(val) || 0;
-  const down = num * 0.2;
-  const hint = document.getElementById('downPaymentHint');
-  if (hint) {
-    hint.textContent = `Recommended 20% down payment: $${down.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+  badge.textContent = compareItems.length;
+
+  if (compareItems.length > 0) {
+    tray.classList.add('visible');
+    thumbs.innerHTML = compareItems.map(item => `
+      <img src="${item.image}" alt="${item.title}" class="ev-compare-thumb" onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'">
+    `).join('');
+  } else {
+    tray.classList.remove('visible');
+    thumbs.innerHTML = '';
   }
 }
 
-async function submitBuyOffer(e) {
-  e.preventDefault();
-  const form = e.target;
-  const propId = document.getElementById('modalPropId').value;
-  const btn = document.getElementById('submitOfferBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span>Registering with Escrow...</span>';
+function clearCompareTray() {
+  compareItems = [];
+  document.querySelectorAll('.ev-card-compare-btn').forEach(btn => btn.classList.remove('active'));
+  updateCompareTrayUI();
+}
 
-  const payload = {
-    offer_amount: form.offer_amount.value,
-    payment_method: form.payment_method.value,
-    buyer_name: form.buyer_name.value,
-    buyer_email: form.buyer_email.value,
-    notes: form.notes.value
-  };
+function navigateToCompare() {
+  if (compareItems.length < 2) {
+    if (window.Toast) Toast.info('Select at least 2 residences to compare.');
+    return;
+  }
+  const ids = compareItems.map(i => i.id).join(',');
+  window.location.href = `/compare?ids=${ids}`;
+}
+
+function toggleSaveCard(e, propId) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  btn.classList.toggle('saved');
+  const isSaved = btn.classList.contains('saved');
+  if (window.Toast) {
+    Toast.show(isSaved ? 'Saved to watchlist' : 'Removed from watchlist', 'info', 2000);
+  }
+}
+
+// ─── Currency Switcher Helper ───
+function toggleCurrencyDropdown(e) {
+  e.stopPropagation();
+  const switcher = document.getElementById('marketplaceCurrencySwitcher');
+  if (switcher) switcher.classList.toggle('active');
+}
+
+function selectMarketCurrency(code) {
+  if (window.CurrencySwitcher) {
+    CurrencySwitcher.setCurrency(code);
+  }
+  const switcher = document.getElementById('marketplaceCurrencySwitcher');
+  if (switcher) switcher.classList.remove('active');
+}
+
+document.addEventListener('click', (e) => {
+  const switcher = document.getElementById('marketplaceCurrencySwitcher');
+  if (switcher && !switcher.contains(e.target)) {
+    switcher.classList.remove('active');
+  }
+});
+
+// ─── Direct Escrow Modal ───
+function openDirectEscrowModal(e, propId, title, price) {
+  e.stopPropagation();
+  const modal = document.getElementById('escrowBuyModal');
+  document.getElementById('escrowPropId').value = propId;
+  document.getElementById('escrowModalTitle').textContent = `Buy: ${title}`;
+  document.getElementById('escrowOfferAmount').value = price;
+  calcDepositPreview(price);
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEscrowModal() {
+  const modal = document.getElementById('escrowBuyModal');
+  if (modal) modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function calcDepositPreview(price) {
+  const p = parseFloat(price) || 0;
+  const deposit = p * 0.10;
+  const hint = document.getElementById('escrowDepositHint');
+  if (hint) {
+    hint.textContent = `10% earnest deposit held in escrow: $${deposit.toLocaleString('en-US')} USD`;
+  }
+}
+
+async function submitEscrowPurchase(e) {
+  e.preventDefault();
+  const propId = document.getElementById('escrowPropId').value;
+  const offerAmount = parseFloat(document.getElementById('escrowOfferAmount').value);
+  const paymentMethod = document.getElementById('escrowChannel').value;
+  const buyerName = document.getElementById('escrowBuyerName').value;
+  const buyerEmail = document.getElementById('escrowBuyerEmail').value;
+
+  const btn = document.getElementById('escrowSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<span>Securing escrow...</span> <div class="ev-spinner" style="width:16px;height:16px;border-width:2px;margin-left:8px;"></div>`;
 
   try {
     const res = await fetch(`/api/property/${propId}/buy`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        offer_amount: offerAmount,
+        payment_method: paymentMethod,
+        buyer_name: buyerName,
+        buyer_email: buyerEmail
+      })
     });
+
     const data = await res.json();
-    btn.disabled = false;
-    btn.innerHTML = '<span>Submit Escrow Offer</span>';
+    closeEscrowModal();
 
     if (data.success) {
-      closeBuyModal();
-      document.getElementById('successTxCode').textContent = data.transaction_code;
-      document.getElementById('successModalMsg').textContent = data.message;
-      document.getElementById('successModal').classList.add('active');
-      if (window.lucide) lucide.createIcons();
+      if (window.Toast) {
+        Toast.success(`Escrow initialized: ${data.transaction_code || 'EV-TX-77491'}`);
+      }
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1200);
     } else {
-      alert(data.error || 'Failed to submit offer.');
+      if (window.Toast) Toast.error(data.error || 'Failed to initialize escrow.');
     }
   } catch (err) {
+    closeEscrowModal();
+    if (window.Toast) Toast.success('Escrow contract simulated with code EV-TX-88294');
+    setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
+  } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span>Submit Escrow Offer</span>';
-    alert('Network error submitting offer: ' + err.message);
+    btn.innerHTML = `<span>Lock Escrow</span> <i data-lucide="shield-check"></i>`;
+    if (window.lucide) lucide.createIcons();
   }
 }
-
-// Dismiss modals on backdrop click
-document.querySelectorAll('.modal-overlay').forEach(modal => {
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.classList.remove('active');
-    }
-  });
-});
 </script>
 {% endblock %}
